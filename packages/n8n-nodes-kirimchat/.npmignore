@@ -1,0 +1,7 @@
+*.ts
+!dist/**/*.js
+!dist/**/*.d.ts
+!dist/**/*.svg
+tsconfig.json
+.gitignore
+node_modules

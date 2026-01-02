@@ -1,0 +1,1318 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  BUSINESS_OWNER
+  AGENT
+}
+
+enum TemplateCategory {
+  MARKETING
+  UTILITY
+  AUTHENTICATION
+}
+
+enum TemplateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAUSED
+  DISABLED
+}
+
+enum QualityRatingEnum {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  AUDIO
+  VIDEO
+  DOCUMENT
+  TEMPLATE
+  BUTTONS
+  LIST
+  STICKER
+  CONTACTS
+  LOCATION
+  INTERACTIVE
+  REACTION
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  PLAYED
+  PENDING
+  ERROR
+}
+
+enum MessageSource {
+  API
+  WHATSAPP_APP
+  INSTAGRAM
+}
+
+enum ChannelType {
+  WHATSAPP
+  INSTAGRAM
+}
+
+enum IGMessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  STICKER
+  STORY_REPLY
+  STORY_MENTION
+  MEDIA_SHARE
+  REACTION
+}
+
+enum ConsentAction {
+  OPT_IN
+  OPT_OUT
+  UPDATE
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SubscriptionTier {
+  FREE
+  LITE
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PENDING_PAYMENT
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  QRIS
+}
+
+enum TeamMemberStatus {
+  PENDING
+  ACTIVE
+  REMOVED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
+  EXPIRED
+  FAILED
+}
+
+model Subscription {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tier   SubscriptionTier   @default(FREE)
+  status SubscriptionStatus @default(ACTIVE)
+
+  // Validity
+  startDate DateTime  @default(now())
+  endDate   DateTime? // Null = lifetime/indefinite
+
+  // Manual Payment Tracking
+  paymentProof String?
+  notes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model PaymentTransaction {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Order details
+  orderId       String        @unique // partnerReferenceNo for Duitku
+  amount        Int // Amount in IDR (no decimals)
+  paymentMethod PaymentMethod
+
+  // Subscription details
+  targetTier   SubscriptionTier
+  durationDays Int              @default(30)
+
+  // Duitku response
+  referenceNo String? // Duitku reference number
+  qrString    String? @db.Text // QR code string
+  qrUrl       String? // QR code image URL
+
+  // Status
+  status    PaymentStatus @default(PENDING)
+  expiresAt DateTime
+  paidAt    DateTime?
+
+  // Callback data
+  callbackPayload Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+// Team Agent Management Models
+
+model TeamMember {
+  id              String  @id @default(cuid())
+  businessOwnerId String
+  businessOwner   User    @relation("BusinessOwnerTeam", fields: [businessOwnerId], references: [id], onDelete: Cascade)
+  agentUserId     String? @unique
+  agent           User?   @relation("AgentMembership", fields: [agentUserId], references: [id], onDelete: SetNull)
+
+  status TeamMemberStatus @default(PENDING)
+
+  invitedAt DateTime  @default(now())
+  joinedAt  DateTime?
+  removedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessOwnerId])
+  @@index([status])
+}
+
+model Invitation {
+  id              String @id @default(cuid())
+  businessOwnerId String
+  businessOwner   User   @relation(fields: [businessOwnerId], references: [id], onDelete: Cascade)
+
+  email  String
+  token  String           @unique
+  status InvitationStatus @default(PENDING)
+
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  cancelledAt DateTime?
+
+  // Track email delivery
+  emailSentAt DateTime?
+  emailError  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([businessOwnerId, email])
+  @@index([businessOwnerId])
+  @@index([token])
+  @@index([status])
+}
+
+model MetaApp {
+  id                 String    @id @default(cuid())
+  appId              String    @unique
+  appSecret          String
+  techProviderStatus String    @default("pending")
+  termsAcceptedAt    DateTime?
+  users              User[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  role            Role      @default(BUSINESS_OWNER)
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  image           String?
+
+  // Legacy fields (keep for backward compatibility)
+  passwordHash     String?
+  twoFactorEnabled Boolean   @default(false)
+  twoFactorSecret  String?
+  lastLoginAt      DateTime?
+  isActive         Boolean   @default(true)
+
+  // WABA Configuration (moved from BusinessAccount)
+  wabaId                   String? @unique
+  phoneNumberId            String?
+  verifiedStatus           String  @default("unverified")
+  messagingTier            String?
+  country                  String?
+  timezoneId               String?
+  currency                 String?
+  messageTemplateNamespace String?
+
+  subscriptionTier String @default("FREE")
+
+  // WABA Token Configuration (Encrypted)
+  wabaAccessToken      String?
+  wabaAccessTokenIV    String?
+  wabaAccessTokenTag   String?
+  wabaTokenExpiresAt   DateTime?
+  wabaTokenLastRefresh DateTime?
+
+  // Webhook Configuration
+  webhookVerifyToken      String?
+  webhookSubscribedAt     DateTime?
+  webhookSubscribedEvents Json?
+
+  // WABA Status Tracking
+  wabaConnectedAt      DateTime?
+  wabaLastSyncAt       DateTime?
+  wabaConnectionStatus String?
+
+  // Coexistence (WhatsApp Business App + Cloud API)
+  isCoexistence           Boolean   @default(false)
+  coexistenceSyncProgress Int? // 0-100
+  coexistenceSyncStatus   String? // pending/in_progress/completed/failed
+  historySharingConsent   Boolean   @default(false)
+  contactSyncCompletedAt  DateTime?
+  historySyncCompletedAt  DateTime?
+
+  // Meta App relationship
+  metaAppId String?
+  metaApp   MetaApp? @relation(fields: [metaAppId], references: [id])
+
+  // Relationships
+  qualityRatings      QualityRating[]
+  customers           Customer[]
+  messageTemplates    MessageTemplate[]
+  messages            Message[]
+  webhookEvents       WebhookEvent[]
+  auditLogs           AuditLog[]
+  phoneNumbers        PhoneNumber[]
+  wabaConnectionLogs  WABAConnectionLog[]
+  consentLogs         ConsentLog[]
+  sessions            Session[]
+  accounts            Account[]
+  whatsappContacts    WhatsAppContact[]
+  coexistenceSyncLogs CoexistenceSyncStatus[]
+
+  // Billing
+  subscription        Subscription?
+  paymentTransactions PaymentTransaction[]
+
+  // AI Features
+  aiConfig           AIConfig?
+  knowledgeDocuments KnowledgeDocument[]
+  agents             AIAgent[]
+
+  // CRM Relations
+  pipelines              Pipeline[]
+  customFieldDefinitions CustomFieldDefinition[]
+  customerActivities     CustomerActivity[]
+
+  // Instagram Relations
+  instagramAccounts InstagramAccount[]
+
+  // Webhook & Public API Relations
+  apiKeys          ApiKey[]
+  webhookEndpoints WebhookEndpoint[]
+
+  // Admin Settings
+  systemSettings SystemSetting[]
+
+  // Team Agent Management Relations
+  teamMembers     TeamMember[] @relation("BusinessOwnerTeam")
+  agentMembership TeamMember?  @relation("AgentMembership")
+  invitations     Invitation[]
+
+  // Template Variable Management Relations
+  templateVariables        TemplateVariable[]
+  templateVariableMappings TemplateVariableMapping[]
+  templateVariableHistory  TemplateVariableHistory[]
+  bulkTemplateSends        BulkTemplateSend[]
+
+  // Conversation Assignment Relations
+  assignedConversations    ConversationAssignment[] @relation("AssignedConversations")
+  assignmentsMade          ConversationAssignment[] @relation("AssignmentsMade")
+  businessOwnerAssignments ConversationAssignment[] @relation("BusinessOwnerAssignments")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([wabaId])
+  @@index([phoneNumberId])
+  @@index([email])
+  @@index([wabaConnectionStatus])
+  @@index([metaAppId])
+}
+
+model QualityRating {
+  id                   String            @id @default(cuid())
+  phoneNumberId        String
+  rating               QualityRatingEnum
+  status               String // Connected/Flagged/Restricted
+  blockCount7days      Int               @default(0)
+  spamReportCount7days Int               @default(0)
+  blockReasons         Json?
+  measuredAt           DateTime          @default(now())
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([phoneNumberId])
+  @@index([measuredAt])
+}
+
+model Customer {
+  id                String    @id @default(cuid())
+  phoneNumber       String
+  name              String?
+  consentStatus     Boolean   @default(false)
+  consentCapturedAt DateTime?
+  consentSource     String?
+  consentPurpose    String?
+  blacklisted       Boolean   @default(false)
+
+  // 24-Hour Messaging Window (Meta Policy)
+  lastInboundMessageAt DateTime? // Last time customer sent message
+  windowExpiresAt      DateTime? // When 24h window expires (lastInbound + 24h)
+  isWindowActive       Boolean   @default(false) // Is window currently active
+
+  // CRM Fields
+  leadScore Int      @default(0)
+  notes     String?  @db.Text // Simple notes field
+  tags      String[] // Simple array of tags
+
+  // Instagram fields
+  instagramIgsid    String? // Instagram-scoped User ID
+  instagramUsername String?
+
+  // Pipeline
+  pipelineStageId String?
+  pipelineStage   PipelineStage? @relation(fields: [pipelineStageId], references: [id])
+
+  // Relationships
+  userId          String
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        Message[]
+  consentLogs     ConsentLog[]
+  customFields    CustomerCustomField[]
+  activities      CustomerActivity[]
+  igConversations IGConversation[]
+
+  // Template Variable History
+  templateVariableHistory TemplateVariableHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, phoneNumber])
+  @@index([userId])
+  @@index([phoneNumber])
+  @@index([isWindowActive])
+  @@index([windowExpiresAt])
+  @@index([pipelineStageId])
+  @@index([leadScore])
+  @@index([instagramUsername])
+}
+
+model ConsentLog {
+  id        String        @id @default(cuid())
+  action    ConsentAction
+  source    String
+  purpose   String?
+  ipAddress String?
+  userAgent String?
+
+  // Relationships
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+
+  timestamp DateTime @default(now())
+
+  @@index([customerId])
+  @@index([userId])
+  @@index([timestamp])
+}
+
+model MessageTemplate {
+  id              String             @id @default(cuid())
+  templateName    String
+  category        TemplateCategory
+  language        String             @default("en")
+  content         String
+  headerType      String?
+  headerContent   String?
+  footerContent   String?
+  buttons         Json?
+  variables       Json?
+  status          TemplateStatus     @default(PENDING)
+  qualityRating   QualityRatingEnum?
+  rejectionReason String?
+  appealStatus    String?
+  submittedAt     DateTime           @default(now())
+  approvedAt      DateTime?
+
+  // Meta template ID
+  metaTemplateId String?
+
+  // Relationships
+  userId              String
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateQualityLogs TemplateQualityLog[]
+  messages            Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, templateName, language])
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+}
+
+model TemplateQualityLog {
+  id               String            @id @default(cuid())
+  qualityRating    QualityRatingEnum
+  status           String
+  feedbackCount24h Int               @default(0)
+  measuredAt       DateTime          @default(now())
+
+  // Relationships
+  templateId String
+  template   MessageTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([templateId])
+  @@index([measuredAt])
+}
+
+model Message {
+  id           String           @id @default(cuid())
+  messageType  MessageType
+  direction    MessageDirection
+  content      String?
+  mediaUrl     String?
+  status       MessageStatus    @default(SENT)
+  wamId        String? // WhatsApp message ID
+  errorCode    String?
+  errorMessage String?
+  timestamp    DateTime         @default(now())
+  deletedAt    DateTime?
+
+  // Coexistence fields
+  source           MessageSource @default(API)
+  deviceTimestamp  DateTime? // Original timestamp from device (for history sync)
+  isHistoryMessage Boolean       @default(false) // Was synced from WhatsApp Business App history
+
+  // Relationships
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer         @relation(fields: [customerId], references: [id])
+  templateId String?
+  template   MessageTemplate? @relation(fields: [templateId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([customerId])
+  @@index([templateId])
+  @@index([timestamp])
+  @@index([status])
+  @@index([wamId])
+  @@index([source])
+}
+
+model PhoneNumber {
+  id                 String  @id @default(cuid())
+  phoneNumberId      String  @unique
+  displayPhoneNumber String
+  verifiedName       String?
+  qualityRating      String?
+  messagingLimitTier String?
+  isVerified         Boolean @default(false)
+  isPrimary          Boolean @default(false)
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([phoneNumberId])
+}
+
+model WABAConnectionLog {
+  id           String  @id @default(cuid())
+  action       String
+  details      Json?
+  errorMessage String?
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  timestamp DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+}
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  eventType   String
+  payload     Json
+  processed   Boolean   @default(false)
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([processed])
+  @@index([receivedAt])
+}
+
+model AuditLog {
+  id         String  @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String
+  details    Json?
+  ipAddress  String?
+
+  // Relationships
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  timestamp DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([entityType, entityId])
+}
+
+// Better Auth Session Tables
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                   String    @id
+  userId               String
+  accountId            String
+  providerId           String
+  accessToken          String?
+  refreshToken         String?
+  idToken              String?
+  expiresAt            DateTime?
+  accessTokenExpiresAt DateTime? // Better Auth v1.3+ uses this field
+  scope                String? // OAuth scope
+  password             String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, providerId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([identifier, value])
+}
+
+// Coexistence Models
+
+model WhatsAppContact {
+  id           String   @id @default(cuid())
+  phoneNumber  String // Contact's WhatsApp phone number
+  fullName     String? // Contact's full name from WhatsApp Business App
+  firstName    String? // Contact's first name
+  lastAction   String // add/remove
+  lastSyncedAt DateTime @default(now())
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, phoneNumber])
+  @@index([userId])
+  @@index([phoneNumber])
+}
+
+model CoexistenceSyncStatus {
+  id           String  @id @default(cuid())
+  syncType     String // history/contacts
+  phase        Int? // For history: 0, 1, 2
+  chunkOrder   Int? // For history: chunk sequence number
+  progress     Int     @default(0) // 0-100
+  status       String  @default("pending") // pending/in_progress/completed/failed
+  requestId    String? // Meta request ID for debugging
+  errorMessage String?
+  errorCode    Int?
+  metadata     Json? // Additional sync metadata
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, syncType])
+  @@index([userId])
+  @@index([syncType])
+  @@index([status])
+}
+
+// AI & Knowledge Base Models
+
+model AIConfig {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  enabled              Boolean @default(false)
+  model                String  @default("gpt-4.1-nano-2025-04-14")
+  systemPrompt         String  @default("You are a helpful customer support assistant.")
+  temperature          Float   @default(0.7)
+  maxDailyInteractions Int     @default(100)
+
+  filterWords Json? // Array of strings
+
+  activeAgentId String?
+  activeAgent   AIAgent? @relation(fields: [activeAgentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activeAgentId])
+}
+
+model AIAgent {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name         String
+  systemPrompt String @db.Text
+
+  knowledgeDocuments KnowledgeDocument[]
+  aiConfigs          AIConfig[]
+
+  // Conversation assignments where this AI Agent is assigned
+  conversationAssignments ConversationAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model KnowledgeDocument {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  filename     String
+  fileSize     Int
+  mimeType     String           @default("application/pdf")
+  status       ProcessingStatus @default(PENDING)
+  errorMessage String?
+
+  chunks DocumentChunk[]
+  agents AIAgent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model DocumentChunk {
+  id         String            @id @default(cuid())
+  documentId String
+  document   KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  content    String @db.Text
+  chunkIndex Int
+  tokenCount Int
+
+  embedding Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+
+  @@index([documentId])
+}
+
+// CRM Models
+
+model Pipeline {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  isDefault   Boolean @default(false)
+
+  // Relationships
+  userId String
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stages PipelineStage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model PipelineStage {
+  id    String @id @default(cuid())
+  name  String
+  color String @default("#000000")
+  order Int    @default(0)
+
+  // Relationships
+  pipelineId String
+  pipeline   Pipeline   @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  customers  Customer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pipelineId])
+}
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  DATE
+  BOOLEAN
+  SELECT
+  MULTI_SELECT
+}
+
+model CustomFieldDefinition {
+  id          String          @id @default(cuid())
+  name        String
+  key         String // Machine-readable key (e.g., "company_size")
+  type        CustomFieldType
+  description String?
+  options     Json? // For SELECT/MULTI_SELECT
+  required    Boolean         @default(false)
+  order       Int             @default(0)
+
+  // Relationships
+  userId         String
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerValues CustomerCustomField[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
+  @@index([userId])
+}
+
+model CustomerCustomField {
+  id    String @id @default(cuid())
+  value Json // Store value as JSON to handle different types
+
+  // Relationships
+  customerId        String
+  customer          Customer              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  fieldDefinitionId String
+  fieldDefinition   CustomFieldDefinition @relation(fields: [fieldDefinitionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerId, fieldDefinitionId])
+  @@index([customerId])
+  @@index([fieldDefinitionId])
+}
+
+model CustomerActivity {
+  id          String  @id @default(cuid())
+  type        String // NOTE, CALL, MEETING, EMAIL, SYSTEM, etc.
+  title       String
+  description String?
+  metadata    Json?
+
+  // Relationships
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([customerId])
+  @@index([userId])
+  @@index([timestamp])
+}
+
+// Instagram DM Integration Models
+
+model InstagramAccount {
+  id            String  @id @default(cuid())
+  igId          String  @unique // Instagram Professional Account ID
+  igUserId      String  @unique // Instagram-scoped User ID from OAuth
+  username      String
+  profilePicUrl String?
+
+  // Token (encrypted)
+  accessToken        String
+  accessTokenIV      String
+  accessTokenTag     String
+  tokenExpiresAt     DateTime
+  tokenLastRefresh   DateTime?
+  grantedPermissions String[]
+
+  // Connection status
+  connectionStatus String    @default("connected") // connected, disconnected, requires_reauth
+  connectedAt      DateTime  @default(now())
+  lastSyncAt       DateTime?
+
+  // Relationships
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversations  IGConversation[]
+  connectionLogs IGConnectionLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([igId])
+  @@index([connectionStatus])
+}
+
+model IGConversation {
+  id                    String  @id @default(cuid())
+  participantIgsid      String // Instagram-scoped ID of the other participant
+  participantUsername   String?
+  participantName       String?
+  participantProfilePic String?
+  followerCount         Int?
+  isFollower            Boolean @default(false) // is_user_follow_business
+  isFollowing           Boolean @default(false) // is_business_follow_user
+
+  // Messaging window
+  lastInboundAt   DateTime?
+  windowExpiresAt DateTime?
+  isWindowActive  Boolean   @default(false)
+
+  // Conversation state
+  unreadCount        Int       @default(0)
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  folder             String    @default("primary") // primary, requests, general
+
+  // Relationships
+  instagramAccountId String
+  instagramAccount   InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+  messages           IGMessage[]
+  customerId         String?
+  customer           Customer?        @relation(fields: [customerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([instagramAccountId, participantIgsid])
+  @@index([instagramAccountId])
+  @@index([lastMessageAt])
+  @@index([customerId])
+}
+
+model IGMessage {
+  id          String           @id @default(cuid())
+  igMessageId String?          @unique // Instagram message ID
+  direction   MessageDirection
+  messageType IGMessageType
+
+  // Content
+  text          String?
+  mediaUrl      String?
+  mediaType     String? // image, video, audio
+  storyId       String? // For story replies/mentions
+  sharedPostUrl String?
+
+  // Status
+  status       MessageStatus @default(SENT)
+  errorCode    String?
+  errorSubcode String?
+  errorMessage String?
+
+  // Reaction
+  reaction String? // love
+
+  // Timestamps
+  timestamp DateTime  @default(now())
+  readAt    DateTime?
+
+  // Relationships
+  conversationId String
+  conversation   IGConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([timestamp])
+  @@index([igMessageId])
+}
+
+model IGConnectionLog {
+  id           String  @id @default(cuid())
+  action       String
+  details      Json?
+  errorMessage String?
+
+  // Relationships
+  instagramAccountId String
+  instagramAccount   InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+
+  timestamp DateTime @default(now())
+
+  @@index([instagramAccountId])
+  @@index([timestamp])
+}
+
+// Webhook Outbound & Public API Models
+
+model ApiKey {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name      String // User-defined name (e.g., "n8n Production")
+  keyHash   String @unique // SHA-256 hash of the API key
+  keyPrefix String // First 8 chars for identification (e.g., "kc_live_")
+
+  lastUsedAt DateTime?
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+model WebhookEndpoint {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  url       String // HTTPS URL
+  name      String // User-defined name
+  secret    String // Encrypted webhook secret for HMAC
+  secretIV  String
+  secretTag String
+
+  // Event subscriptions
+  events   String[] // ["message.received", "message.sent", ...]
+  channels String[] // ["whatsapp", "instagram"] or ["all"]
+
+  // Status
+  isActive      Boolean   @default(true)
+  failureCount  Int       @default(0)
+  lastFailedAt  DateTime?
+  disabledAt    DateTime?
+  disableReason String?
+
+  // Delivery logs relation
+  deliveryLogs WebhookDeliveryLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model WebhookDeliveryLog {
+  id                String          @id @default(cuid())
+  webhookEndpointId String
+  webhookEndpoint   WebhookEndpoint @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+
+  eventId   String @unique // UUID for idempotency
+  eventType String
+
+  // Request details
+  requestPayload Json
+  requestHeaders Json
+
+  // Response details
+  responseStatus Int?
+  responseBody   String? @db.Text
+
+  // Timing
+  latencyMs     Int?
+  attemptNumber Int  @default(1)
+
+  // Status
+  status       String // pending, success, failed, retrying
+  errorMessage String?
+
+  createdAt   DateTime  @default(now())
+  nextRetryAt DateTime?
+
+  @@index([webhookEndpointId])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ApiRequestLog {
+  id       String  @id @default(cuid())
+  apiKeyId String?
+  userId   String
+
+  endpoint   String
+  method     String
+  statusCode Int
+  latencyMs  Int
+
+  ipAddress String
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([apiKeyId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([ipAddress, createdAt])
+}
+
+// Admin Settings Model
+model SystemSetting {
+  id            String   @id @default(cuid())
+  category      String // 'whatsapp', 'instagram', 'smtp', 'google_oauth', 'openai'
+  key           String
+  value         String   @db.Text // Encrypted for sensitive, plain for non-sensitive
+  isSensitive   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  updatedBy     String?
+  updatedByUser User?    @relation(fields: [updatedBy], references: [id])
+
+  @@unique([category, key])
+  @@index([category])
+}
+
+// Template Variable Management Models
+
+enum VariableType {
+  TEXT
+  URL
+  CURRENCY
+  DATE
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum BulkSendStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Conversation Assignment Types
+enum ConversationType {
+  WHATSAPP
+  INSTAGRAM
+}
+
+enum AssigneeType {
+  HUMAN
+  AI_AGENT
+}
+
+model TemplateVariable {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String // User-defined name: "Nama Customer", "Link Tracking"
+  type         VariableType
+  description  String?
+  exampleValue String?
+  usageCount   Int          @default(0)
+
+  templateMappings TemplateVariableMapping[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model TemplateVariableMapping {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateName   String // WhatsApp template name
+  componentType  String // "body", "header", "button"
+  componentIndex Int // Which component (for multiple buttons)
+  parameterIndex Int // Position in component ({{1}}, {{2}})
+  variableId     String
+  variable       TemplateVariable @relation(fields: [variableId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, templateName, componentType, componentIndex, parameterIndex])
+  @@index([userId, templateName])
+}
+
+model TemplateVariableHistory {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateName String
+  variableId   String
+  value        String
+  customerId   String?
+  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, templateName])
+  @@index([userId, variableId])
+  @@index([createdAt])
+}
+
+model BulkTemplateSend {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateName    String
+  status          BulkSendStatus @default(PENDING)
+  totalRecipients Int
+  successCount    Int            @default(0)
+  failedCount     Int            @default(0)
+  csvData         Json // Store CSV data
+  results         Json? // Store results per recipient
+  completedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Conversation Assignment Model for OneInbox
+model ConversationAssignment {
+  id               String           @id @default(cuid())
+  conversationId   String // Customer ID for WhatsApp, IGConversation ID for Instagram
+  conversationType ConversationType
+
+  // Assignment type (HUMAN or AI_AGENT)
+  assigneeType AssigneeType @default(HUMAN)
+
+  // Human assignment (when assigneeType = HUMAN)
+  assigneeId String? // User ID of assignee (Agent or Business Owner) - nullable for AI assignments
+  assignee   User?   @relation("AssignedConversations", fields: [assigneeId], references: [id], onDelete: Cascade)
+
+  // AI Agent assignment (when assigneeType = AI_AGENT)
+  aiAgentId String? // AIAgent ID - nullable for human assignments
+  aiAgent   AIAgent? @relation(fields: [aiAgentId], references: [id], onDelete: SetNull)
+
+  assignedById String // User ID of who made the assignment
+  assignedBy   User   @relation("AssignmentsMade", fields: [assignedById], references: [id], onDelete: Cascade)
+
+  // Business owner context
+  businessOwnerId String // For scoping queries
+  businessOwner   User   @relation("BusinessOwnerAssignments", fields: [businessOwnerId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  assignedAt   DateTime  @default(now())
+  unassignedAt DateTime? // Null = currently active
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([conversationId, conversationType])
+  @@index([assigneeId])
+  @@index([aiAgentId])
+  @@index([businessOwnerId])
+  @@index([unassignedAt])
+}

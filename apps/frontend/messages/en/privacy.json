@@ -1,0 +1,88 @@
+{
+  "title": "Privacy Policy",
+  "lastUpdated": "Last Updated",
+  "sections": {
+    "introduction": {
+      "title": "Introduction",
+      "content": "Welcome to {appName}. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our messaging platform."
+    },
+    "dataCollection": {
+      "title": "Information We Collect",
+      "intro": "We collect information that you provide directly to us and information that is automatically collected when you use our services:",
+      "items": {
+        "account": {
+          "title": "Account Information",
+          "description": "Name, email address, phone number, and business information when you create an account."
+        },
+        "usage": {
+          "title": "Usage Data",
+          "description": "Information about how you interact with our platform, including features used and time spent."
+        },
+        "messages": {
+          "title": "Message Data",
+          "description": "Content of messages sent through our platform to provide our messaging services."
+        },
+        "device": {
+          "title": "Device Information",
+          "description": "Browser type, IP address, device identifiers, and operating system information."
+        }
+      }
+    },
+    "dataUsage": {
+      "title": "How We Use Your Information",
+      "intro": "We use the collected information for the following purposes:",
+      "items": {
+        "provide": "To provide, maintain, and improve our services",
+        "improve": "To personalize your experience and deliver relevant content",
+        "communicate": "To communicate with you about updates, security alerts, and support",
+        "security": "To detect, prevent, and address technical issues and security threats",
+        "legal": "To comply with legal obligations and enforce our terms of service"
+      }
+    },
+    "dataSharing": {
+      "title": "Information Sharing",
+      "intro": "We do not sell your personal information. We may share your information in the following circumstances:",
+      "items": {
+        "providers": {
+          "title": "Service Providers",
+          "description": "Third-party vendors who assist us in providing our services (e.g., cloud hosting, analytics)."
+        },
+        "legal": {
+          "title": "Legal Requirements",
+          "description": "When required by law or to respond to legal process."
+        },
+        "business": {
+          "title": "Business Transfers",
+          "description": "In connection with a merger, acquisition, or sale of assets."
+        }
+      }
+    },
+    "dataSecurity": {
+      "title": "Data Security",
+      "content": "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. This includes encryption, secure servers, and regular security assessments."
+    },
+    "userRights": {
+      "title": "Your Rights",
+      "intro": "Depending on your location, you may have the following rights regarding your personal information:",
+      "items": {
+        "access": "Right to access your personal data",
+        "correction": "Right to correct inaccurate data",
+        "deletion": "Right to request deletion of your data",
+        "portability": "Right to data portability",
+        "withdraw": "Right to withdraw consent at any time"
+      }
+    },
+    "cookies": {
+      "title": "Cookies and Tracking",
+      "content": "We use cookies and similar tracking technologies to enhance your experience, analyze usage patterns, and deliver personalized content. You can manage your cookie preferences through your browser settings."
+    },
+    "changes": {
+      "title": "Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the \"Last Updated\" date."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "content": "If you have any questions about this Privacy Policy or our data practices, please contact us:"
+    }
+  }
+}

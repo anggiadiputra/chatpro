@@ -1,0 +1,103 @@
+{
+  "title": "Broadcast",
+  "description": "Send WhatsApp template messages to multiple recipients at once",
+  "tabs": {
+    "create": "Create Broadcast",
+    "active": "Active Jobs",
+    "history": "History"
+  },
+  "wabaNotConnected": {
+    "title": "WhatsApp Not Connected",
+    "description": "Connect your WhatsApp Business Account to start sending broadcast messages.",
+    "connectButton": "Connect WhatsApp"
+  },
+  "createBroadcast": {
+    "title": "Create New Broadcast",
+    "description": "Select a template, fill in variables, and choose recipients",
+    "placeholder": "Select a template to get started"
+  },
+  "activeJobs": {
+    "title": "Active Jobs",
+    "description": "Monitor your ongoing broadcast jobs",
+    "noJobs": "No active broadcast jobs"
+  },
+  "history": {
+    "title": "Broadcast History",
+    "description": "View past broadcast jobs and their results",
+    "noHistory": "No broadcast history yet"
+  },
+  "templateSelector": {
+    "label": "Select Template",
+    "placeholder": "Choose a template...",
+    "noTemplates": "No approved templates available",
+    "preview": "Preview"
+  },
+  "variableInput": {
+    "title": "Template Variables",
+    "description": "Fill in the variable values for your template",
+    "placeholder": "Enter value for {{variable}}",
+    "required": "This field is required"
+  },
+  "recipientSelector": {
+    "title": "Select Recipients",
+    "fromCustomers": "From Customers",
+    "fromCsv": "Upload CSV",
+    "selectedCount": "{count} recipients selected",
+    "noCustomers": "No eligible customers found"
+  },
+  "customerSelector": {
+    "searchPlaceholder": "Search by name or phone...",
+    "filterByTag": "Filter by tag",
+    "filterByStage": "Filter by stage",
+    "allTags": "All tags",
+    "allStages": "All stages",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "loadError": "Failed to load customers",
+    "retry": "Retry",
+    "showing": "Showing {current} of {total}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "csvUploader": {
+    "dropzone": {
+      "title": "Drop CSV file here or click to upload",
+      "subtitle": "CSV must have a phoneNumber column"
+    },
+    "downloadTemplate": "Download Template",
+    "clear": "Clear",
+    "validCount": "{count} valid",
+    "invalidCount": "{count} invalid",
+    "invalidNumbers": "Invalid phone numbers:"
+  },
+  "form": {
+    "send": "Send Broadcast",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "success": "Broadcast job created successfully",
+    "error": "Failed to create broadcast job",
+    "validationError": "Please fill in all required fields",
+    "delayLabel": "Delay between messages",
+    "delayDescription": "Add delay between each message to avoid rate limits"
+  },
+  "status": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "jobCard": {
+    "recipients": "Recipients",
+    "success": "Success",
+    "failed": "Failed",
+    "progress": "Progress",
+    "cancelJob": "Cancel Job",
+    "viewDetails": "View Details"
+  },
+  "preview": {
+    "title": "Message Preview",
+    "description": "See how your message will look to recipients",
+    "placeholder": "Select a template to see preview"
+  }
+}

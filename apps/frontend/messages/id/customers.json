@@ -1,0 +1,18 @@
+{
+  "title": "Pelanggan",
+  "addCustomer": "Tambah Pelanggan",
+  "editCustomer": "Edit Pelanggan",
+  "deleteCustomer": "Hapus Pelanggan",
+  "customerDetails": "Detail Pelanggan",
+  "contactInfo": "Informasi Kontak",
+  "phone": "Telepon",
+  "email": "Email",
+  "address": "Alamat",
+  "notes": "Catatan",
+  "tags": "Tag",
+  "addTag": "Tambah Tag",
+  "removeTag": "Hapus Tag",
+  "lastContact": "Kontak Terakhir",
+  "totalMessages": "Total Pesan",
+  "assignedTo": "Ditugaskan Ke"
+}

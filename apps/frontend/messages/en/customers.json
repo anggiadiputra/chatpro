@@ -1,0 +1,18 @@
+{
+  "title": "Customers",
+  "addCustomer": "Add Customer",
+  "editCustomer": "Edit Customer",
+  "deleteCustomer": "Delete Customer",
+  "customerDetails": "Customer Details",
+  "contactInfo": "Contact Information",
+  "phone": "Phone",
+  "email": "Email",
+  "address": "Address",
+  "notes": "Notes",
+  "tags": "Tags",
+  "addTag": "Add Tag",
+  "removeTag": "Remove Tag",
+  "lastContact": "Last Contact",
+  "totalMessages": "Total Messages",
+  "assignedTo": "Assigned To"
+}

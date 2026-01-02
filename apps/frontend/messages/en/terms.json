@@ -1,0 +1,69 @@
+{
+  "title": "Terms of Service",
+  "lastUpdated": "Last Updated",
+  "sections": {
+    "acceptance": {
+      "title": "Acceptance of Terms",
+      "content": "By accessing or using {appName}, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services."
+    },
+    "services": {
+      "title": "Description of Services",
+      "intro": "{appName} provides a business messaging platform that includes:",
+      "items": {
+        "messaging": "Multi-channel messaging (WhatsApp Business API, Instagram, etc.)",
+        "integration": "Third-party integrations and API access",
+        "analytics": "Message analytics and reporting",
+        "automation": "Automated messaging and template management"
+      }
+    },
+    "accounts": {
+      "title": "User Accounts",
+      "intro": "When creating an account, you agree to:",
+      "items": {
+        "accurate": "Provide accurate and complete information",
+        "security": "Maintain the security of your account credentials",
+        "notify": "Notify us immediately of any unauthorized access",
+        "responsible": "Be responsible for all activities under your account"
+      }
+    },
+    "usage": {
+      "title": "Acceptable Use",
+      "intro": "You agree not to:",
+      "items": {
+        "laws": "Violate any applicable laws or regulations",
+        "spam": "Send spam, unsolicited messages, or bulk messages without consent",
+        "harmful": "Transmit harmful, offensive, or illegal content",
+        "interfere": "Interfere with or disrupt our services or servers",
+        "reverse": "Attempt to reverse engineer or access unauthorized areas"
+      }
+    },
+    "payment": {
+      "title": "Payment Terms",
+      "content": "Paid subscriptions are billed in advance. All fees are non-refundable unless otherwise stated. We reserve the right to change pricing with 30 days notice. Failure to pay may result in service suspension."
+    },
+    "intellectual": {
+      "title": "Intellectual Property",
+      "content": "All content, features, and functionality of {appName} are owned by us and protected by intellectual property laws. You retain ownership of your data and content but grant us a license to use it to provide our services."
+    },
+    "termination": {
+      "title": "Termination",
+      "content": "We may suspend or terminate your account at any time for violation of these terms. You may cancel your account at any time. Upon termination, your right to use the service ceases immediately."
+    },
+    "disclaimer": {
+      "title": "Disclaimer of Warranties",
+      "content": "Our services are provided \"as is\" without warranties of any kind, either express or implied. We do not guarantee that our services will be uninterrupted, secure, or error-free."
+    },
+    "limitation": {
+      "title": "Limitation of Liability",
+      "content": "To the maximum extent permitted by law, {appName} shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services."
+    },
+    "changes": {
+      "title": "Changes to Terms",
+      "content": "We reserve the right to modify these terms at any time. We will notify users of significant changes via email or through our platform. Continued use after changes constitutes acceptance."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "content": "If you have any questions about these Terms of Service, please contact us:"
+    }
+  }
+}

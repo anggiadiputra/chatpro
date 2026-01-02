@@ -1,0 +1,56 @@
+{
+  "name": "@kichat/n8n-nodes-kirimchat",
+  "version": "1.0.4",
+  "description": "n8n community node for KirimChat - Send WhatsApp & Instagram messages, mark as read, and send typing indicators",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "kirimchat",
+    "whatsapp",
+    "instagram",
+    "messaging",
+    "chat"
+  ],
+  "license": "MIT",
+  "homepage": "https://kirim.chat",
+  "author": {
+    "name": "KirimChat",
+    "email": "support@kirim.chat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kirimchat/n8n-nodes-kirimchat.git"
+  },
+  "main": "dist/nodes/KirimChat/KirimChat.node.js",
+  "scripts": {
+    "build": "tsc && npm run copy-icons",
+    "copy-icons": "node -e \"require('fs').cpSync('nodes/KirimChat/kirimchat.svg', 'dist/nodes/KirimChat/kirimchat.svg')\"",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/KirimChatApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/KirimChat/KirimChat.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^7.0.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.0.0",
+    "n8n-workflow": "^1.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
