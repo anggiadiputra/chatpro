@@ -40,6 +40,7 @@ systemctl enable redis-server && systemctl start redis-server
 
 # Install pnpm dan PM2 secara global
 npm install -g pnpm pm2
+git config --global --add safe.directory '*'
 ```
 
 ### 1.3 Verifikasi Versi

@@ -39,7 +39,9 @@ Jika belum terpasang:
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt install -y nodejs
+# Install pnpm dan PM2 secara global serta izinkan Git safe directory
 npm install -g pnpm pm2
+git config --global --add safe.directory '*'
 ```
 
 ---
