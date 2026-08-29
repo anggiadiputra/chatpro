@@ -106,12 +106,23 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://kirim.chat",
-    "https://api.kirim.chat"
-  ],
+  trustedOrigins: (() => {
+    const corsOrigins = process.env.CORS_ALLOWED_ORIGINS
+      ? process.env.CORS_ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+      : []
+    const frontendUrl = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : []
+    const publicUrl = process.env.PUBLIC_URL ? [process.env.PUBLIC_URL.trim()] : []
+    const defaults = [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:3005",
+      "https://kirim.chat",
+      "https://api.kirim.chat",
+      "https://app.prochat.work",
+      "https://api.prochat.work"
+    ]
+    return Array.from(new Set([...defaults, ...corsOrigins, ...frontendUrl, ...publicUrl])).filter(Boolean)
+  })(),
   advanced: {
     crossSubDomainCookies: {
       enabled: true,  // Always enable for cross-subdomain support
