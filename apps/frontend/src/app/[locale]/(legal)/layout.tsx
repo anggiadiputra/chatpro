@@ -12,7 +12,7 @@ export default async function LegalLayout({ children, params }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
 
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || "ProChat"
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat"
 
   return (
     <div className="min-h-screen bg-background">

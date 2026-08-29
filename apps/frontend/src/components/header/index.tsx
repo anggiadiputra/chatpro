@@ -26,8 +26,8 @@ export function Header() {
 				href="/"
 			>
 				<Logo className="h-4" />
-				<span className="ml-2 font-semibold">{process.env.NEXT_PUBLIC_APP_NAME || "ProChat"}</span>
-				<span className="sr-only">ProChat</span>
+				<span className="ml-2 font-semibold">{process.env.NEXT_PUBLIC_APP_NAME || "KirimChat"}</span>
+				<span className="sr-only">KirimChat</span>
 			</a>
 
 			<nav className="hidden md:flex items-center gap-1">

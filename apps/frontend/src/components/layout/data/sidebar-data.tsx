@@ -22,7 +22,7 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: process.env.NEXT_PUBLIC_APP_NAME || "ProChat",
+      name: process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat",
       logo: ({ className }: { className: string }) => (
         <IconMessage className={className} />
       ),

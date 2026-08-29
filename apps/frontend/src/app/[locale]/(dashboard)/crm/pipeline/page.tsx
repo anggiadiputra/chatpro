@@ -70,9 +70,8 @@ export default function PipelinePage() {
 
     const fetchPipelineData = async () => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
             // Fetch default pipeline and its stages
-            const pipelineRes = await fetch(`${apiUrl}/api/v1/crm/pipelines`, {
+            const pipelineRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/pipelines`, {
                 credentials: 'include'
             })
             const pipelineData = await pipelineRes.json()

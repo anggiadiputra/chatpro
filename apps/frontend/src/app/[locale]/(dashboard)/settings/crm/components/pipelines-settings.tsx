@@ -62,8 +62,7 @@ export function PipelinesSettings() {
 
   const fetchPipelines = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
-      const res = await fetch(`${apiUrl}/api/v1/crm/pipelines`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/pipelines`, {
         credentials: 'include'
       })
       const data = await res.json()
@@ -97,10 +96,9 @@ export function PipelinesSettings() {
 
   const handleSave = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
       const url = editingPipeline
-        ? `${apiUrl}/api/v1/crm/pipelines/${editingPipeline.id}`
-        : `${apiUrl}/api/v1/crm/pipelines`
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/pipelines/${editingPipeline.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/pipelines`
 
       const method = editingPipeline ? 'PATCH' : 'POST'
 
@@ -137,8 +135,7 @@ export function PipelinesSettings() {
     if (!confirm("Are you sure? This will delete the pipeline and all associated data.")) return
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
-      const res = await fetch(`${apiUrl}/api/v1/crm/pipelines/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/pipelines/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       })

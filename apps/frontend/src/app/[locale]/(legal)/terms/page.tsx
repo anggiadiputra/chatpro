@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl"
 
 export default function TermsPage() {
   const t = useTranslations("terms")
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || "ProChat"
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat"
 
   return (
     <article className="prose prose-slate dark:prose-invert max-w-none">

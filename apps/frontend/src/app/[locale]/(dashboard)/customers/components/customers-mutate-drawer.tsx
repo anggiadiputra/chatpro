@@ -103,10 +103,9 @@ export function CustomersMutateDrawer({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
         const [pipelinesRes, fieldsRes] = await Promise.all([
-          fetch(`${apiUrl}/api/v1/crm/pipelines`, { credentials: 'include' }),
-          fetch(`${apiUrl}/api/v1/crm/custom-fields`, { credentials: 'include' })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/pipelines`, { credentials: 'include' }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/custom-fields`, { credentials: 'include' })
         ])
 
         const pipelinesData = await pipelinesRes.json()
