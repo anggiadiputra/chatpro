@@ -84,7 +84,7 @@ export class AdminHealthService {
     try {
       // Use webhookQueue's client to ping Redis
       const client = await webhookQueue.client
-      await client.ping()
+      await (client as any).ping()
       const latencyMs = Date.now() - start
 
       return {
