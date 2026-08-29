@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'kirimchat-backend',
+    name: 'prochat-backend',
     script: './dist/index.js',
     cwd: './',
     instances: 1,
