@@ -71,17 +71,29 @@ async function main() {
     include: { accounts: true }
   })
 
-  if (adminUser && adminUser.accounts.length === 0) {
-    await prisma.account.create({
-      data: {
-        id: `credential_${adminUser.id}`,
-        userId: adminUser.id,
-        accountId: adminUser.id,
-        providerId: 'credential',
-        password: adminUser.passwordHash,
-      }
-    })
-    console.log(`   ✅ Account record created for better-auth`)
+  if (adminUser) {
+    if (adminUser.accounts.length === 0) {
+      await prisma.account.create({
+        data: {
+          id: `credential_${adminUser.id}`,
+          userId: adminUser.id,
+          accountId: adminUser.id,
+          providerId: 'credential',
+          issuer: 'local:credential',
+          password: adminUser.passwordHash,
+        }
+      })
+      console.log(`   ✅ Account record created for better-auth`)
+    } else {
+      await prisma.account.updateMany({
+        where: { userId: adminUser.id, providerId: 'credential' },
+        data: {
+          issuer: 'local:credential',
+          password: adminUser.passwordHash
+        }
+      })
+      console.log(`   ✅ Account record updated for better-auth`)
+    }
   }
 
   console.log('\n🎉 Seed completed!')

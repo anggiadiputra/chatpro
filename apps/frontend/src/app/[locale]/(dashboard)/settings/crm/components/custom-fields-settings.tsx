@@ -63,7 +63,8 @@ export function CustomFieldsSettings() {
 
   const fetchFields = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/custom-fields`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
+      const res = await fetch(`${apiUrl}/api/v1/crm/custom-fields`, {
         credentials: 'include'
       })
       const data = await res.json()
@@ -105,9 +106,10 @@ export function CustomFieldsSettings() {
 
   const handleSubmit = async () => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
       const url = editingField
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/custom-fields/${editingField.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/custom-fields`
+        ? `${apiUrl}/api/v1/crm/custom-fields/${editingField.id}`
+        : `${apiUrl}/api/v1/crm/custom-fields`
 
       const method = editingField ? 'PATCH' : 'POST'
 
@@ -144,7 +146,8 @@ export function CustomFieldsSettings() {
     if (!confirm("Are you sure? This will delete data for this field from all customers.")) return
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/crm/custom-fields/${id}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
+      const res = await fetch(`${apiUrl}/api/v1/crm/custom-fields/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       })

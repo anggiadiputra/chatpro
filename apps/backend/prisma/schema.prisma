@@ -668,6 +668,7 @@ model Account {
   accessTokenExpiresAt DateTime? // Better Auth v1.3+ uses this field
   scope                String? // OAuth scope
   password             String?
+  issuer               String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

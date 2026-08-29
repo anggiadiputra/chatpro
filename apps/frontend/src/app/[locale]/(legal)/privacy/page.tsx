@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl"
 
 export default function PrivacyPage() {
   const t = useTranslations("privacy")
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat"
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || "ProChat"
 
   return (
     <article className="prose prose-slate dark:prose-invert max-w-none">

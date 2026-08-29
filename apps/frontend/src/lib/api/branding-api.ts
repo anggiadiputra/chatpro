@@ -15,9 +15,9 @@ export interface BrandingSettings {
  * Default branding values (matches backend defaults)
  */
 export const DEFAULT_BRANDING: BrandingSettings = {
-  websiteName: 'KirimChat',
+  websiteName: 'ProChat',
   logoUrl: '',
-  supportEmail: 'support@kirim.chat',
+  supportEmail: 'support@prochat.id',
   supportWhatsapp: '+6281295648580',
 }
 

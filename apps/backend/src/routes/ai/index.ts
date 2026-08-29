@@ -17,22 +17,16 @@ app.get('/config', requireRole(['ADMIN', 'BUSINESS_OWNER']), async (c: Context) 
       return c.json({ error: { code: 'Unauthorized', message: 'Authentication required' } }, 401)
     }
 
-    const config = await prisma.aIConfig.findUnique({
+    const config = await prisma.aIConfig.upsert({
       where: { userId: c.user.id },
+      update: {},
+      create: { userId: c.user.id },
     })
-
-    if (!config) {
-      // Create a default config if it doesn't exist
-      const newConfig = await prisma.aIConfig.create({
-        data: { userId: c.user.id },
-      })
-      return c.json({ success: true, data: newConfig })
-    }
 
     return c.json({ success: true, data: config })
   } catch (error) {
     console.error('Failed to fetch AI config:', error)
-    return c.json({ error: { code: 'InternalServerError', message: 'Failed to fetch AI config' } }, 500)
+    return c.json({ error: { code: 'InternalServerError', message: error instanceof Error ? error.message : 'Failed to fetch AI config' } }, 500)
   }
 })
 
@@ -45,11 +39,21 @@ app.post('/config', requireRole(['ADMIN', 'BUSINESS_OWNER']), async (c: Context)
 
     const body = await c.req.json()
 
-    const updatedConfig = await prisma.aIConfig.update({
+    const updatedConfig = await prisma.aIConfig.upsert({
       where: { userId: c.user.id },
-      data: {
+      create: {
+        userId: c.user.id,
+        enabled: body.enabled ?? false,
+        model: body.model ?? 'gpt-4.1-nano-2025-04-14',
+        systemPrompt: body.systemPrompt ?? 'You are a helpful customer support assistant.',
+        temperature: body.temperature ?? 0.7,
+        filterWords: body.filterWords,
+        activeAgentId: body.activeAgentId,
+      },
+      update: {
         enabled: body.enabled,
         model: body.model,
+        systemPrompt: body.systemPrompt,
         temperature: body.temperature,
         filterWords: body.filterWords,
         activeAgentId: body.activeAgentId,
@@ -59,7 +63,7 @@ app.post('/config', requireRole(['ADMIN', 'BUSINESS_OWNER']), async (c: Context)
     return c.json({ success: true, data: updatedConfig })
   } catch (error) {
     console.error('Failed to update AI config:', error)
-    return c.json({ error: { code: 'InternalServerError', message: 'Failed to update AI config' } }, 500)
+    return c.json({ error: { code: 'InternalServerError', message: error instanceof Error ? error.message : 'Failed to update AI config' } }, 500)
   }
 })
 

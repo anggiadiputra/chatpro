@@ -177,3 +177,8 @@ apps/frontend/.open-next/
 # Wrangler output
 apps/frontend/.wrangler/
 apps/frontend/wrangler.toml.local
+
+# Redis Dump & Local Notes
+*.rdb
+dump.rdb
+akses.md
