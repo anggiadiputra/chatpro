@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'prochat-backend',
+    name: 'whoops-backend',
     script: './dist/index.js',
     cwd: './',
     instances: 1,
