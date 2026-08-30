@@ -261,35 +261,55 @@ describe('AssignmentBadge', () => {
 })
 
 describe('AssignmentFilter', () => {
+  // jsdom lacks Pointer Capture and scrollIntoView APIs that Radix Select
+  // relies on when opening the dropdown.
+  beforeEach(() => {
+    window.HTMLElement.prototype.hasPointerCapture = vi.fn(() => false)
+    window.HTMLElement.prototype.releasePointerCapture = vi.fn()
+    window.HTMLElement.prototype.scrollIntoView = vi.fn()
+  })
+
+  // The filter is a Radix UI Select: options only render in a portal after the
+  // trigger is opened. Radix opens on pointerdown (not click).
+  const openSelect = (trigger: HTMLElement) => {
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false, pointerId: 1, pointerType: 'mouse' })
+  }
+
   /**
    * Test: Renders all filter options
    * Validates: Requirements 5.1
    */
-  it('should render all filter options', () => {
+  it('should render all filter options', async () => {
     const onChange = vi.fn()
     render(<AssignmentFilter value="all" onChange={onChange} />)
-    
-    expect(screen.getByRole('button', { name: /all/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /mine/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /unassigned/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /others/i })).toBeInTheDocument()
+
+    openSelect(screen.getByRole('combobox'))
+
+    expect(await screen.findByRole('option', { name: /^all$/i })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /^mine$/i })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /^unassigned$/i })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /^others$/i })).toBeInTheDocument()
   })
 
   /**
    * Test: Calls onChange when filter is clicked
    * Validates: Requirements 5.1
    */
-  it('should call onChange when a filter is clicked', () => {
+  it('should call onChange when a filter is clicked', async () => {
     const onChange = vi.fn()
     render(<AssignmentFilter value="all" onChange={onChange} />)
-    
-    fireEvent.click(screen.getByRole('button', { name: /mine/i }))
+    const trigger = screen.getByRole('combobox')
+
+    openSelect(trigger)
+    fireEvent.click(await screen.findByRole('option', { name: /^mine$/i }))
     expect(onChange).toHaveBeenCalledWith('mine')
-    
-    fireEvent.click(screen.getByRole('button', { name: /unassigned/i }))
+
+    openSelect(trigger)
+    fireEvent.click(await screen.findByRole('option', { name: /^unassigned$/i }))
     expect(onChange).toHaveBeenCalledWith('unassigned')
-    
-    fireEvent.click(screen.getByRole('button', { name: /others/i }))
+
+    openSelect(trigger)
+    fireEvent.click(await screen.findByRole('option', { name: /^others$/i }))
     expect(onChange).toHaveBeenCalledWith('others')
   })
 
@@ -300,32 +320,37 @@ describe('AssignmentFilter', () => {
   it('should show visual indication of active filter', () => {
     const onChange = vi.fn()
     const { rerender } = render(<AssignmentFilter value="mine" onChange={onChange} />)
-    
-    // "Mine" button should have secondary variant (bg-background)
-    const mineButton = screen.getByRole('button', { name: /mine/i })
-    expect(mineButton).toHaveClass('bg-background')
-    
+
+    // The trigger displays the selected filter's label
+    expect(screen.getByRole('combobox')).toHaveTextContent(/mine/i)
+
     // Rerender with different value
     rerender(<AssignmentFilter value="unassigned" onChange={onChange} />)
-    
-    const unassignedButton = screen.getByRole('button', { name: /unassigned/i })
-    expect(unassignedButton).toHaveClass('bg-background')
+
+    expect(screen.getByRole('combobox')).toHaveTextContent(/unassigned/i)
   })
 
   /**
    * Test: Each filter option has correct key
    * Validates: Requirements 5.1
    */
-  it('should have correct filter keys', () => {
+  it('should have correct filter keys', async () => {
     const onChange = vi.fn()
-    render(<AssignmentFilter value="all" onChange={onChange} />)
-    
+    // Start with no selection so even the first key ('all') fires onValueChange;
+    // Radix Select does not fire change events for the already-selected item.
+    const { rerender } = render(<AssignmentFilter value={undefined as unknown as AssignmentFilterType} onChange={onChange} />)
+    const trigger = screen.getByRole('combobox')
+
     const filterKeys: AssignmentFilterType[] = ['all', 'mine', 'unassigned', 'others']
-    
-    filterKeys.forEach((key) => {
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(key === 'all' ? 'all' : key, 'i') }))
+
+    for (const key of filterKeys) {
+      openSelect(trigger)
+      fireEvent.click(await screen.findByRole('option', { name: new RegExp(`^${key}$`, 'i') }))
       expect(onChange).toHaveBeenCalledWith(key)
-    })
+      // Reset to no selection for the next iteration
+      onChange.mockClear()
+      rerender(<AssignmentFilter value={undefined as unknown as AssignmentFilterType} onChange={onChange} />)
+    }
   })
 })
 

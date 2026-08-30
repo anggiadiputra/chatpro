@@ -33,7 +33,7 @@ app.get('/', async (c: Context) => {
     const result = await getUserByWabaId(wabaId, c.user.id, c.user.role)
 
     if ('error' in result) {
-      return c.json(result.error, result.status as any)
+      return c.json({ error: result.error }, result.status as any)
     }
 
     const { user } = result
@@ -92,7 +92,7 @@ app.post('/sync', requireRole(['ADMIN', 'BUSINESS_OWNER']), async (c: Context) =
     const result = await getUserByWabaId(wabaId, c.user.id, c.user.role)
 
     if ('error' in result) {
-      return c.json(result.error, result.status as any)
+      return c.json({ error: result.error }, result.status as any)
     }
 
     const { user } = result

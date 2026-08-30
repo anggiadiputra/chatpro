@@ -8,6 +8,9 @@ vi.mock('../../utils/database.js', () => ({
       findMany: vi.fn(),
       groupBy: vi.fn(),
     },
+    conversationAssignment: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
   },
 }));
 

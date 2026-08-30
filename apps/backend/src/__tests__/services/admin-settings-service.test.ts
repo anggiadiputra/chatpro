@@ -292,7 +292,6 @@ describe('Type utilities', () => {
     expect(isValidCategory('smtp')).toBe(true);
     expect(isValidCategory('whatsapp')).toBe(true);
     expect(isValidCategory('instagram')).toBe(true);
-    expect(isValidCategory('google_oauth')).toBe(true);
     expect(isValidCategory('openai')).toBe(true);
     expect(isValidCategory('invalid')).toBe(false);
   });

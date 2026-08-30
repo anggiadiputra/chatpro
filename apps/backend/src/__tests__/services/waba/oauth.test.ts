@@ -15,6 +15,10 @@ vi.mock('axios', () => {
   };
 });
 
+vi.mock('child_process', () => ({
+  execSync: vi.fn(),
+}));
+
 // Mock settings cache
 vi.mock('../../../services/settings-cache.js', () => ({
   settingsCache: {
@@ -41,6 +45,7 @@ vi.mock('../../../services/admin/settings-service.js', () => ({
 }));
 
 import axios from 'axios';
+import { execSync } from 'child_process';
 import { WABAOAuth } from '../../../services/waba/oauth';
 import { WABASettings } from '../../../services/waba/settings';
 import { WABAServiceError, WABAErrorCode } from '../../../services/waba/errors';
@@ -56,6 +61,7 @@ describe('WABAOAuth', () => {
     oauth = new WABAOAuth(settings);
     // Get the mock instance
     mockAxiosInstance = (axios.create as any)();
+    vi.mocked(execSync).mockReset();
   });
 
   afterEach(() => {
@@ -134,14 +140,13 @@ describe('WABAOAuth', () => {
       const signupResult = await oauth.generateSignupUrl(userId);
       const state = signupResult.state;
 
-      // Mock Meta API response
-      mockAxiosInstance.get.mockResolvedValueOnce({
-        data: {
+      vi.mocked(execSync).mockReturnValueOnce(
+        JSON.stringify({
           access_token: 'test_access_token_12345',
           token_type: 'Bearer',
           expires_in: 5184000,
-        },
-      });
+        }) as never
+      );
 
       const result = await oauth.exchangeCodeForToken(code, state);
 
@@ -173,19 +178,15 @@ describe('WABAOAuth', () => {
       const signupResult = await oauth.generateSignupUrl(userId);
       const state = signupResult.state;
 
-      // Mock Meta API error
-      mockAxiosInstance.get.mockRejectedValueOnce({
-        isAxiosError: true,
-        response: {
-          data: {
-            error: {
-              message: 'Invalid authorization code',
-              type: 'OAuthException',
-              code: 100,
-            },
+      vi.mocked(execSync).mockReturnValueOnce(
+        JSON.stringify({
+          error: {
+            message: 'Invalid authorization code',
+            type: 'OAuthException',
+            code: 100,
           },
-        },
-      });
+        }) as never
+      );
 
       await expect(oauth.exchangeCodeForToken(code, state)).rejects.toThrow('Token exchange failed');
     });

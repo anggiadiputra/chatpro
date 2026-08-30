@@ -418,15 +418,12 @@ app.post('/send', async (c: Context) => {
     if (data.type === 'template' && dbTemplate?.content) {
       const templateVariables = dbTemplate.content.match(/\{\{(\d+)\}\}/g)
       const hasVariablesInTemplate = templateVariables && templateVariables.length > 0
-      const hasComponentsSent = data.template?.components && data.template.components.length > 0
-
       // Check if body component has parameters (this is what frontend sends)
       const bodyComponent = data.template?.components?.find((c: any) => c.type === 'body')
       const hasBodyParameters = bodyComponent?.parameters && bodyComponent.parameters.length > 0
 
-      // If template has variables but no components/payload were sent
-      // Check if we should return an error or try to proceed
-      if (hasVariablesInTemplate && !templatePayload && !hasBodyParameters && !hasComponentsSent) {
+      // A body component without parameters still leaves template variables unresolved.
+      if (hasVariablesInTemplate && !templatePayload && !hasBodyParameters) {
         // Extract variable numbers from template (e.g., {{1}}, {{2}})
         const varNumbers = templateVariables!.map((v: string) => parseInt(v.replace(/[{}]/g, '')))
         const uniqueVarNumbers = [...new Set(varNumbers)].sort((a: number, b: number) => a - b)

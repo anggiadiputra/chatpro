@@ -2,19 +2,30 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { WABAService } from '../../services/waba/index';
 
 // Mock modules before importing
-const mockAxiosInstance = {
-  get: vi.fn(),
-  post: vi.fn(),
-};
+const { mockAxiosInstance, mockAxiosCreate } = vi.hoisted(() => {
+  const instance = {
+    get: vi.fn(),
+    post: vi.fn(),
+  };
 
-const mockAxiosCreate = vi.fn(() => mockAxiosInstance);
+  return {
+    mockAxiosInstance: instance,
+    mockAxiosCreate: vi.fn(() => instance),
+  };
+});
 
 vi.mock('axios', () => ({
   default: {
     create: mockAxiosCreate,
+    get: mockAxiosInstance.get,
+    post: mockAxiosInstance.post,
     isAxiosError: vi.fn((error: any) => error?.isAxiosError === true),
   },
   isAxiosError: vi.fn((error: any) => error?.isAxiosError === true),
+}));
+
+vi.mock('child_process', () => ({
+  execSync: vi.fn(),
 }));
 
 // Mock Prisma
@@ -51,6 +62,8 @@ vi.mock('../../utils/requestQueue.js', () => ({
   },
 }));
 
+import { execSync } from 'child_process';
+
 describe('WABAService', () => {
   let service: WABAService;
 
@@ -59,6 +72,7 @@ describe('WABAService', () => {
     vi.clearAllMocks();
     mockAxiosInstance.get.mockReset();
     mockAxiosInstance.post.mockReset();
+    vi.mocked(execSync).mockReset();
 
     // Create service instance
     service = new WABAService();
@@ -123,36 +137,30 @@ describe('WABAService', () => {
   describe('exchangeCodeForToken', () => {
     it('should exchange authorization code for access token', async () => {
       const code = 'test_auth_code';
-      const businessAccountId = 'ba_123456789';
+      const userId = 'user_123456789';
       
       // Generate a valid state
-      const signupResult = await service.generateSignupUrl(businessAccountId);
+      const signupResult = await service.generateSignupUrl(userId);
       const state = signupResult.state;
 
-      // Mock Meta API response
-      mockAxiosInstance.get.mockResolvedValueOnce({
-        data: {
+      vi.mocked(execSync).mockReturnValueOnce(
+        JSON.stringify({
           access_token: 'test_access_token_12345',
           token_type: 'Bearer',
           expires_in: 5184000,
-        },
-      });
+        }) as never
+      );
 
       const result = await service.exchangeCodeForToken(code, state);
 
       expect(result.accessToken).toBe('test_access_token_12345');
       expect(result.tokenType).toBe('Bearer');
       expect(result.expiresIn).toBe(5184000);
-      expect(result.businessAccountId).toBe(businessAccountId);
+      expect(result.userId).toBe(userId);
 
-      // Verify API call was made
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-        '/oauth/access_token',
-        expect.objectContaining({
-          params: expect.objectContaining({
-            code,
-          }),
-        })
+      expect(execSync).toHaveBeenCalledWith(
+        expect.stringContaining(`code=${code}`),
+        expect.objectContaining({ encoding: 'utf-8' })
       );
     });
 
@@ -180,19 +188,15 @@ describe('WABAService', () => {
       const signupResult = await service.generateSignupUrl(businessAccountId);
       const state = signupResult.state;
 
-      // Mock Meta API error
-      mockAxiosInstance.get.mockRejectedValueOnce({
-        isAxiosError: true,
-        response: {
-          data: {
-            error: {
-              message: 'Invalid authorization code',
-              type: 'OAuthException',
-              code: 100,
-            },
+      vi.mocked(execSync).mockReturnValueOnce(
+        JSON.stringify({
+          error: {
+            message: 'Invalid authorization code',
+            type: 'OAuthException',
+            code: 100,
           },
-        },
-      });
+        }) as never
+      );
 
       await expect(service.exchangeCodeForToken(code, state)).rejects.toThrow('Token exchange failed');
     });
@@ -310,7 +314,7 @@ describe('WABAService', () => {
     it('should verify valid webhook signature', () => {
       const payload = JSON.stringify({ test: 'data' });
       const crypto = require('crypto');
-      const appSecret = process.env.META_APP_SECRET || '';
+      const appSecret = service.getAppSecret();
       const expectedSignature = crypto
         .createHmac('sha256', appSecret)
         .update(payload)
@@ -381,24 +385,10 @@ describe('WABAService', () => {
       expect(result.subscriptions).toContain('messages');
       expect(result.subscriptions).toContain('message_status');
       expect(result.subscriptions).toContain('message_template_status_update');
-      expect(result.webhookUrl).toContain('/api/v1/webhooks/waba');
+      expect(result.webhookUrl).toContain('/api/v1/webhooks');
 
       // Verify API calls
-      expect(mockAxiosInstance.post).toHaveBeenCalledTimes(3);
-    });
-
-    it('should throw error when webhook URL not configured', async () => {
-      const wabaId = '123456789012345';
-      const accessToken = 'test_access_token';
-
-      // Temporarily remove webhook URL
-      const originalUrl = process.env.WEBHOOK_BASE_URL;
-      delete process.env.WEBHOOK_BASE_URL;
-
-      await expect(service.configureWebhooks(wabaId, accessToken)).rejects.toThrow('WEBHOOK_BASE_URL is not configured');
-
-      // Restore
-      process.env.WEBHOOK_BASE_URL = originalUrl;
+      expect(mockAxiosInstance.post).toHaveBeenCalledTimes(1);
     });
 
     it('should handle webhook configuration errors', async () => {

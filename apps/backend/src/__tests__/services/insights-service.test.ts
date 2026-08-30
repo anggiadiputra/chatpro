@@ -1,8 +1,18 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 // Mock dependencies
+// WhatsAppAPI is instantiated per-request by the service, so the mock class
+// must return instances whose methods are the shared, configurable spies.
+const mockWhatsAppClient = {
+  getAnalytics: vi.fn(),
+  getConversationAnalytics: vi.fn(),
+  getTemplatePerformanceMetrics: vi.fn(),
+  listTemplates: vi.fn(),
+};
+
 vi.mock('../../utils/whatsapp.js', () => ({
   getWhatsAppClientAsync: vi.fn(),
+  WhatsAppAPI: vi.fn().mockImplementation(() => mockWhatsAppClient),
 }));
 
 vi.mock('../../services/settings-cache.js', () => ({
@@ -10,6 +20,22 @@ vi.mock('../../services/settings-cache.js', () => ({
     get: vi.fn(),
     set: vi.fn(),
   },
+}));
+
+// Mock Prisma so the service does not hit the real database
+vi.mock('../../utils/database.js', () => ({
+  prisma: {
+    user: {
+      findFirst: vi.fn(),
+    },
+  },
+}));
+
+// Mock token encryption so the service can "decrypt" the mock WABA token
+vi.mock('../../utils/tokenEncryption.js', () => ({
+  TokenEncryptionService: vi.fn().mockImplementation(() => ({
+    decrypt: vi.fn().mockReturnValue('decrypted-access-token'),
+  })),
 }));
 
 vi.mock('../../utils/logger.js', () => ({
@@ -22,6 +48,7 @@ vi.mock('../../utils/logger.js', () => ({
 
 import { getWhatsAppClientAsync } from '../../utils/whatsapp.js';
 import { settingsCache } from '../../services/settings-cache.js';
+import { prisma } from '../../utils/database.js';
 import { insightsService, InsightsServiceError } from '../../services/insights-service.js';
 import type {
   MessageAnalyticsParams,
@@ -36,16 +63,17 @@ describe('InsightsService', () => {
   const mockStartDate = 1703980800; // 2023-12-31
   const mockEndDate = 1704067200; // 2024-01-01
 
-  const mockWhatsAppClient = {
-    getAnalytics: vi.fn(),
-    getConversationAnalytics: vi.fn(),
-    getTemplatePerformanceMetrics: vi.fn(),
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getWhatsAppClientAsync).mockResolvedValue(mockWhatsAppClient as any);
     vi.mocked(settingsCache.get).mockReturnValue(null);
+    // Connected user for the mock WABA so the service can build a client
+    vi.mocked(prisma.user.findFirst).mockResolvedValue({
+      wabaAccessToken: 'encrypted-token',
+      wabaAccessTokenIV: 'mock-iv',
+      wabaAccessTokenTag: 'mock-tag',
+      wabaConnectionStatus: 'connected',
+    } as never);
   });
 
   afterEach(() => {
@@ -57,14 +85,14 @@ describe('InsightsService', () => {
       wabaId: mockWabaId,
       startDate: mockStartDate,
       endDate: mockEndDate,
-      granularity: 'DAILY',
+      granularity: 'DAY',
     };
 
     const mockMetaResponse: MetaMessageAnalyticsResponse = {
       analytics: {
         phone_numbers: ['+1234567890'],
         country_codes: ['US'],
-        granularity: 'DAILY',
+        granularity: 'DAY',
         data_points: [
           { start: mockStartDate, end: mockEndDate, sent: 100, delivered: 95 },
         ],
@@ -80,7 +108,7 @@ describe('InsightsService', () => {
       expect(mockWhatsAppClient.getAnalytics).toHaveBeenCalledWith(mockWabaId, {
         startDate: mockStartDate,
         endDate: mockEndDate,
-        granularity: 'DAILY',
+        granularity: 'DAY',
         phoneNumbers: undefined,
       });
       expect(result.totals.sent).toBe(100);
@@ -93,7 +121,7 @@ describe('InsightsService', () => {
       const cachedData = {
         phoneNumbers: ['+1234567890'],
         countryCodes: ['US'],
-        granularity: 'DAILY' as const,
+        granularity: 'DAY' as const,
         dataPoints: [{ start: mockStartDate, end: mockEndDate, sent: 50, delivered: 48 }],
         totals: { sent: 50, delivered: 48, deliveryRate: 96 },
       };
@@ -152,7 +180,7 @@ describe('InsightsService', () => {
         analytics: {
           phone_numbers: ['+1234567890'],
           country_codes: ['US'],
-          granularity: 'DAILY',
+          granularity: 'DAY',
           data_points: [
             { start: mockStartDate, end: mockEndDate, sent: 100, delivered: 90 },
             { start: mockEndDate, end: mockEndDate + 86400, sent: 200, delivered: 180 },
@@ -175,7 +203,7 @@ describe('InsightsService', () => {
       wabaId: mockWabaId,
       startDate: mockStartDate,
       endDate: mockEndDate,
-      granularity: 'DAILY',
+      granularity: 'DAY',
     };
 
     const mockMetaResponse: MetaConversationAnalyticsResponse = {
@@ -258,17 +286,17 @@ describe('InsightsService', () => {
       wabaId: mockWabaId,
       startDate: mockStartDate,
       endDate: mockEndDate,
+      templateIds: ['template-1', 'template-2'],
     };
 
     const mockMetaResponse = {
       data: [
         {
-          template_id: 'template-1',
-          analytics: { sent: 100, delivered: 95, read: 80, clicked: 20 },
-        },
-        {
-          template_id: 'template-2',
-          analytics: { sent: 50, delivered: 48, read: 40 },
+          granularity: 'DAILY',
+          data_points: [
+            { template_id: 'template-1', sent: 100, delivered: 95, read: 80, clicked: 20 },
+            { template_id: 'template-2', sent: 50, delivered: 48, read: 40 },
+          ],
         },
       ],
     };
@@ -285,7 +313,7 @@ describe('InsightsService', () => {
       expect(result.templates[0].clickRate).toBeCloseTo(21.05, 1);
     });
 
-    it('should handle region restriction error', async () => {
+    it('should return an empty result for region-restricted analytics', async () => {
       const regionError = {
         response: {
           status: 400,
@@ -294,15 +322,9 @@ describe('InsightsService', () => {
       };
       mockWhatsAppClient.getTemplatePerformanceMetrics.mockRejectedValue(regionError);
 
-      await expect(insightsService.getTemplatePerformance(mockParams))
-        .rejects.toThrow(InsightsServiceError);
-
-      try {
-        await insightsService.getTemplatePerformance(mockParams);
-      } catch (error) {
-        expect(error).toBeInstanceOf(InsightsServiceError);
-        expect((error as InsightsServiceError).code).toBe('REGION_RESTRICTED');
-      }
+      await expect(insightsService.getTemplatePerformance(mockParams)).resolves.toEqual({
+        templates: [],
+      });
     });
 
     it('should return cached template data when available', async () => {
@@ -323,7 +345,7 @@ describe('InsightsService', () => {
       wabaId: mockWabaId,
       startDate: mockStartDate,
       endDate: mockEndDate,
-      granularity: 'DAILY' as const,
+      granularity: 'DAY' as const,
     };
 
     it('should combine message and conversation analytics', async () => {
@@ -331,7 +353,7 @@ describe('InsightsService', () => {
         analytics: {
           phone_numbers: ['+1234567890'],
           country_codes: ['US'],
-          granularity: 'DAILY',
+          granularity: 'DAY',
           data_points: [{ start: mockStartDate, end: mockEndDate, sent: 100, delivered: 95 }],
         },
         id: mockWabaId,

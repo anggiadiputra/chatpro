@@ -34,7 +34,7 @@ const app = new Hono();
 app.route('/api/v1/auth', authRoutes);
 
 describe('Auth Registration Endpoints', () => {
-  const testEmail = `test_${Date.now()}@example.com`;
+  const testEmail = `authreg_${Date.now()}@example.com`;
   const testPassword = 'TestPassword123!';
   const testName = 'Test User';
 
@@ -45,9 +45,11 @@ describe('Auth Registration Endpoints', () => {
 
   afterAll(async () => {
     // Cleanup test users
+    // NOTE: use a prefix unique to this file so we never delete users created by
+    // other test files running in parallel (vitest runs test files concurrently).
     try {
       await prisma.user.deleteMany({
-        where: { email: { contains: 'test_' } },
+        where: { email: { contains: 'authreg_' } },
       });
     } catch (error) {
       console.error('Cleanup error:', error);

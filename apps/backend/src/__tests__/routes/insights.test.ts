@@ -172,7 +172,7 @@ describe('Insights API Routes', () => {
       );
 
       expect(insightsService.getMessageAnalytics).toHaveBeenCalledWith(
-        expect.objectContaining({ granularity: 'DAILY' })
+        expect.objectContaining({ granularity: 'DAY' })
       );
     });
 
@@ -186,7 +186,7 @@ describe('Insights API Routes', () => {
       );
 
       expect(insightsService.getMessageAnalytics).toHaveBeenCalledWith(
-        expect.objectContaining({ granularity: 'MONTHLY' })
+        expect.objectContaining({ granularity: 'MONTH' })
       );
     });
 

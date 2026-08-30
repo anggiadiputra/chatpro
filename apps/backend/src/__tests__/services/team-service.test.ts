@@ -15,6 +15,12 @@ vi.mock('../../utils/database.js', () => ({
   },
 }));
 
+// Mock the Redis-backed user cache used by removeAgent so tests don't
+// require a running Redis instance (ECONNREFUSED otherwise causes timeouts)
+vi.mock('../../utils/cache.js', () => ({
+  invalidateUserCache: vi.fn().mockResolvedValue(undefined),
+}));
+
 // Import after mocks
 import { TeamService, teamService } from '../../services/team-service.js';
 import { prisma } from '../../utils/database.js';

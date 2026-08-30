@@ -3,6 +3,10 @@ import { Hono } from 'hono';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+const testIds = vi.hoisted(() => ({
+  userId: `template-send-user-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  wabaId: `template-send-waba-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+}));
 
 // Mock WhatsApp client
 vi.mock('../../utils/whatsapp.js', () => ({
@@ -73,7 +77,7 @@ vi.mock('../../services/template-renderer-service.js', () => ({
 
 // Mock middleware
 vi.mock('../../middleware/resolveContext.js', () => ({
-  getEffectiveUserId: vi.fn().mockReturnValue('test-user-id'),
+  getEffectiveUserId: vi.fn().mockReturnValue(testIds.userId),
   getActingAgentId: vi.fn().mockReturnValue(null)
 }));
 
@@ -83,7 +87,7 @@ import { getWhatsAppClientAsync } from '../../utils/whatsapp.js';
 // Create test app with mock user
 const app = new Hono();
 app.use('*', async (c, next) => {
-  c.user = { id: 'test-user-id', role: 'USER' };
+  c.user = { id: testIds.userId, role: 'USER' };
   await next();
 });
 app.route('/api/v1/messages', sendRoutes);
@@ -97,10 +101,10 @@ describe('Template Send with Variables', () => {
     // Create test user
     const user = await prisma.user.create({
       data: {
-        id: 'test-user-id',
+        id: testIds.userId,
         email: `test_template_${Date.now()}@example.com`,
         name: 'Test User',
-        wabaId: 'test-waba-id',
+        wabaId: testIds.wabaId,
         phoneNumberId: 'test-phone-number-id',
         wabaAccessToken: 'test-access-token',
         wabaConnectionStatus: 'connected'

@@ -47,7 +47,7 @@ app.post('/disconnect', requireRole(['ADMIN', 'BUSINESS_OWNER']), async (c: Cont
     const result = await getUserByWabaId(wabaId, c.user.id, c.user.role)
 
     if ('error' in result) {
-      return c.json(result.error, result.status as any)
+      return c.json({ error: result.error }, result.status as any)
     }
 
     const { user } = result
