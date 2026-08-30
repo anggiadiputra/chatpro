@@ -91,9 +91,7 @@ export default function Navbar() {
             Tentang
           </a>
           <a
-            href="https://docs.kirim.chat"
-            target="_blank"
-            rel="noreferrer"
+            href="https://prochat.work"
             className="px-3 py-2 text-sm font-medium text-[#64748b] hover:text-[#1e293b] transition-colors"
           >
             Docs

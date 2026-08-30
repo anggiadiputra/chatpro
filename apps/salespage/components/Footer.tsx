@@ -75,10 +75,8 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    href="https://docs.kirim.chat"
+                    href="https://prochat.work"
                     className="text-white/80 hover:text-[#22c55e] transition-colors inline-flex items-center gap-1"
-                    target="_blank"
-                    rel="noreferrer"
                   >
                     API Docs
                     <svg
