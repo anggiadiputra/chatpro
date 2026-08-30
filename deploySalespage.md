@@ -99,6 +99,9 @@ NEXT_PUBLIC_APP_NAME="ProChat"
 NODE_ENV="production"
 PORT=3002
 EOF
+
+# Kunci permission file .env agar aman
+chmod 600 /home/prochat/htdocs/prochat.work/.env
 ```
 
 ---
@@ -108,37 +111,70 @@ EOF
 Jalankan satu baris perintah berikut di terminal server Anda (sebagai user `root`):
 
 ```bash
-cd /home/prochat/htdocs/chatpro && git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/prochat/htdocs/prochat.work/ && cd /home/prochat/htdocs/prochat.work && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R prochat:prochat /home/prochat/htdocs/ && su - prochat -c "cd /home/prochat/htdocs/prochat.work && pm2 restart prochat-salespage || pm2 start ecosystem.config.cjs"
+cd /home/prochat/htdocs/chatpro && git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/prochat/htdocs/prochat.work/ && cd /home/prochat/htdocs/prochat.work && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R prochat:prochat /home/prochat/htdocs/prochat.work && find /home/prochat/htdocs/prochat.work -type d -exec chmod 755 {} + && find /home/prochat/htdocs/prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/ && chmod 600 /home/prochat/htdocs/prochat.work/.env && su - prochat -c "cd /home/prochat/htdocs/prochat.work && pm2 restart prochat-salespage || pm2 start ecosystem.config.cjs"
 ```
 
 ---
 
-## 📜 Langkah 5: Membuat Helper Script Deploy Otomatis
+## 🔒 Langkah 5: Standarisasi Permission File & Folder
 
-Buat file script `deploy-salespage.sh` di folder `/home/prochat/` agar update sales page di masa depan dapat dilakukan dengan 1 perintah singkat:
+Untuk memastikan semua file dan folder memiliki permission yang tepat dan aman sesuai standar CloudPanel & Linux:
+
+```bash
+# 1. Atur kepemilikan user & group prochat secara menyeluruh
+chown -R prochat:prochat /home/prochat/htdocs/prochat.work
+
+# 2. Atur permission semua FOLDER menjadi 755 (drwxr-xr-x)
+find /home/prochat/htdocs/prochat.work -type d -exec chmod 755 {} +
+
+# 3. Atur permission semua FILE menjadi 644 (-rw-r--r--)
+find /home/prochat/htdocs/prochat.work -type f -exec chmod 644 {} +
+
+# 4. Beri izin execute untuk binary Next.js di node_modules
+chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/
+
+# 5. Kunci file .env agar hanya bisa dibaca oleh user prochat (600)
+chmod 600 /home/prochat/htdocs/prochat.work/.env
+
+# 6. Atur folder logs agar bisa ditulis oleh PM2 (775)
+chmod -R 775 /home/prochat/htdocs/prochat.work/logs 2>/dev/null || true
+```
+
+---
+
+## 📜 Langkah 6: Membuat Helper Script Deploy Otomatis
+
+Buat file script `deploy-salespage.sh` di folder `/home/prochat/` agar update sales page di masa depan dapat dilakukan dengan 1 perintah singkat (sudah otomatis merapikan permission):
 
 ```bash
 cat << 'EOF' > /home/prochat/deploy-salespage.sh
 #!/bin/bash
 set -e
 
-echo "🚀 [1/5] Pulling latest code from GitHub..."
+echo "🚀 [1/6] Pulling latest code from GitHub..."
 cd /home/prochat/htdocs/chatpro
 git pull origin main
 
-echo "📦 [2/5] Syncing salespage files to prochat.work..."
+echo "📦 [2/6] Syncing salespage files to prochat.work..."
 rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/prochat/htdocs/prochat.work/
 
-echo "🔨 [3/5] Installing dependencies..."
+echo "🔨 [3/6] Installing dependencies..."
 cd /home/prochat/htdocs/prochat.work
 pnpm install --dangerously-allow-all-builds
 chmod -R +x node_modules/.bin/
 
-echo "⚙️ [4/5] Building Next.js Production App..."
+echo "⚙️ [4/6] Building Next.js Production App..."
 pnpm build
 
-echo "🔒 [5/5] Fixing file permissions & restarting PM2..."
-chown -R prochat:prochat /home/prochat/htdocs/
+echo "🔒 [5/6] Fixing file & folder permissions..."
+chown -R prochat:prochat /home/prochat/htdocs/prochat.work
+find /home/prochat/htdocs/prochat.work -type d -exec chmod 755 {} +
+find /home/prochat/htdocs/prochat.work -type f -exec chmod 644 {} +
+chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/
+chmod 600 /home/prochat/htdocs/prochat.work/.env 2>/dev/null || true
+chmod -R 775 /home/prochat/htdocs/prochat.work/logs 2>/dev/null || true
+
+echo "🔄 [6/6] Restarting PM2 process..."
 su - prochat -c "cd /home/prochat/htdocs/prochat.work && pm2 restart prochat-salespage || pm2 start ecosystem.config.cjs"
 
 echo "✅ Salespage Deployment Finished Successfully!"
@@ -154,9 +190,9 @@ chmod +x /home/prochat/deploy-salespage.sh
 
 ---
 
-## 🧪 Langkah 6: Pengujian & Monitoring
+## 🧪 Langkah 7: Pengujian & Monitoring
 
-### 6.1 Cek Status dan Log PM2
+### 7.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses sales page
 su - prochat -c "pm2 status"
@@ -165,7 +201,7 @@ su - prochat -c "pm2 status"
 su - prochat -c "pm2 logs prochat-salespage --lines 30 --nostream"
 ```
 
-### 6.2 Tes Akses Domain
+### 7.2 Tes Akses Domain
 ```bash
 # Dari dalam server (port 3002)
 curl -I http://localhost:3002
@@ -178,7 +214,7 @@ curl -I https://prochat.work/aup
 ```
 *Respons yang diharapkan:* `HTTP/1.1 200 OK` atau `HTTP/2 200`
 
-### 6.3 Simpan PM2 Startup (Auto-start saat reboot server)
+### 7.3 Simpan PM2 Startup (Auto-start saat reboot server)
 ```bash
 su - prochat -c "pm2 save"
 pm2 startup
@@ -193,5 +229,6 @@ pm2 startup
 | `502 Bad Gateway` di browser | Next.js belum berjalan di port 3002 | Cek status dengan `pm2 status` dan log dengan `pm2 logs prochat-salespage` |
 | `EADDRINUSE: port 3002 already in use` | Ada proses lain yang menduduki port 3002 | Cek proses dengan `lsof -i :3002` atau `fuser -k 3002/tcp` lalu restart PM2 |
 | `JavaScript heap out of memory saat build` | RAM VPS terbatas (< 2GB) saat compile Next.js | Tambahkan swap RAM di VPS: `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile` |
-| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x node_modules/.bin/` |
+| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/` |
+| `Permission denied / EACCES` | Kepemilikan file bukan milik `prochat:prochat` | Jalankan langkah 5 (Standarisasi Permission File & Folder) |
 | `Tombol Login/Daftar mengarah ke URL lama` | Cache browser atau belum deploy kode terbaru | Bersihkan cache browser dan jalankan `/home/prochat/deploy-salespage.sh` |
