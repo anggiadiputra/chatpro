@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RoleGuard } from "@/components/auth/role-guard"
 import { DisconnectModal } from "@/components/disconnect-modal"
 import { Header } from "@/components/layout/header"
+import { PageHeader } from "@/components/page-header"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { EmbeddedSignupCard } from "./components/embedded-signup-card"
 import { PhoneNumberCard } from "./components/phone-number-card"
 import { QualityMetricsCard } from "./components/quality-metrics-card"
@@ -194,16 +196,16 @@ export default function WABAPage() {
   return (
     <RoleGuard>
       <Header />
-      <div className="space-y-6 p-4">
-        {/* Header */}
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            WhatsApp Business Account
-          </h2>
-          <p className="text-muted-foreground">
-            Manage your WABA connection, settings, and quality metrics
-          </p>
-        </div>
+      <div className="space-y-6 p-6">
+        <PageHeader
+          title={
+            <div className="flex items-center gap-2.5">
+              <WhatsAppIcon size={26} className="text-emerald-600" />
+              <span>WhatsApp Business Account</span>
+            </div>
+          }
+          description="Manage your WABA connection, settings, and quality metrics"
+        />
 
         {/* Embedded Signup Card (if not connected) */}
         {!isConnected && (

@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus, Trash2 } from "lucide-react"
+import { SquarePen, Plus, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface CustomField {
@@ -196,21 +196,7 @@ export function CustomFieldsSettings() {
                     <div className="flex items-center gap-2">
                       <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(field)}>
                         <span className="sr-only">Edit</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-pencil"
-                        >
-                          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                          <path d="m15 5 4 4" />
-                        </svg>
+                        <SquarePen className="h-4 w-4 text-muted-foreground" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(field.id)}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />

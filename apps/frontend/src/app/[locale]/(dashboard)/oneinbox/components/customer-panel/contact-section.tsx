@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, Phone, Mail, User, Pencil, Check, X } from "lucide-react"
+import { Loader2, Phone, Mail, User, SquarePen, Check, X } from "lucide-react"
 import type { CRMCustomerDetail } from "../../types/unified-inbox"
 
 interface ContactSectionProps {
@@ -124,7 +124,7 @@ function EditableField({ label, value, icon, onSave, validate, disabled }: Edita
           onClick={handleEdit}
           className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <Pencil className="h-3 w-3" />
+          <SquarePen className="h-3 w-3" />
         </Button>
       )}
     </div>

@@ -13,17 +13,18 @@ import {
   LayoutTemplate,
   CreditCard,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { type SidebarData } from "../types"
 
 export const sidebarData: SidebarData = {
   user: {
     name: "User",
-    email: "user@kirim.chat",
+    email: "user@example.com",
     avatar: "/favicon.svg",
   },
   teams: [
     {
-      name: process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat",
+      name: process.env.NEXT_PUBLIC_APP_NAME || "App",
       logo: ({ className }: { className: string }) => (
         <MessageSquare className={className} />
       ),
@@ -72,7 +73,7 @@ export const sidebarData: SidebarData = {
         {
           title: "WhatsApp",
           url: "/waba",
-          icon: MessageCircle,
+          icon: WhatsAppIcon,
         },
         {
           title: "Instagram",

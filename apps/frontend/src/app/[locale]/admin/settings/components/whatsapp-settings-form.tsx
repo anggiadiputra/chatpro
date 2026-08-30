@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CircleCheck,
   Info,
+  SquarePen,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -59,6 +60,7 @@ export function WhatsAppSettingsForm() {
   } = useAdminSettings<WhatsAppSettings>("whatsapp")
 
   const [formData, setFormData] = useState<WhatsAppSettings>(defaultSettings)
+  const [isEditing, setIsEditing] = useState(false)
   const [testResult, setTestResult] = useState<{
     success: boolean
     message: string
@@ -86,6 +88,9 @@ export function WhatsAppSettingsForm() {
     setTestResult(null)
     const result = await updateSettings(formData)
     setSaveResult(result)
+    if (result.success) {
+      setIsEditing(false)
+    }
   }
 
   const handleTest = async () => {
@@ -129,11 +134,25 @@ export function WhatsAppSettingsForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>WhatsApp / Meta Configuration</CardTitle>
-        <CardDescription>
-          Configure WhatsApp Business API credentials and webhook settings
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>WhatsApp / Meta Configuration</CardTitle>
+          <CardDescription>
+            Configure WhatsApp Business API credentials and webhook settings
+          </CardDescription>
+        </div>
+        {!isEditing && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            className="gap-1.5"
+          >
+            <SquarePen className="h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Source indicator */}
@@ -185,6 +204,7 @@ export function WhatsAppSettingsForm() {
               value={formData.appId}
               onChange={handleChange("appId")}
               placeholder="Enter Meta App ID"
+              disabled={!isEditing}
             />
           </div>
 
@@ -196,6 +216,7 @@ export function WhatsAppSettingsForm() {
               onChange={handleChange("appSecret")}
               placeholder="Enter Meta App Secret"
               isMasked={formData.appSecret?.includes("****")}
+              disabled={!isEditing}
             />
           </div>
 
@@ -207,6 +228,7 @@ export function WhatsAppSettingsForm() {
               onChange={handleChange("accessToken")}
               placeholder="Enter Meta Access Token"
               isMasked={formData.accessToken?.includes("****")}
+              disabled={!isEditing}
             />
           </div>
 
@@ -218,6 +240,7 @@ export function WhatsAppSettingsForm() {
               onChange={handleChange("verifyToken")}
               placeholder="Enter Webhook Verify Token"
               isMasked={formData.verifyToken?.includes("****")}
+              disabled={!isEditing}
             />
           </div>
 
@@ -228,6 +251,7 @@ export function WhatsAppSettingsForm() {
               value={formData.configId}
               onChange={handleChange("configId")}
               placeholder="Enter Meta Config ID"
+              disabled={!isEditing}
             />
           </div>
 
@@ -238,6 +262,7 @@ export function WhatsAppSettingsForm() {
               value={formData.webhookBaseUrl}
               onChange={handleChange("webhookBaseUrl")}
               placeholder="https://api.example.com"
+              disabled={!isEditing}
             />
           </div>
 
@@ -248,6 +273,7 @@ export function WhatsAppSettingsForm() {
               value={formData.oauthRedirectUri}
               onChange={handleChange("oauthRedirectUri")}
               placeholder="https://example.com/waba/callback"
+              disabled={!isEditing}
             />
           </div>
         </div>
@@ -261,18 +287,37 @@ export function WhatsAppSettingsForm() {
             <PlugZap className="mr-2 h-4 w-4" />
             {isTesting ? "Testing..." : "Test Connection"}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isResetting || isUpdating}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            {isResetting ? "Resetting..." : "Reset to Default"}
-          </Button>
-          <Button onClick={handleSave} disabled={isUpdating}>
-            <Save className="mr-2 h-4 w-4" />
-            {isUpdating ? "Saving..." : "Save Changes"}
-          </Button>
+          {isEditing && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={isResetting || isUpdating}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {isResetting ? "Resetting..." : "Reset to Default"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isUpdating}
+                onClick={() => {
+                  setFormData(settings || defaultSettings)
+                  setIsEditing(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

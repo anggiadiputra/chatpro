@@ -1,6 +1,7 @@
 "use client"
 
-import { MessageCircle, ShieldCheck, Award, CircleCheck } from "lucide-react"
+import { ShieldCheck, Award, CircleCheck } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -26,7 +27,7 @@ export function EmbeddedSignupCard({ hasWABA, onSuccess }: Props) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-emerald-900 dark:text-emerald-100">
-              <MessageCircle className="h-5 w-5 text-emerald-600" />
+              <WhatsAppIcon size={20} className="text-emerald-600" />
               {t("connectedTitle")}
             </CardTitle>
             <Badge
@@ -55,7 +56,7 @@ export function EmbeddedSignupCard({ hasWABA, onSuccess }: Props) {
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-emerald-600" />
+            <WhatsAppIcon size={20} className="text-emerald-600" />
             {t("connectTitle")}
           </CardTitle>
           <Badge
@@ -118,7 +119,7 @@ export function EmbeddedSignupCard({ hasWABA, onSuccess }: Props) {
           enableCoexistence={true}
           className="w-full"
         >
-          <MessageCircle className="mr-2 h-5 w-5" />
+          <WhatsAppIcon size={20} className="mr-2" />
           {t("connectButton")}
         </WABAConnectionButton>
 

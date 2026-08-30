@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Trash2, GripVertical, Pencil, X } from "lucide-react"
+import { Plus, Trash2, GripVertical, SquarePen, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
@@ -200,7 +200,7 @@ export function PipelinesSettings() {
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(pipeline)}>
-                      <Pencil className="h-4 w-4 text-muted-foreground" />
+                      <SquarePen className="h-4 w-4 text-muted-foreground" />
                     </Button>
                     {!pipeline.isDefault && (
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(pipeline.id)}>

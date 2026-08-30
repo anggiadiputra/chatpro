@@ -22,6 +22,7 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: true,
 });
 import { invalidateBrandingCache } from '../../routes/branding.js';
+import { invalidateTurnstileCache } from '../../routes/turnstile.js';
 import type {
   SettingCategory,
   SettingsResponse,
@@ -309,6 +310,11 @@ export class AdminSettingsService {
         invalidateBrandingCache();
       }
 
+      // Also invalidate public turnstile cache if turnstile was updated
+      if (category === 'turnstile') {
+        invalidateTurnstileCache();
+      }
+
       logger.info('Settings updated', { category, changedFields, adminId });
 
       return {
@@ -349,8 +355,71 @@ export class AdminSettingsService {
         return this.testOpenAIConnection();
       case 'duitku':
         return this.testDuitkuConnection();
+      case 'turnstile':
+        return this.testTurnstileConnection();
       default:
         return { success: false, message: `Test not available for ${category}` };
+    }
+  }
+
+  /**
+   * Test Cloudflare Turnstile connection and Secret Key
+   */
+  private async testTurnstileConnection(): Promise<TestConnectionResult> {
+    try {
+      const secretKey = await this.getRawValue('turnstile', 'secret_key');
+      const siteKey = await this.getRawValue('turnstile', 'site_key');
+
+      if (!secretKey) {
+        return {
+          success: false,
+          message: 'Cloudflare Turnstile Secret Key is not configured',
+        };
+      }
+
+      // Test against Cloudflare siteverify endpoint with dummy response
+      const response = await axios.post(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        new URLSearchParams({
+          secret: secretKey,
+          response: 'TEST_TOKEN_VERIFICATION',
+        }).toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          timeout: 15000,
+        }
+      );
+
+      const data = response.data;
+      const errorCodes: string[] = data['error-codes'] || [];
+
+      if (errorCodes.includes('invalid-input-secret')) {
+        return {
+          success: false,
+          message: 'Cloudflare Secret Key is invalid (rejected by Cloudflare)',
+        };
+      }
+
+      // If Cloudflare returns invalid-input-response or missing-input-response, it means secret key was accepted!
+      return {
+        success: true,
+        message: 'Cloudflare Turnstile connection and Secret Key verified successfully',
+        details: {
+          siteKeyConfigured: !!siteKey,
+          secretKeyValid: true,
+        },
+      };
+    } catch (error) {
+      logger.error('Failed to test Turnstile connection', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      return {
+        success: false,
+        message: `Failed to connect to Cloudflare: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
     }
   }
 
@@ -697,6 +766,11 @@ export class AdminSettingsService {
       // Also invalidate public branding cache if branding was reset
       if (category === 'branding') {
         invalidateBrandingCache();
+      }
+
+      // Also invalidate public turnstile cache if turnstile was reset
+      if (category === 'turnstile') {
+        invalidateTurnstileCache();
       }
 
       logger.info('Settings reset to default', { category, resetFields, adminId });

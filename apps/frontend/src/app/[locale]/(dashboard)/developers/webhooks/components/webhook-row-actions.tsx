@@ -4,7 +4,7 @@ import { useState } from "react"
 import {
   Loader2,
   EllipsisVertical,
-  Pencil,
+  SquarePen,
   Trash2,
   Play,
   ToggleLeft,
@@ -103,7 +103,7 @@ export function WebhookRowActions({ webhook }: Props) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setEditOpen(true)}>
-            <Pencil className="mr-2 h-4 w-4" />
+            <SquarePen className="mr-2 h-4 w-4" />
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleToggle} disabled={isToggling}>

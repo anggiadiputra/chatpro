@@ -4,11 +4,11 @@ import { formatDistanceToNow } from "date-fns"
 import {
   RefreshCw,
   Search,
-  MessageCircle,
   Instagram,
   Inbox,
   FilterX,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -103,7 +103,7 @@ export function UnifiedConversationList({
 
   const getChannelIcon = (channel: ChannelType) => {
     if (channel === "whatsapp") {
-      return <MessageCircle className="h-4 w-4 text-green-500" />
+      return <WhatsAppIcon size={16} className="text-green-500" />
     }
     return <Instagram className="h-4 w-4 text-pink-500" />
   }

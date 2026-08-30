@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
 
-type SettingCategory = "whatsapp" | "instagram" | "smtp" | "openai" | "duitku"
+type SettingCategory = "whatsapp" | "instagram" | "smtp" | "openai" | "duitku" | "turnstile"
 
 interface UseAdminSettingsReturn<T> {
   settings: T | null

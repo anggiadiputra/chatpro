@@ -32,11 +32,11 @@ import {
 } from '../hooks/use-payment-history'
 
 // Status badge variants and labels
-const statusConfig: Record<PaymentStatus, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-  PENDING: { variant: 'secondary', label: 'Menunggu' },
-  COMPLETED: { variant: 'default', label: 'Berhasil' },
+const statusConfig: Record<PaymentStatus, { variant: 'active' | 'warning' | 'destructive' | 'neutral' | 'outline'; label: string }> = {
+  PENDING: { variant: 'warning', label: 'Menunggu' },
+  COMPLETED: { variant: 'active', label: 'Berhasil' },
   FAILED: { variant: 'destructive', label: 'Gagal' },
-  EXPIRED: { variant: 'outline', label: 'Kadaluarsa' },
+  EXPIRED: { variant: 'neutral', label: 'Kadaluarsa' },
   CANCELLED: { variant: 'outline', label: 'Dibatalkan' },
 }
 

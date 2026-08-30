@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "@/i18n/routing"
-import { MessageCircle, Instagram, AlertTriangle, X } from "lucide-react"
+import { Instagram, AlertTriangle, X } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 
@@ -62,7 +63,7 @@ export function ConnectionStatusBanner({
           <div className="flex gap-2">
             <Button asChild size="sm" variant="outline" className="gap-1.5">
               <Link href="/waba">
-                <MessageCircle className="h-4 w-4 text-green-500" />
+                <WhatsAppIcon size={16} className="text-green-500" />
                 Connect WhatsApp
               </Link>
             </Button>
@@ -83,7 +84,7 @@ export function ConnectionStatusBanner({
       {/* WhatsApp not connected */}
       {!whatsappConnected && !dismissedBanners.has("whatsapp") && (
         <Alert className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
-          <MessageCircle className="h-4 w-4 text-green-500" />
+          <WhatsAppIcon size={16} className="text-green-500" />
           <AlertDescription className="flex items-center justify-between">
             <span className="text-amber-800 dark:text-amber-200">
               WhatsApp not connected. Some messages may not appear.

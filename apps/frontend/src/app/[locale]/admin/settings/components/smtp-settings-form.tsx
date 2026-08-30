@@ -9,6 +9,7 @@ import {
   CircleCheck,
   Info,
   AlertTriangle,
+  SquarePen,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -61,6 +62,7 @@ export function SmtpSettingsForm() {
   } = useAdminSettings<SmtpSettings>("smtp")
 
   const [formData, setFormData] = useState<SmtpSettings>(defaultSettings)
+  const [isEditing, setIsEditing] = useState(false)
   const [testEmail, setTestEmail] = useState("")
   const [testResult, setTestResult] = useState<{
     success: boolean
@@ -101,6 +103,9 @@ export function SmtpSettingsForm() {
     setTestResult(null)
     const result = await updateSettings(formData)
     setSaveResult(result)
+    if (result.success) {
+      setIsEditing(false)
+    }
   }
 
   const handleTest = async () => {
@@ -154,11 +159,25 @@ export function SmtpSettingsForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Email / SMTP Configuration</CardTitle>
-        <CardDescription>
-          Configure SMTP settings for sending emails
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>Email / SMTP Configuration</CardTitle>
+          <CardDescription>
+            Configure SMTP settings for sending emails
+          </CardDescription>
+        </div>
+        {!isEditing && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            className="gap-1.5"
+          >
+            <SquarePen className="h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Warning banner when settings incomplete */}
@@ -221,6 +240,7 @@ export function SmtpSettingsForm() {
                 value={formData.host}
                 onChange={handleChange("host")}
                 placeholder="smtp.example.com"
+                disabled={!isEditing}
               />
             </div>
 
@@ -232,6 +252,7 @@ export function SmtpSettingsForm() {
                 value={formData.port}
                 onChange={handleChange("port")}
                 placeholder="587"
+                disabled={!isEditing}
               />
             </div>
           </div>
@@ -244,6 +265,7 @@ export function SmtpSettingsForm() {
                 value={formData.user}
                 onChange={handleChange("user")}
                 placeholder="smtp-user@example.com"
+                disabled={!isEditing}
               />
             </div>
 
@@ -255,6 +277,7 @@ export function SmtpSettingsForm() {
                 onChange={handleChange("password")}
                 placeholder="Enter SMTP password"
                 isMasked={formData.password?.includes("****")}
+                disabled={!isEditing}
               />
             </div>
           </div>
@@ -268,6 +291,7 @@ export function SmtpSettingsForm() {
                 value={formData.fromEmail}
                 onChange={handleChange("fromEmail")}
                 placeholder="noreply@example.com"
+                disabled={!isEditing}
               />
             </div>
 
@@ -278,6 +302,7 @@ export function SmtpSettingsForm() {
                 value={formData.fromName}
                 onChange={handleChange("fromName")}
                 placeholder="My App"
+                disabled={!isEditing}
               />
             </div>
           </div>
@@ -287,6 +312,7 @@ export function SmtpSettingsForm() {
               id="secure"
               checked={formData.secure}
               onCheckedChange={handleSecureChange}
+              disabled={!isEditing}
             />
             <Label htmlFor="secure">Use TLS/SSL (Secure)</Label>
           </div>
@@ -315,18 +341,37 @@ export function SmtpSettingsForm() {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isResetting || isUpdating}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            {isResetting ? "Resetting..." : "Reset to Default"}
-          </Button>
-          <Button onClick={handleSave} disabled={isUpdating}>
-            <Save className="mr-2 h-4 w-4" />
-            {isUpdating ? "Saving..." : "Save Changes"}
-          </Button>
+          {isEditing && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={isResetting || isUpdating}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {isResetting ? "Resetting..." : "Reset to Default"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isUpdating}
+                onClick={() => {
+                  setFormData(settings || defaultSettings)
+                  setIsEditing(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

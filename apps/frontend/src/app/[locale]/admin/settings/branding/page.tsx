@@ -11,6 +11,8 @@ import {
   Mail,
   Image as ImageIcon,
   Globe,
+  SquarePen,
+  X,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
@@ -37,15 +39,17 @@ interface BrandingSettings {
 }
 
 const defaultSettings: BrandingSettings = {
-  websiteName: "KirimChat",
+  websiteName: process.env.NEXT_PUBLIC_APP_NAME || "Platform",
   logoUrl: "",
-  supportEmail: "support@kirim.chat",
-  supportWhatsapp: "+6281295648580",
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com",
+  supportWhatsapp: process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "+6281295648580",
 }
 
 export default function BrandingSettingsPage() {
   const t = useTranslations("admin")
   const [settings, setSettings] = useState<BrandingSettings>(defaultSettings)
+  const [initialSettings, setInitialSettings] = useState<BrandingSettings>(defaultSettings)
+  const [isEditing, setIsEditing] = useState(false)
   const [source, setSource] = useState<"database" | "env" | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -83,6 +87,7 @@ export default function BrandingSettingsPage() {
 
       if (result.success && result.data) {
         setSettings(result.data.data as BrandingSettings)
+        setInitialSettings(result.data.data as BrandingSettings)
         setSource(result.data.source)
       } else {
         throw new Error(result.error?.message || "Failed to fetch settings")
@@ -185,6 +190,7 @@ export default function BrandingSettingsPage() {
       }
 
       await fetchSettings()
+      setIsEditing(false)
       setSaveResult({
         success: true,
         message:
@@ -200,6 +206,13 @@ export default function BrandingSettingsPage() {
     } finally {
       setIsUpdating(false)
     }
+  }
+
+  const handleCancel = () => {
+    setSettings(initialSettings)
+    setValidationErrors({})
+    setSaveResult(null)
+    setIsEditing(false)
   }
 
   const handleReset = async () => {
@@ -226,6 +239,7 @@ export default function BrandingSettingsPage() {
       }
 
       await fetchSettings()
+      setIsEditing(false)
       setSaveResult({
         success: true,
         message:
@@ -275,14 +289,30 @@ export default function BrandingSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {t("branding.title") || "Branding Settings"}
-        </h1>
-        <p className="text-muted-foreground">
-          {t("branding.description") ||
-            "Configure website branding and support contact information"}
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("branding.title") || "Branding Settings"}
+          </h1>
+          <p className="text-muted-foreground">
+            {t("branding.description") ||
+              "Configure website branding and support contact information"}
+          </p>
+        </div>
+        {!isEditing && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSaveResult(null)
+              setIsEditing(true)
+            }}
+            className="gap-1.5 self-start sm:self-auto"
+          >
+            <SquarePen className="h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </div>
 
       {/* Website Branding Card */}
@@ -339,7 +369,8 @@ export default function BrandingSettingsPage() {
                 id="websiteName"
                 value={settings.websiteName}
                 onChange={handleChange("websiteName")}
-                placeholder="KirimChat"
+                placeholder="My Brand Name"
+                disabled={!isEditing}
               />
               <p className="text-muted-foreground text-xs">
                 {t("branding.websiteNameHint") ||
@@ -357,6 +388,7 @@ export default function BrandingSettingsPage() {
                 value={settings.logoUrl}
                 onChange={handleChange("logoUrl")}
                 placeholder="https://example.com/logo.png"
+                disabled={!isEditing}
               />
               <p className="text-muted-foreground text-xs">
                 {t("branding.logoUrlHint") ||
@@ -391,7 +423,7 @@ export default function BrandingSettingsPage() {
                 </div>
               )}
               <span className="font-semibold">
-                {settings.websiteName || "KirimChat"}
+                {settings.websiteName || process.env.NEXT_PUBLIC_APP_NAME || "App Platform"}
               </span>
             </div>
           </div>
@@ -423,6 +455,7 @@ export default function BrandingSettingsPage() {
                 value={settings.supportEmail}
                 onChange={handleChange("supportEmail")}
                 placeholder="support@example.com"
+                disabled={!isEditing}
                 className={
                   validationErrors.supportEmail ? "border-destructive" : ""
                 }
@@ -448,6 +481,7 @@ export default function BrandingSettingsPage() {
                 value={settings.supportWhatsapp}
                 onChange={handleChange("supportWhatsapp")}
                 placeholder="+6281234567890"
+                disabled={!isEditing}
                 className={
                   validationErrors.supportWhatsapp ? "border-destructive" : ""
                 }
@@ -471,12 +505,12 @@ export default function BrandingSettingsPage() {
             </Label>
             <div className="flex flex-col gap-3 sm:flex-row">
               <a
-                href={`mailto:${settings.supportEmail || "support@kirim.chat"}`}
+                href={`mailto:${settings.supportEmail || "support@example.com"}`}
                 className="bg-background hover:bg-muted flex items-center gap-2 rounded-md border px-4 py-2 transition-colors"
               >
                 <Mail className="text-primary h-4 w-4" />
                 <span className="text-sm">
-                  {settings.supportEmail || "support@kirim.chat"}
+                  {settings.supportEmail || "support@example.com"}
                 </span>
               </a>
               <a
@@ -496,27 +530,38 @@ export default function BrandingSettingsPage() {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-        <Button
-          variant="outline"
-          onClick={handleReset}
-          disabled={isResetting || isUpdating}
-        >
-          <RefreshCw className="mr-2 h-4 w-4" />
-          {isResetting
-            ? t("branding.resetting") || "Resetting..."
-            : t("branding.resetToDefault") || "Reset to Default"}
-        </Button>
-        <Button
-          onClick={handleSave}
-          disabled={isUpdating || Object.keys(validationErrors).length > 0}
-        >
-          <Save className="mr-2 h-4 w-4" />
-          {isUpdating
-            ? t("branding.saving") || "Saving..."
-            : t("branding.saveChanges") || "Save Changes"}
-        </Button>
-      </div>
+      {isEditing && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isResetting || isUpdating}
+          >
+            <X className="mr-2 h-4 w-4" />
+            Cancel
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            disabled={isResetting || isUpdating}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            {isResetting
+              ? t("branding.resetting") || "Resetting..."
+              : t("branding.resetToDefault") || "Reset to Default"}
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isUpdating || Object.keys(validationErrors).length > 0}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {isUpdating
+              ? t("branding.saving") || "Saving..."
+              : t("branding.saveChanges") || "Save Changes"}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

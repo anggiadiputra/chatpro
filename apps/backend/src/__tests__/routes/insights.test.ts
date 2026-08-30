@@ -162,6 +162,22 @@ describe('Insights API Routes', () => {
       expect(data.error.code).toBe('INVALID_PARAMS');
     });
 
+    it('should return 400 when endDate is earlier than startDate', async () => {
+      const app = createTestApp();
+      const startDate = mockEndDate;
+      const endDate = mockStartDate;
+
+      const response = await app.request(
+        `/api/v1/insights/messages?startDate=${startDate}&endDate=${endDate}`,
+        { method: 'GET' }
+      );
+
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data.error.code).toBe('INVALID_PARAMS');
+      expect(data.error.message).toContain('startDate must be less than or equal to endDate');
+    });
+
     it('should use default granularity when not specified', async () => {
       vi.mocked(insightsService.getMessageAnalytics).mockResolvedValue(mockMessageData);
       const app = createTestApp();

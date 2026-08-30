@@ -1,10 +1,13 @@
 "use client"
 
 import { useTranslations } from "next-intl"
+import { useBrandingContext } from "@/components/branding-provider"
 
 export default function TermsPage() {
   const t = useTranslations("terms")
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat"
+  const { websiteName, supportEmail } = useBrandingContext()
+  const appName = websiteName || process.env.NEXT_PUBLIC_APP_NAME || "Platform"
+  const email = supportEmail || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com"
 
   return (
     <article className="prose prose-slate dark:prose-invert max-w-none">
@@ -83,7 +86,7 @@ export default function TermsPage() {
       <section>
         <h2>{t("sections.contact.title")}</h2>
         <p>{t("sections.contact.content")}</p>
-        <p>Email: <a href="mailto:legal@kirim.chat">legal@kirim.chat</a></p>
+        <p>Email: <a href={`mailto:${email}`}>{email}</a></p>
       </section>
     </article>
   )

@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CircleCheck,
   Info,
+  SquarePen,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -69,6 +70,7 @@ export function DuitkuSettingsForm() {
   } = useAdminSettings<DuitkuSettings>("duitku")
 
   const [formData, setFormData] = useState<DuitkuSettings>(defaultSettings)
+  const [isEditing, setIsEditing] = useState(false)
   const [testResult, setTestResult] = useState<{
     success: boolean
     message: string
@@ -116,6 +118,9 @@ export function DuitkuSettingsForm() {
     setTestResult(null)
     const result = await updateSettings(formData)
     setSaveResult(result)
+    if (result.success) {
+      setIsEditing(false)
+    }
   }
 
   const handleTest = async () => {
@@ -159,11 +164,25 @@ export function DuitkuSettingsForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Duitku Payment Gateway</CardTitle>
-        <CardDescription>
-          Configure Duitku credentials for QRIS and ShopeePay payments
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>Duitku Payment Gateway</CardTitle>
+          <CardDescription>
+            Configure Duitku credentials for QRIS and ShopeePay payments
+          </CardDescription>
+        </div>
+        {!isEditing && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            className="gap-1.5"
+          >
+            <SquarePen className="h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {source && (
@@ -212,6 +231,7 @@ export function DuitkuSettingsForm() {
               id="enabled"
               checked={formData.enabled}
               onCheckedChange={handleEnabledChange}
+              disabled={!isEditing}
             />
             <Label htmlFor="enabled">Enable Payment Gateway</Label>
           </div>
@@ -221,7 +241,7 @@ export function DuitkuSettingsForm() {
             <Select
               value={formData.environment}
               onValueChange={handleEnvironmentChange}
-              disabled={!formData.enabled}
+              disabled={!isEditing || !formData.enabled}
             >
               <SelectTrigger id="environment">
                 <SelectValue placeholder="Select environment" />
@@ -240,7 +260,7 @@ export function DuitkuSettingsForm() {
               value={formData.merchantCode}
               onChange={handleChange("merchantCode")}
               placeholder="DXXXXX"
-              disabled={!formData.enabled}
+              disabled={!isEditing || !formData.enabled}
             />
           </div>
 
@@ -252,7 +272,7 @@ export function DuitkuSettingsForm() {
               onChange={handleChange("apiKey")}
               placeholder="Your Duitku API Key"
               isMasked={formData.apiKey?.includes("****")}
-              disabled={!formData.enabled}
+              disabled={!isEditing || !formData.enabled}
             />
           </div>
 
@@ -267,7 +287,7 @@ export function DuitkuSettingsForm() {
                 value={formatCurrency(formData.litePriceMonthly)}
                 onChange={handleChange("litePriceMonthly")}
                 placeholder="99000"
-                disabled={!formData.enabled}
+                disabled={!isEditing || !formData.enabled}
               />
             </div>
 
@@ -281,7 +301,7 @@ export function DuitkuSettingsForm() {
                 value={formatCurrency(formData.proPriceMonthly)}
                 onChange={handleChange("proPriceMonthly")}
                 placeholder="299000"
-                disabled={!formData.enabled}
+                disabled={!isEditing || !formData.enabled}
               />
             </div>
           </div>
@@ -296,18 +316,37 @@ export function DuitkuSettingsForm() {
             <PlugZap className="mr-2 h-4 w-4" />
             {isTesting ? "Testing..." : "Test Connection"}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isResetting || isUpdating}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            {isResetting ? "Resetting..." : "Reset to Default"}
-          </Button>
-          <Button onClick={handleSave} disabled={isUpdating}>
-            <Save className="mr-2 h-4 w-4" />
-            {isUpdating ? "Saving..." : "Save Changes"}
-          </Button>
+          {isEditing && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={isResetting || isUpdating}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {isResetting ? "Resetting..." : "Reset to Default"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isUpdating}
+                onClick={() => {
+                  setFormData(settings || defaultSettings)
+                  setIsEditing(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

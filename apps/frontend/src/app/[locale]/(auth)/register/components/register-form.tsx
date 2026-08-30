@@ -4,7 +4,7 @@ import { HTMLAttributes, useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowLeft, Mail, RefreshCw } from "lucide-react"
+import { ArrowLeft, LockKeyhole, Mail, RefreshCw, UserRound } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { useRegister } from "@/hooks/use-register"
@@ -20,8 +20,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { OTPInput } from "@/components/ui/otp-input"
 import { GoogleSignInButton } from "@/components/auth/google-signin-button"
-import { useMascot } from "@/components/auth/mascot-context"
 import { PasswordInput } from "@/components/password-input"
+import { useTurnstileConfig } from "@/hooks/use-turnstile-config"
+import { Turnstile, TurnstileSkeleton } from "@/components/auth/turnstile"
 
 function useFormSchema() {
   const t = useTranslations("validation")
@@ -49,19 +50,12 @@ export function RegisterForm({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   const [otp, setOtp] = useState("")
+  const [turnstileToken, setTurnstileToken] = useState<string>("")
+  const { enabled: turnstileEnabled, siteKey: turnstileSiteKey, isLoading: isTurnstileLoading } = useTurnstileConfig()
   const t = useTranslations("auth")
   const tCommon = useTranslations("common")
   const formSchema = useFormSchema()
 
-  // Get mascot state setter (with fallback if context not available)
-  let setMascotState: ((state: "idle" | "email" | "password") => void) | null =
-    null
-  try {
-    const mascot = useMascot()
-    setMascotState = mascot.setState
-  } catch {
-    // Context not available
-  }
   const {
     step,
     loading,
@@ -89,6 +83,10 @@ export function RegisterForm({
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    if (turnstileEnabled && !turnstileToken) {
+      return
+    }
+
     await initiateRegistration({
       email: data.email,
       password: data.password,
@@ -226,25 +224,42 @@ export function RegisterForm({
 
   // Step 1: Registration Form
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
+    <div className={cn("grid gap-5", className)} {...props}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-4">
+            <GoogleSignInButton mode="register" />
+
+            <div className="relative my-2">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-3 text-slate-500">
+                  {tCommon("continueWith")} email
+                </span>
+              </div>
+            </div>
+
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-sm font-semibold">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-sm font-medium text-slate-700">
                     {t("fullName")}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder={t("fullName")}
-                      className="h-11"
-                      disabled={loading}
-                      {...field}
-                    />
+                    <div className="relative">
+                      <UserRound className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        autoComplete="name"
+                        placeholder={t("fullName")}
+                        className="h-10 border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus-visible:ring-blue-600"
+                        disabled={loading}
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -254,19 +269,22 @@ export function RegisterForm({
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-sm font-semibold">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-sm font-medium text-slate-700">
                     {t("email")}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder={tCommon("emailPlaceholder")}
-                      className="h-11"
-                      disabled={loading}
-                      {...field}
-                      onFocus={() => setMascotState?.("email")}
-                      onBlur={() => setMascotState?.("idle")}
-                    />
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        placeholder={tCommon("emailPlaceholder")}
+                        className="h-10 border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus-visible:ring-blue-600"
+                        disabled={loading}
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -276,18 +294,19 @@ export function RegisterForm({
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-sm font-semibold">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-sm font-medium text-slate-700">
                     {t("password")}
                   </FormLabel>
                   <FormControl>
                     <PasswordInput
                       placeholder={t("minChars", { min: 8 })}
-                      className="h-11"
+                      autoComplete="new-password"
+                      className="h-10"
+                      inputClassName="h-10 border-slate-300 bg-white pr-10 text-slate-900 shadow-xs focus-visible:ring-blue-600"
+                      startIcon={<LockKeyhole className="size-4" />}
                       disabled={loading}
                       {...field}
-                      onFocus={() => setMascotState?.("password")}
-                      onBlur={() => setMascotState?.("idle")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -298,18 +317,19 @@ export function RegisterForm({
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel className="text-sm font-semibold">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-sm font-medium text-slate-700">
                     {t("confirmPassword")}
                   </FormLabel>
                   <FormControl>
                     <PasswordInput
                       placeholder={t("confirmPassword")}
-                      className="h-11"
+                      autoComplete="new-password"
+                      className="h-10"
+                      inputClassName="h-10 border-slate-300 bg-white pr-10 text-slate-900 shadow-xs focus-visible:ring-blue-600"
+                      startIcon={<LockKeyhole className="size-4" />}
                       disabled={loading}
                       {...field}
-                      onFocus={() => setMascotState?.("password")}
-                      onBlur={() => setMascotState?.("idle")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -324,22 +344,23 @@ export function RegisterForm({
               </div>
             )}
 
-            <Button className="mt-2 h-11 font-semibold" disabled={loading}>
+            {isTurnstileLoading ? (
+              <TurnstileSkeleton />
+            ) : turnstileEnabled && turnstileSiteKey ? (
+              <Turnstile
+                siteKey={turnstileSiteKey}
+                onVerify={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken("")}
+                onError={() => setTurnstileToken("")}
+              />
+            ) : null}
+
+            <Button
+              className="mt-2 h-10 bg-blue-600 font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
+              disabled={loading || isTurnstileLoading || (turnstileEnabled && !turnstileToken)}
+            >
               {loading ? t("sendingOtp") : t("register")}
             </Button>
-
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="border-border/50 w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card text-muted-foreground px-3 font-medium">
-                  {tCommon("continueWith")}
-                </span>
-              </div>
-            </div>
-
-            <GoogleSignInButton />
           </div>
         </form>
       </Form>

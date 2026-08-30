@@ -52,7 +52,7 @@ export function WebhookDocs() {
             <AccordionTrigger>Overview</AccordionTrigger>
             <AccordionContent className="space-y-3">
               <p className="text-muted-foreground">
-                Webhooks allow you to receive real-time notifications when events occur in KirimChat. 
+                Webhooks allow you to receive real-time notifications when events occur in your account. 
                 When an event happens (like receiving a message), we&apos;ll send an HTTP POST request 
                 to your configured URL with the event data.
               </p>
@@ -202,7 +202,7 @@ def verify_webhook(payload, signature, secret):
                 <li>Add a <strong>Webhook</strong> trigger node</li>
                 <li>Set HTTP Method to <code className="bg-muted rounded px-1">POST</code></li>
                 <li>Copy the webhook URL from n8n</li>
-                <li>Create a webhook endpoint in KirimChat with that URL</li>
+                <li>Create a webhook endpoint in your dashboard with that URL</li>
                 <li>Select the events you want to receive</li>
                 <li>Use the &quot;Test&quot; button to verify the connection</li>
               </ol>

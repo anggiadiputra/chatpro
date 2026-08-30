@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
 
@@ -57,11 +57,21 @@ export function useAdminStats(): UseAdminStatsReturn {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const fetchStats = useCallback(async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      if (isMountedRef.current) {
+        setIsLoading(true)
+        setError(null)
+      }
 
       const response = await fetch(`${API_URL}/api/v1/admin/stats`, {
         credentials: "include",
@@ -76,15 +86,21 @@ export function useAdminStats(): UseAdminStatsReturn {
 
       const data = await response.json()
       
-      if (data.success && data.data) {
-        setStats(data.data)
-      } else {
-        throw new Error(data.error?.message || "Failed to fetch admin statistics")
+      if (isMountedRef.current) {
+        if (data.success && data.data) {
+          setStats(data.data)
+        } else {
+          throw new Error(data.error?.message || "Failed to fetch admin statistics")
+        }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      if (isMountedRef.current) {
+        setError(err instanceof Error ? err.message : "An error occurred")
+      }
     } finally {
-      setIsLoading(false)
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }, [])
 
@@ -116,11 +132,21 @@ export function useMessageVolume(days: number = 30): UseMessageVolumeReturn {
   const [data, setData] = useState<MessageVolumeData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const fetchData = useCallback(async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      if (isMountedRef.current) {
+        setIsLoading(true)
+        setError(null)
+      }
 
       const response = await fetch(`${API_URL}/api/v1/admin/stats/message-volume?days=${days}`, {
         credentials: "include",
@@ -135,15 +161,21 @@ export function useMessageVolume(days: number = 30): UseMessageVolumeReturn {
 
       const result = await response.json()
       
-      if (result.success && result.data) {
-        setData(result.data)
-      } else {
-        throw new Error(result.error?.message || "Failed to fetch message volume")
+      if (isMountedRef.current) {
+        if (result.success && result.data) {
+          setData(result.data)
+        } else {
+          throw new Error(result.error?.message || "Failed to fetch message volume")
+        }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      if (isMountedRef.current) {
+        setError(err instanceof Error ? err.message : "An error occurred")
+      }
     } finally {
-      setIsLoading(false)
+      if (isMountedRef.current) {
+        setIsLoading(false)
+      }
     }
   }, [days])
 

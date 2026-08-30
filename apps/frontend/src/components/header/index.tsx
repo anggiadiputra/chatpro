@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MobileNav } from "./mobile-nav";
 
+import { useBrandingContext } from "@/components/branding-provider";
+
 export const links = [
 	{ href: "/", label: "Home" },
 	{ href: "#features", label: "Features" },
@@ -13,6 +15,8 @@ export const links = [
 
 export function Header() {
 	const scrolled = useScroll(10);
+	const { websiteName } = useBrandingContext();
+	const brand = websiteName || process.env.NEXT_PUBLIC_APP_NAME || "App";
 
 	return (
 		<header
@@ -26,8 +30,8 @@ export function Header() {
 				href="/"
 			>
 				<Logo className="h-4" />
-				<span className="ml-2 font-semibold">{process.env.NEXT_PUBLIC_APP_NAME || "KirimChat"}</span>
-				<span className="sr-only">KirimChat</span>
+				<span className="ml-2 font-semibold">{brand}</span>
+				<span className="sr-only">{brand}</span>
 			</a>
 
 			<nav className="hidden md:flex items-center gap-1">

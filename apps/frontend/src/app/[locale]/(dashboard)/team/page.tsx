@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card"
 import { RoleGuard } from "@/components/auth/role-guard"
 import { Header } from "@/components/layout/header"
+import { PageHeader } from "@/components/page-header"
 import { InviteAgentDialog } from "./components/invite-agent-dialog"
 import { PendingInvitations } from "./components/pending-invitations"
 import { TeamMembersList } from "./components/team-members-list"
@@ -183,17 +184,16 @@ export default function TeamPage() {
   return (
     <RoleGuard>
       <Header />
-      <div className="space-y-6 p-4">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
-            <p className="text-muted-foreground">{t("description")}</p>
-          </div>
-          <Button onClick={() => setInviteDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+      <div className="space-y-6 p-6">
+        <PageHeader
+          title={t("title")}
+          description={t("description")}
+        >
+          <Button onClick={() => setInviteDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
             {t("invite.button")}
           </Button>
-        </div>
+        </PageHeader>
 
         {/* Team Members Section */}
         <Card>

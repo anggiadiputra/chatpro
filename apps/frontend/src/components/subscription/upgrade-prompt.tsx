@@ -18,11 +18,11 @@ interface UpgradePromptProps {
 const featureDescriptions: Record<FeatureType, { title: string; description: string }> = {
   apiAccess: {
     title: "API Access",
-    description: "Create API keys to integrate KirimChat with your applications and automate messaging workflows.",
+    description: "Create API keys to integrate with your applications and automate messaging workflows.",
   },
   webhooksEnabled: {
     title: "Webhooks",
-    description: "Receive real-time notifications when events occur in your KirimChat account.",
+    description: "Receive real-time notifications when events occur in your account.",
   },
   aiChatbot: {
     title: "AI Chatbot",

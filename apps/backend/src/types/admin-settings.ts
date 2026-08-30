@@ -9,7 +9,7 @@
 // Setting Categories
 // =============================================================================
 
-export type SettingCategory = 'whatsapp' | 'instagram' | 'smtp' | 'openai' | 'duitku' | 'branding';
+export type SettingCategory = 'whatsapp' | 'instagram' | 'smtp' | 'openai' | 'duitku' | 'branding' | 'turnstile';
 
 // =============================================================================
 // Category Settings Interfaces
@@ -87,6 +87,15 @@ export interface BrandingSettings {
   supportWhatsapp: string;
 }
 
+/**
+ * Cloudflare Turnstile Settings
+ */
+export interface TurnstileSettings {
+  siteKey: string;
+  secretKey: string;     // sensitive
+  enabled: boolean;
+}
+
 // =============================================================================
 // Settings Key Mappings
 // =============================================================================
@@ -148,6 +157,12 @@ export const BRANDING_SETTINGS_KEYS: SettingKeyConfig[] = [
   { key: 'support_whatsapp', envKey: 'SUPPORT_WHATSAPP', sensitive: false },
 ];
 
+export const TURNSTILE_SETTINGS_KEYS: SettingKeyConfig[] = [
+  { key: 'site_key', envKey: 'TURNSTILE_SITE_KEY', sensitive: false },
+  { key: 'secret_key', envKey: 'TURNSTILE_SECRET_KEY', sensitive: true },
+  { key: 'enabled', envKey: 'TURNSTILE_ENABLED', sensitive: false },
+];
+
 /**
  * Default branding values
  * Requirements: 1.5, 2.4, 2.5
@@ -157,6 +172,15 @@ export const DEFAULT_BRANDING: BrandingSettings = {
   logoUrl: '',
   supportEmail: 'support@kirim.chat',
   supportWhatsapp: '+6281295648580',
+};
+
+/**
+ * Default Turnstile values
+ */
+export const DEFAULT_TURNSTILE: TurnstileSettings = {
+  siteKey: '',
+  secretKey: '',
+  enabled: false,
 };
 
 /**
@@ -176,6 +200,8 @@ export function getSettingsKeyConfig(category: SettingCategory): SettingKeyConfi
       return DUITKU_SETTINGS_KEYS;
     case 'branding':
       return BRANDING_SETTINGS_KEYS;
+    case 'turnstile':
+      return TURNSTILE_SETTINGS_KEYS;
     default:
       throw new Error(`Unknown settings category: ${category}`);
   }
@@ -218,7 +244,7 @@ export interface UpdateSettingsResult {
  * Check if a category is valid
  */
 export function isValidCategory(category: string): category is SettingCategory {
-  return ['whatsapp', 'instagram', 'smtp', 'openai', 'duitku', 'branding'].includes(category);
+  return ['whatsapp', 'instagram', 'smtp', 'openai', 'duitku', 'branding', 'turnstile'].includes(category);
 }
 
 /**
@@ -244,4 +270,5 @@ export type CategorySettings =
   | SmtpSettings 
   | OpenAISettings
   | DuitkuSettings
-  | BrandingSettings;
+  | BrandingSettings
+  | TurnstileSettings;

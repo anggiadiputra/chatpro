@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CircleCheck,
   Info,
+  SquarePen,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -53,6 +54,7 @@ export function InstagramSettingsForm() {
   } = useAdminSettings<InstagramSettings>("instagram")
 
   const [formData, setFormData] = useState<InstagramSettings>(defaultSettings)
+  const [isEditing, setIsEditing] = useState(false)
   const [testResult, setTestResult] = useState<{
     success: boolean
     message: string
@@ -80,6 +82,9 @@ export function InstagramSettingsForm() {
     setTestResult(null)
     const result = await updateSettings(formData)
     setSaveResult(result)
+    if (result.success) {
+      setIsEditing(false)
+    }
   }
 
   const handleTest = async () => {
@@ -123,11 +128,25 @@ export function InstagramSettingsForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Instagram Configuration</CardTitle>
-        <CardDescription>
-          Configure Instagram API credentials and webhook settings
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>Instagram Configuration</CardTitle>
+          <CardDescription>
+            Configure Instagram API credentials and webhook settings
+          </CardDescription>
+        </div>
+        {!isEditing && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            className="gap-1.5"
+          >
+            <SquarePen className="h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {source && (
@@ -178,6 +197,7 @@ export function InstagramSettingsForm() {
               value={formData.appId}
               onChange={handleChange("appId")}
               placeholder="Enter Instagram App ID"
+              disabled={!isEditing}
             />
           </div>
 
@@ -189,6 +209,7 @@ export function InstagramSettingsForm() {
               onChange={handleChange("appSecret")}
               placeholder="Enter Instagram App Secret"
               isMasked={formData.appSecret?.includes("****")}
+              disabled={!isEditing}
             />
           </div>
 
@@ -199,6 +220,7 @@ export function InstagramSettingsForm() {
               value={formData.redirectUri}
               onChange={handleChange("redirectUri")}
               placeholder="https://example.com/instagram/callback"
+              disabled={!isEditing}
             />
           </div>
 
@@ -210,6 +232,7 @@ export function InstagramSettingsForm() {
               onChange={handleChange("webhookVerifyToken")}
               placeholder="Enter Webhook Verify Token"
               isMasked={formData.webhookVerifyToken?.includes("****")}
+              disabled={!isEditing}
             />
           </div>
         </div>
@@ -223,18 +246,37 @@ export function InstagramSettingsForm() {
             <PlugZap className="mr-2 h-4 w-4" />
             {isTesting ? "Testing..." : "Test Connection"}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isResetting || isUpdating}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            {isResetting ? "Resetting..." : "Reset to Default"}
-          </Button>
-          <Button onClick={handleSave} disabled={isUpdating}>
-            <Save className="mr-2 h-4 w-4" />
-            {isUpdating ? "Saving..." : "Save Changes"}
-          </Button>
+          {isEditing && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={isResetting || isUpdating}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {isResetting ? "Resetting..." : "Reset to Default"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isUpdating}
+                onClick={() => {
+                  setFormData(settings || defaultSettings)
+                  setIsEditing(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

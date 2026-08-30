@@ -12,6 +12,7 @@ import type { Context } from 'hono';
 import { requireRole } from '../middleware/auth.js';
 import { resolveContext, getEffectiveUserId } from '../middleware/resolveContext.js';
 import { prisma } from '../utils/database.js';
+import { logger } from '../utils/logger.js';
 import { insightsService, InsightsServiceError } from '../services/insights-service.js';
 import type {
   Granularity,
@@ -36,23 +37,72 @@ function parseDateParams(c: Context): { startDate: number; endDate: number } | n
   const endDateStr = c.req.query('endDate');
 
   if (!startDateStr || !endDateStr) {
+    logger.warn('Insights request rejected: missing date params', {
+      path: c.req.path,
+      startDate: startDateStr ?? null,
+      endDate: endDateStr ?? null,
+    });
     return null;
   }
 
-  const startDate = parseInt(startDateStr, 10);
-  const endDate = parseInt(endDateStr, 10);
+  const startDate = Number.parseInt(startDateStr, 10);
+  const endDate = Number.parseInt(endDateStr, 10);
 
-  if (isNaN(startDate) || isNaN(endDate)) {
+  if (!Number.isFinite(startDate) || !Number.isFinite(endDate)) {
+    logger.warn('Insights request rejected: non-numeric date params', {
+      path: c.req.path,
+      startDate: startDateStr,
+      endDate: endDateStr,
+    });
+    return null;
+  }
+
+  if (startDate > endDate) {
+    logger.warn('Insights request rejected: startDate is later than endDate', {
+      path: c.req.path,
+      startDate,
+      endDate,
+    });
     return null;
   }
 
   // Validate date range (max 90 days)
   const maxRange = 90 * 24 * 60 * 60; // 90 days in seconds
   if (endDate - startDate > maxRange) {
+    logger.warn('Insights request rejected: date range exceeds 90 days', {
+      path: c.req.path,
+      startDate,
+      endDate,
+      rangeSeconds: endDate - startDate,
+      maxRangeSeconds: maxRange,
+    });
     return null;
   }
 
   return { startDate, endDate };
+}
+
+function buildInvalidDateParamsResponse(c: Context): Response {
+  const startDateStr = c.req.query('startDate');
+  const endDateStr = c.req.query('endDate');
+  const startValue = startDateStr !== undefined ? Number.parseInt(startDateStr, 10) : Number.NaN;
+  const endValue = endDateStr !== undefined ? Number.parseInt(endDateStr, 10) : Number.NaN;
+
+  const invalidReason =
+    startDateStr && endDateStr && Number.isFinite(startValue) && Number.isFinite(endValue) && startValue > endValue
+      ? 'startDate must be less than or equal to endDate.'
+      : 'Provide startDate and endDate as Unix timestamps (max 90 days range).';
+
+  const response: InsightsApiResponse<null> = {
+    success: false,
+    data: null,
+    error: {
+      code: 'INVALID_PARAMS',
+      message: `Invalid date parameters. ${invalidReason}`,
+    },
+  };
+
+  return c.json(response, 400);
 }
 
 /**
@@ -118,6 +168,10 @@ app.get('/messages', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (c
   try {
     const wabaId = await getWabaId(c);
     if (!wabaId) {
+      logger.warn('Insights request rejected: no WABA connected', {
+        path: c.req.path,
+        userId: getEffectiveUserId(c),
+      });
       const response: InsightsApiResponse<null> = {
         success: false,
         data: null,
@@ -131,15 +185,7 @@ app.get('/messages', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (c
 
     const dateParams = parseDateParams(c);
     if (!dateParams) {
-      const response: InsightsApiResponse<null> = {
-        success: false,
-        data: null,
-        error: {
-          code: 'INVALID_PARAMS',
-          message: 'Invalid or missing date parameters. Provide startDate and endDate as Unix timestamps (max 90 days range).',
-        },
-      };
-      return c.json(response, 400);
+      return buildInvalidDateParamsResponse(c);
     }
 
     const granularity = parseGranularity(c);
@@ -172,6 +218,10 @@ app.get('/conversations', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), asy
   try {
     const wabaId = await getWabaId(c);
     if (!wabaId) {
+      logger.warn('Insights request rejected: no WABA connected', {
+        path: c.req.path,
+        userId: getEffectiveUserId(c),
+      });
       const response: InsightsApiResponse<null> = {
         success: false,
         data: null,
@@ -185,15 +235,7 @@ app.get('/conversations', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), asy
 
     const dateParams = parseDateParams(c);
     if (!dateParams) {
-      const response: InsightsApiResponse<null> = {
-        success: false,
-        data: null,
-        error: {
-          code: 'INVALID_PARAMS',
-          message: 'Invalid or missing date parameters. Provide startDate and endDate as Unix timestamps (max 90 days range).',
-        },
-      };
-      return c.json(response, 400);
+      return buildInvalidDateParamsResponse(c);
     }
 
     const granularity = parseGranularity(c);
@@ -238,6 +280,10 @@ app.get('/templates', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (
   try {
     const wabaId = await getWabaId(c);
     if (!wabaId) {
+      logger.warn('Insights request rejected: no WABA connected', {
+        path: c.req.path,
+        userId: getEffectiveUserId(c),
+      });
       const response: InsightsApiResponse<null> = {
         success: false,
         data: null,
@@ -251,15 +297,7 @@ app.get('/templates', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (
 
     const dateParams = parseDateParams(c);
     if (!dateParams) {
-      const response: InsightsApiResponse<null> = {
-        success: false,
-        data: null,
-        error: {
-          code: 'INVALID_PARAMS',
-          message: 'Invalid or missing date parameters. Provide startDate and endDate as Unix timestamps (max 90 days range).',
-        },
-      };
-      return c.json(response, 400);
+      return buildInvalidDateParamsResponse(c);
     }
 
     // Parse template IDs
@@ -299,6 +337,10 @@ app.get('/overview', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (c
   try {
     const wabaId = await getWabaId(c);
     if (!wabaId) {
+      logger.warn('Insights request rejected: no WABA connected', {
+        path: c.req.path,
+        userId: getEffectiveUserId(c),
+      });
       const response: InsightsApiResponse<null> = {
         success: false,
         data: null,
@@ -312,15 +354,7 @@ app.get('/overview', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (c
 
     const dateParams = parseDateParams(c);
     if (!dateParams) {
-      const response: InsightsApiResponse<null> = {
-        success: false,
-        data: null,
-        error: {
-          code: 'INVALID_PARAMS',
-          message: 'Invalid or missing date parameters. Provide startDate and endDate as Unix timestamps (max 90 days range).',
-        },
-      };
-      return c.json(response, 400);
+      return buildInvalidDateParamsResponse(c);
     }
 
     const granularity = parseGranularity(c);

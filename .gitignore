@@ -108,6 +108,7 @@ apps/frontend/next-env.d.ts
 
 # Misc local only
 .kiro/
+.hermes/
 .claude/settings.local.json
 .claude/*.local.*
 akses.md

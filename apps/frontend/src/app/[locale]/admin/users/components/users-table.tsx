@@ -58,15 +58,15 @@ function TableSkeleton({ columns }: { columns: number }) {
   )
 }
 
-export function UsersTable({ columns, data, isLoading }: Props) {
+export function UsersTable({ columns = [], data = [], isLoading }: Props) {
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
 
   const table = useReactTable({
-    data,
-    columns,
+    data: data || [],
+    columns: columns || [],
     state: {
       sorting,
       columnVisibility,

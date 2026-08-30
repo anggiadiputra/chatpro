@@ -1,6 +1,7 @@
 "use client"
 
-import { MessageCircle, Instagram, Inbox } from "lucide-react"
+import { Instagram, Inbox } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import {
   Select,
   SelectContent,
@@ -25,7 +26,7 @@ export function ChannelFilter({ value, onChange }: ChannelFilterProps) {
     {
       key: "whatsapp",
       label: "WhatsApp",
-      icon: <MessageCircle className="h-4 w-4 text-green-500" />,
+      icon: <WhatsAppIcon size={16} className="text-green-500" />,
     },
     {
       key: "instagram",

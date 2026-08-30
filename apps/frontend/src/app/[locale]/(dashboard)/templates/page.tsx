@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { RoleGuard } from "@/components/auth/role-guard"
 import { Header } from "@/components/layout/header"
+import { PageHeader } from "@/components/page-header"
 import { columns } from "./components/templates-columns"
 import { TemplatesPrimaryActions } from "./components/templates-primary-actions"
 import { TemplatesTable } from "./components/templates-table"
@@ -46,7 +47,7 @@ export default function TemplatesPage() {
     return (
       <>
         <Header />
-        <div className="space-y-4 p-4">
+        <div className="space-y-6 p-6">
           <div className="animate-pulse space-y-4">
             <div className="bg-muted h-8 w-48 rounded"></div>
             <div className="bg-muted h-64 w-full rounded"></div>
@@ -59,17 +60,15 @@ export default function TemplatesPage() {
   return (
     <RoleGuard>
       <Header />
-      <div className="space-y-4 p-4">
-        <div className="mb-2 flex flex-col justify-between gap-4 md:flex-row md:items-baseline md:gap-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
-            <p className="text-muted-foreground">
-              {activeTab === "templates"
-                ? "Create and manage WhatsApp message templates for your business"
-                : t("variables.description")}
-            </p>
-          </div>
-        </div>
+      <div className="space-y-6 p-6">
+        <PageHeader
+          title={t("title")}
+          description={
+            activeTab === "templates"
+              ? "Create and manage WhatsApp message templates for your business"
+              : t("variables.description")
+          }
+        />
 
         <Tabs
           value={activeTab}

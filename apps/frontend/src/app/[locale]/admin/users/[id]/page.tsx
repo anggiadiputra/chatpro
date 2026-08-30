@@ -16,6 +16,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  SquarePen,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -306,7 +307,8 @@ export default function AdminUserDetailPage({ params }: PageProps) {
               </div>
               <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={openSubscriptionDialog}>
+                  <Button variant="outline" size="sm" onClick={openSubscriptionDialog} className="gap-1.5">
+                    <SquarePen className="h-4 w-4" />
                     Edit
                   </Button>
                 </DialogTrigger>

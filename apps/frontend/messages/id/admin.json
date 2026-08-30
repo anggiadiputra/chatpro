@@ -91,5 +91,21 @@
     "resetting": "Mereset...",
     "sourceDatabase": "Pengaturan dimuat dari database",
     "sourceEnv": "Pengaturan dimuat dari .env (database tidak tersedia atau kosong)"
+  },
+  "turnstile": {
+    "title": "Cloudflare Turnstile",
+    "description": "Konfigurasi verifikasi CAPTCHA pintar Cloudflare Turnstile untuk halaman Login dan Register",
+    "enabled": "Aktifkan Turnstile",
+    "enabledDesc": "Tampilkan widget verifikasi bot Cloudflare Turnstile pada halaman Login dan Register",
+    "siteKey": "Site Key (Kunci Publik)",
+    "siteKeyHint": "Kunci publik yang digunakan browser untuk memuat widget Turnstile",
+    "secretKey": "Secret Key (Kunci Rahasia)",
+    "secretKeyHint": "Kunci rahasia server untuk memverifikasi token respon dengan Cloudflare API (dienkripsi aman)",
+    "testConnection": "Test Koneksi",
+    "testing": "Memverifikasi...",
+    "saveSuccess": "Pengaturan Turnstile berhasil disimpan",
+    "resetSuccess": "Pengaturan Turnstile direset ke default",
+    "testSuccess": "Koneksi Turnstile dan Secret Key berhasil diverifikasi",
+    "testFailed": "Gagal memverifikasi Turnstile Secret Key"
   }
 }

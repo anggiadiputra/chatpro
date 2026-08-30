@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Copy,
   Check,
+  Workflow,
 } from "lucide-react"
 import {
   Accordion,
@@ -35,6 +36,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { RoleGuard } from "@/components/auth/role-guard"
+import { useBrandingContext } from "@/components/branding-provider"
 
 function CodeBlock({
   code,
@@ -70,6 +72,8 @@ function CodeBlock({
 
 export default function DevelopersPage() {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
+  const { websiteName } = useBrandingContext()
+  const brand = websiteName || "Platform"
 
   return (
     <RoleGuard>
@@ -92,7 +96,7 @@ export default function DevelopersPage() {
           <div>
             <h2 className="text-2xl font-bold">Developers</h2>
             <p className="text-muted-foreground text-sm">
-              Integrate KirimChat with your applications using our API and
+              Integrate {brand} with your applications using our API and
               webhooks
             </p>
           </div>
@@ -115,7 +119,7 @@ export default function DevelopersPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Generate API keys to authenticate requests to the KirimChat
+                  Generate API keys to authenticate requests to the {brand}
                   Public API. Use Bearer token authentication to send messages,
                   manage contacts, and more.
                 </p>
@@ -153,7 +157,7 @@ export default function DevelopersPage() {
               Documentation
             </CardTitle>
             <CardDescription>
-              Learn how to integrate with KirimChat API and webhooks
+              Learn how to integrate with {brand} API and webhooks
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -164,7 +168,7 @@ export default function DevelopersPage() {
                 <AccordionContent className="space-y-3">
                   <p className="text-muted-foreground">
                     Webhooks allow you to receive real-time notifications when
-                    events occur in KirimChat. When an event happens (like
+                    events occur in {brand}. When an event happens (like
                     receiving a message), we&apos;ll send an HTTP POST request
                     to your configured URL with the event data.
                   </p>
@@ -249,7 +253,7 @@ export default function DevelopersPage() {
                     <AlertDescription>
                       <strong>Important:</strong> Always verify the webhook
                       signature before processing events to ensure they came
-                      from KirimChat.
+                      from {brand}.
                     </AlertDescription>
                   </Alert>
 
@@ -314,7 +318,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
                 <AccordionContent className="space-y-3">
                   <p className="text-muted-foreground">
                     Use Bearer token authentication with your API key to make
-                    requests to the KirimChat Public API.
+                    requests to the {brand} Public API.
                   </p>
 
                   <div className="space-y-2">
@@ -477,13 +481,11 @@ Content-Type: application/json`}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-              </svg>
+              <Workflow className="h-5 w-5" />
               n8n Integration
             </CardTitle>
             <CardDescription>
-              Connect KirimChat with n8n for powerful workflow automation
+              Connect {brand} with n8n for powerful workflow automation
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -516,10 +518,10 @@ Content-Type: application/json`}
                 <AccordionTrigger>Credentials Setup</AccordionTrigger>
                 <AccordionContent className="space-y-3">
                   <p className="text-muted-foreground">
-                    You need a KirimChat API key to use this node:
+                    You need an API key to use this node:
                   </p>
                   <ol className="text-muted-foreground list-inside list-decimal space-y-1 text-sm">
-                    <li>Log in to your KirimChat dashboard</li>
+                    <li>Log in to your {brand} dashboard</li>
                     <li>
                       Go to{" "}
                       <strong>Settings &gt; Developers &gt; API Keys</strong>
@@ -530,7 +532,7 @@ Content-Type: application/json`}
                     </li>
                     <li>
                       In n8n, create new credentials for{" "}
-                      <strong>KirimChat API</strong>
+                      <strong>{brand} API</strong>
                     </li>
                     <li>
                       Paste your API key (starts with{" "}

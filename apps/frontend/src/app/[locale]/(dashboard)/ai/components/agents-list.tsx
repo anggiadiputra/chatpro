@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Pencil, Trash2, Bot } from "lucide-react"
+import { Plus, SquarePen, Trash2, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -105,7 +105,7 @@ export function AgentsList({ agents, documents, onCreate, onUpdate, onDelete }: 
                         size="sm"
                         onClick={() => handleEdit(agent)}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <SquarePen className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"

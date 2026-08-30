@@ -25,6 +25,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useBrandingContext } from "@/components/branding-provider"
 
 const adminNavItems = [
   {
@@ -74,6 +75,7 @@ export function AdminSidebar({
 }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
   const pathname = usePathname()
+  const { websiteName } = useBrandingContext()
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -90,7 +92,7 @@ export function AdminSidebar({
               <div className="grid flex-1 text-left text-xs leading-tight">
                 <span className="truncate font-semibold">Admin Panel</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  KirimChat
+                  {websiteName || "Management"}
                 </span>
               </div>
             </SidebarMenuButton>

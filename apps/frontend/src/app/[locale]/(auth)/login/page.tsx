@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 import { Link } from "@/i18n/routing"
-import { setRequestLocale } from "next-intl/server"
 import { Card } from "@/components/ui/card"
 import { UserAuthForm } from "./components/user-auth-form"
 import { BrandingPageTitle } from "@/components/branding-page-title"
@@ -16,59 +15,32 @@ export default async function LoginPage({ params }: Props) {
   const t = await getTranslations("auth")
 
   return (
-    <div className="space-y-6" data-auth-content>
+    <div data-auth-content>
       <BrandingPageTitle suffix={t("login")} />
       <Card
-        className="border-border/50 bg-card/50 p-8 shadow-xl backdrop-blur-sm transition-all hover:shadow-2xl"
+        className="border-slate-200 bg-white p-6 shadow-[0_10px_30px_-12px_rgba(15,23,42,0.22)] sm:p-8"
         data-auth-card
       >
-        <div className="flex flex-col space-y-3 text-left">
-          <h1 className="text-3xl font-bold tracking-tight">
+        <div className="mb-8 flex flex-col space-y-2 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-950">
             {t("welcomeBack")}
           </h1>
-          <p className="text-muted-foreground text-base">
+          <p className="text-sm text-slate-600">
             {t("enterCredentials")}
           </p>
         </div>
         <UserAuthForm />
-      </Card>
 
-      {/* Troubleshooting notice */}
-      <div className="rounded-md border border-amber-200/50 bg-amber-50/50 px-3 py-2 text-center dark:border-amber-900/50 dark:bg-amber-950/30">
-        <p className="text-xs text-amber-700 dark:text-amber-400">
-          💡 {t("loginTroubleshoot", { defaultValue: "Login issues? Try Ctrl+Shift+R (hard refresh) or clear browser cache/storage." })}
-        </p>
-      </div>
-
-      {/* Additional links */}
-      <div className="flex flex-col space-y-4 text-center">
-        <p className="text-muted-foreground text-sm">
+        <p className="mt-8 text-center text-sm text-slate-600">
           {t("noAccount")}{" "}
           <Link
             href="/register"
-            className="font-semibold text-primary transition-all hover:underline"
+            className="font-semibold text-blue-600 transition-colors hover:text-blue-700 hover:underline"
           >
             {t("registerNow")}
           </Link>
         </p>
-        <p className="text-muted-foreground px-8 text-xs">
-          {t("termsAgreement")}{" "}
-          <Link
-            href="/terms"
-            className="hover:text-primary transition-all underline underline-offset-4"
-          >
-            {t("termsOfService")}
-          </Link>{" "}
-          {t("and")}{" "}
-          <Link
-            href="/privacy"
-            className="hover:text-primary transition-all underline underline-offset-4"
-          >
-            {t("privacyPolicy")}
-          </Link>{" "}
-          {t("our")}.
-        </p>
-      </div>
+      </Card>
     </div>
   )
 }

@@ -40,25 +40,25 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
   const qualityConfig = {
     GREEN: {
       label: "High Quality",
-      color: "bg-emerald-600",
+      variant: "active" as const,
       icon: CircleCheck,
       description: "Excellent messaging quality",
     },
     YELLOW: {
       label: "Medium Quality",
-      color: "bg-amber-600",
+      variant: "warning" as const,
       icon: AlertTriangle,
       description: "Quality under review",
     },
     RED: {
       label: "Low Quality",
-      color: "bg-red-600",
+      variant: "destructive" as const,
       icon: CircleX,
       description: "Quality issues detected",
     },
     UNKNOWN: {
       label: "Unknown",
-      color: "bg-gray-600",
+      variant: "neutral" as const,
       icon: AlertTriangle,
       description: "Quality not rated yet",
     },
@@ -109,7 +109,7 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
           <div className="rounded-lg border p-4">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-medium">Quality Rating</p>
-              <Badge className={quality.color}>
+              <Badge variant={quality.variant}>
                 <QualityIcon className="mr-1 h-3 w-3" />
                 {quality.label}
               </Badge>

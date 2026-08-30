@@ -151,7 +151,7 @@ export function CreateApiKeyDialog({ onKeyCreated }: Props) {
           <DialogDescription>
             {createdKey
               ? "Your API key has been created. Copy it now - you won't be able to see it again!"
-              : "Generate a new API key to securely access the KirimChat Public API."}
+              : "Generate a new API key to securely access the Public API."}
           </DialogDescription>
         </DialogHeader>
 

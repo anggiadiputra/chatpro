@@ -8,6 +8,7 @@ import {
   AlertCircle,
   CircleCheck,
   Info,
+  SquarePen,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -49,6 +50,7 @@ export function OpenAISettingsForm() {
   } = useAdminSettings<OpenAISettings>("openai")
 
   const [formData, setFormData] = useState<OpenAISettings>(defaultSettings)
+  const [isEditing, setIsEditing] = useState(false)
   const [testResult, setTestResult] = useState<{
     success: boolean
     message: string
@@ -81,6 +83,9 @@ export function OpenAISettingsForm() {
     setTestResult(null)
     const result = await updateSettings(formData)
     setSaveResult(result)
+    if (result.success) {
+      setIsEditing(false)
+    }
   }
 
   const handleTest = async () => {
@@ -124,11 +129,25 @@ export function OpenAISettingsForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>OpenAI Configuration</CardTitle>
-        <CardDescription>
-          Configure OpenAI API key for AI features
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>OpenAI Configuration</CardTitle>
+          <CardDescription>
+            Configure OpenAI API key for AI features
+          </CardDescription>
+        </div>
+        {!isEditing && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            className="gap-1.5"
+          >
+            <SquarePen className="h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {source && (
@@ -177,6 +196,7 @@ export function OpenAISettingsForm() {
               id="enabled"
               checked={formData.enabled}
               onCheckedChange={handleEnabledChange}
+              disabled={!isEditing}
             />
             <Label htmlFor="enabled">Enable AI Features</Label>
           </div>
@@ -189,7 +209,7 @@ export function OpenAISettingsForm() {
               onChange={handleChange("apiKey")}
               placeholder="sk-..."
               isMasked={formData.apiKey?.includes("****")}
-              disabled={!formData.enabled}
+              disabled={!isEditing || !formData.enabled}
             />
           </div>
         </div>
@@ -203,18 +223,37 @@ export function OpenAISettingsForm() {
             <PlugZap className="mr-2 h-4 w-4" />
             {isTesting ? "Testing..." : "Test API Key"}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isResetting || isUpdating}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            {isResetting ? "Resetting..." : "Reset to Default"}
-          </Button>
-          <Button onClick={handleSave} disabled={isUpdating}>
-            <Save className="mr-2 h-4 w-4" />
-            {isUpdating ? "Saving..." : "Save Changes"}
-          </Button>
+          {isEditing && (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={isResetting || isUpdating}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {isResetting ? "Resetting..." : "Reset to Default"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isUpdating}
+                onClick={() => {
+                  setFormData(settings || defaultSettings)
+                  setIsEditing(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isUpdating}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

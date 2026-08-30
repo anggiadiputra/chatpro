@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { CircleCheck, AlertCircle, RefreshCw, Unlink } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -63,9 +64,10 @@ export function WABAConnectionCard({
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <CardTitle className="flex flex-wrap items-center gap-2">
+              <WhatsAppIcon size={20} className="text-emerald-600" />
               WhatsApp Business Account
               {wabaInfo.status === "CONNECTED" && (
-                <Badge className="bg-emerald-600">
+                <Badge variant="active">
                   <CircleCheck className="mr-1 h-3 w-3" />
                   Connected
                 </Badge>

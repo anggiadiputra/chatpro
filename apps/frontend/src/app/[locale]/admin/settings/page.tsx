@@ -1,22 +1,25 @@
 "use client"
 
 import { useState } from "react"
-import { MessageCircle, Instagram, Mail, Brain, CreditCard } from "lucide-react"
+import { Instagram, Mail, Brain, CreditCard, ShieldCheck } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DuitkuSettingsForm } from "./components/duitku-settings-form"
 import { InstagramSettingsForm } from "./components/instagram-settings-form"
 import { OpenAISettingsForm } from "./components/openai-settings-form"
 import { SmtpSettingsForm } from "./components/smtp-settings-form"
 import { WhatsAppSettingsForm } from "./components/whatsapp-settings-form"
+import { TurnstileSettingsForm } from "./components/turnstile-settings-form"
 
-type SettingsTab = "whatsapp" | "instagram" | "smtp" | "openai" | "duitku"
+type SettingsTab = "whatsapp" | "instagram" | "smtp" | "openai" | "duitku" | "turnstile"
 
 const tabs = [
-  { id: "whatsapp" as const, label: "WhatsApp", icon: MessageCircle },
+  { id: "whatsapp" as const, label: "WhatsApp", icon: WhatsAppIcon },
   { id: "instagram" as const, label: "Instagram", icon: Instagram },
   { id: "smtp" as const, label: "Email", icon: Mail },
   { id: "openai" as const, label: "OpenAI", icon: Brain },
   { id: "duitku" as const, label: "Payment", icon: CreditCard },
+  { id: "turnstile" as const, label: "Turnstile", icon: ShieldCheck },
 ]
 
 export default function AdminSettingsPage() {
@@ -27,7 +30,7 @@ export default function AdminSettingsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">
-          Configure channel integrations and API credentials
+          Configure channel integrations, bot protection and API credentials
         </p>
       </div>
 
@@ -35,7 +38,7 @@ export default function AdminSettingsPage() {
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as SettingsTab)}
       >
-        <TabsList className="grid w-full grid-cols-5 lg:inline-flex lg:w-auto">
+        <TabsList className="grid w-full grid-cols-6 lg:inline-flex lg:w-auto">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
               <tab.icon className="h-4 w-4" />
@@ -62,6 +65,10 @@ export default function AdminSettingsPage() {
 
         <TabsContent value="duitku" className="mt-6">
           <DuitkuSettingsForm />
+        </TabsContent>
+
+        <TabsContent value="turnstile" className="mt-6">
+          <TurnstileSettingsForm />
         </TabsContent>
       </Tabs>
     </div>

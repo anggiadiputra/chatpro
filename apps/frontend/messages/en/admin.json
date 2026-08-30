@@ -91,5 +91,21 @@
     "resetting": "Resetting...",
     "sourceDatabase": "Settings loaded from database",
     "sourceEnv": "Settings loaded from .env (database unavailable or empty)"
+  },
+  "turnstile": {
+    "title": "Cloudflare Turnstile",
+    "description": "Configure Cloudflare Turnstile smart CAPTCHA bot protection for Login and Register pages",
+    "enabled": "Enable Turnstile",
+    "enabledDesc": "Show Cloudflare Turnstile bot verification widget on Login and Register pages",
+    "siteKey": "Site Key (Public Key)",
+    "siteKeyHint": "Public key used by the browser to render Turnstile widget",
+    "secretKey": "Secret Key (Private Key)",
+    "secretKeyHint": "Server secret key for verifying response tokens with Cloudflare API (securely encrypted)",
+    "testConnection": "Test Connection",
+    "testing": "Verifying...",
+    "saveSuccess": "Turnstile settings saved successfully",
+    "resetSuccess": "Turnstile settings reset to default",
+    "testSuccess": "Turnstile connection and Secret Key verified successfully",
+    "testFailed": "Failed to verify Turnstile Secret Key"
   }
 }

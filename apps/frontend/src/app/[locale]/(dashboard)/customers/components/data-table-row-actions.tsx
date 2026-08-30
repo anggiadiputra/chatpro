@@ -3,11 +3,11 @@
 import { Row } from "@tanstack/react-table"
 import {
   MoreHorizontal,
-  Pencil,
+  SquarePen,
   Trash2,
-  MessageCircle,
   Eye,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -60,12 +60,12 @@ export function DataTableRowActions({ row, onView, onEdit }: Props) {
           View Details
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleEdit}>
-          <Pencil className="mr-2 h-4 w-4" />
+          <SquarePen className="mr-2 h-4 w-4" />
           Edit Customer
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSendMessage}>
-          <MessageCircle className="mr-2 h-4 w-4" />
+          <WhatsAppIcon size={16} className="mr-2 text-green-500" />
           Send Message
         </DropdownMenuItem>
         <DropdownMenuSeparator />

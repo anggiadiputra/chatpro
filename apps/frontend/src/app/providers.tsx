@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import SearchProvider from "@/components/search-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { BrandingProvider } from "@/components/branding-provider"
+import { RouteTitleTracker } from "@/components/route-title-tracker"
 import { DEFAULT_CACHE_CONFIG } from "@/lib/cache-config"
 
 interface Props {
@@ -58,6 +59,7 @@ export function Providers({ children }: Props) {
         disableTransitionOnChange
       >
         <BrandingProvider>
+          <RouteTitleTracker />
           <SearchProvider value={{ open, setOpen }}>{children}</SearchProvider>
         </BrandingProvider>
       </ThemeProvider>

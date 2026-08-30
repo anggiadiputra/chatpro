@@ -42,6 +42,7 @@ import paymentRoutes from './routes/payment.js'
 import duitkuWebhookRoutes from './routes/webhooks/duitku.js'
 import teamRoutes from './routes/team/index.js'
 import brandingRoutes from './routes/branding.js'
+import turnstileRoutes from './routes/turnstile.js'
 import templateVariablesRoutes from './routes/template-variables.js'
 import broadcastRoutes from './routes/broadcast/index.js'
 import insightsRoutes from './routes/insights.js'
@@ -263,6 +264,9 @@ app.route('/api/v1/assignments', assignmentRoutes)
 
 // Public branding route (no auth required - used by auth pages)
 app.route('/api/v1/branding', brandingRoutes)
+
+// Public turnstile route (no auth required - used by auth pages and login/register)
+app.route('/api/v1/turnstile', turnstileRoutes)
 
 // Public API routes (API key authentication)
 // These routes use API key auth instead of session auth

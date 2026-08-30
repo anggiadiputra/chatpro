@@ -53,14 +53,14 @@ export const columns: ColumnDef<Customer>[] = [
 
       return (
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+          <Avatar className="h-8 w-8 border border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300">
+            <AvatarFallback className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 text-xs font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-semibold">{name || "Unnamed Customer"}</span>
-            <span className="text-muted-foreground text-xs">
+            <span className="font-semibold text-slate-900 dark:text-slate-100">{name || "Unnamed Customer"}</span>
+            <span className="text-muted-foreground text-xs font-mono">
               {row.original.phoneNumber}
             </span>
           </div>
@@ -113,7 +113,7 @@ export const columns: ColumnDef<Customer>[] = [
 
         return (
           <div className="flex items-center gap-2">
-            <Badge variant="default" className="bg-emerald-600">
+            <Badge variant="active">
               <Clock className="mr-1 h-3 w-3" />
               Active
             </Badge>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { RefreshCw, Zap, Sparkles, Crown, Pencil, Check } from "lucide-react"
+import { RefreshCw, Zap, Sparkles, Crown, SquarePen, Check } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -92,7 +92,7 @@ function PlanCard({ tier, plan, onEdit, translations }: PlanCardProps) {
             <CardTitle className="text-lg">{plan.name}</CardTitle>
           </div>
           <Button variant="ghost" size="icon" onClick={onEdit}>
-            <Pencil className="h-4 w-4" />
+            <SquarePen className="h-4 w-4" />
           </Button>
         </div>
         <CardDescription>{plan.description}</CardDescription>

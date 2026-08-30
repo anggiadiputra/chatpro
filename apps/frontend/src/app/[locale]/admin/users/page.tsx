@@ -33,6 +33,11 @@ import { AdminUser } from "./components/data-table-row-actions"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
 
+const DEFAULT_QUERY = {
+  page: 1,
+  limit: 50,
+}
+
 export default function AdminUsersPage() {
   const t = useTranslations("admin")
   const tCommon = useTranslations("common")
@@ -47,33 +52,41 @@ export default function AdminUsersPage() {
   } | undefined>()
   const [statsLoading, setStatsLoading] = useState(true)
 
-  const { users, isLoading, error, refetch, bulkUpdate, isBulkUpdating } = useAdminUsers({
-    page: 1,
-    limit: 50,
-  })
+  const { users, isLoading, error, refetch, bulkUpdate, isBulkUpdating } = useAdminUsers(DEFAULT_QUERY)
 
-  // Fetch stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setStatsLoading(true)
-        const response = await fetch(`${API_URL}/api/v1/admin/users/stats`, {
-          credentials: "include",
-        })
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success) {
-            setStats(data.data)
-          }
+  // Fetch stats once on mount and when refetch is called
+  const fetchStats = useCallback(async (isMounted = true) => {
+    try {
+      if (isMounted) setStatsLoading(true)
+      const response = await fetch(`${API_URL}/api/v1/admin/users/stats`, {
+        credentials: "include",
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && isMounted) {
+          setStats(data.data)
         }
-      } catch {
-        // Stats are optional, don't show error
-      } finally {
+      }
+    } catch {
+      // Stats are optional, don't show error
+    } finally {
+      if (isMounted) {
         setStatsLoading(false)
       }
     }
-    fetchStats()
-  }, [users])
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+    fetchStats(isMounted)
+    return () => {
+      isMounted = false
+    }
+  }, [fetchStats])
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refetch(), fetchStats(true)])
+  }, [refetch, fetchStats])
 
   const handleActivate = useCallback((user: AdminUser) => {
     setActionUser({ user, action: 'activate' })
@@ -137,7 +150,7 @@ export default function AdminUsersPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
+            onClick={() => handleRefresh()}
             disabled={isLoading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />

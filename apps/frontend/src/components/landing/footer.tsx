@@ -1,6 +1,12 @@
+"use client"
+
 import { MessageSquare } from "lucide-react"
+import { useBrandingContext } from "@/components/branding-provider"
 
 export function Footer() {
+  const { websiteName } = useBrandingContext()
+  const brand = websiteName || process.env.NEXT_PUBLIC_APP_NAME || "App"
+
   return (
     <footer className="bg-background border-t py-12">
       <div className="container mx-auto px-4">
@@ -10,13 +16,13 @@ export function Footer() {
               <MessageSquare className="text-primary size-6" />
             </div>
             <span className="text-lg font-bold">
-              {process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat"}
+              {brand}
             </span>
           </div>
 
           <p className="text-muted-foreground text-center text-sm md:text-left">
             &copy; {new Date().getFullYear()}{" "}
-            {process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat"}. All rights
+            {brand}. All rights
             reserved.
           </p>
 

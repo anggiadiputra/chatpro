@@ -17,6 +17,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { RoleGuard } from "@/components/auth/role-guard"
 import { Header } from "@/components/layout/header"
+import { PageHeader } from "@/components/page-header"
 import { ActiveJobs } from "./components/active-jobs"
 import { BroadcastForm } from "./components/broadcast-form"
 import { BroadcastHistory } from "./components/broadcast-history"
@@ -45,7 +46,7 @@ export default function BroadcastPage() {
     return (
       <>
         <Header />
-        <div className="space-y-4 p-4">
+        <div className="space-y-6 p-6">
           <div className="animate-pulse space-y-4">
             <div className="bg-muted h-8 w-48 rounded"></div>
             <div className="bg-muted h-64 w-full rounded"></div>
@@ -58,13 +59,11 @@ export default function BroadcastPage() {
   return (
     <RoleGuard>
       <Header />
-      <div className="space-y-4 p-4">
-        <div className="mb-2 flex flex-col justify-between gap-4 md:flex-row md:items-baseline md:gap-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
-            <p className="text-muted-foreground">{t("description")}</p>
-          </div>
-        </div>
+      <div className="space-y-6 p-6">
+        <PageHeader
+          title={t("title")}
+          description={t("description")}
+        />
 
         {/* WABA Not Connected Warning */}
         {!isConnected && (

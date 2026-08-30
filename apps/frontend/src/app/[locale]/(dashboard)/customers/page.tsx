@@ -6,6 +6,7 @@ import { useBusinessAccount } from "@/hooks/use-business-account"
 import { useCustomers } from "@/hooks/use-customers"
 import { Card, CardContent } from "@/components/ui/card"
 import { Header } from "@/components/layout/header"
+import { PageHeader } from "@/components/page-header"
 import { CustomerViewDrawer } from "./components/customer-view-drawer"
 import { columns } from "./components/customers-columns"
 import { CustomersMutateDrawer } from "./components/customers-mutate-drawer"
@@ -59,7 +60,7 @@ export default function CustomersPage() {
     return (
       <>
         <Header />
-        <div className="space-y-4 p-4">
+        <div className="space-y-6 p-6">
           <div className="animate-pulse space-y-4">
             <div className="bg-muted h-8 w-48 rounded"></div>
             <div className="bg-muted h-64 w-full rounded"></div>
@@ -72,26 +73,22 @@ export default function CustomersPage() {
   return (
     <>
       <Header />
-      <div className="space-y-4 p-4">
-        <div className="mb-2 flex flex-col justify-between gap-4 md:flex-row md:items-baseline md:gap-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              Customers
-              {/* Show subtle indicator when background refetching */}
+      <div className="space-y-6 p-6">
+        <PageHeader
+          title={
+            <div className="flex items-center gap-2">
+              <span>Customers</span>
               {isFetching && !loading && (
-                <span className="text-muted-foreground ml-2 animate-pulse text-xs">
+                <span className="text-muted-foreground animate-pulse text-xs font-normal">
                   Updating...
                 </span>
               )}
-            </h2>
-            <p className="text-muted-foreground">
-              Manage your WhatsApp contacts and consent preferences
-            </p>
-          </div>
-          <div className="w-full md:w-auto">
-            <CustomersPrimaryActions />
-          </div>
-        </div>
+            </div>
+          }
+          description="Manage your WhatsApp contacts and consent preferences"
+        >
+          <CustomersPrimaryActions />
+        </PageHeader>
 
         {customers.length === 0 && !loading ? (
           <Card className="border-dashed">

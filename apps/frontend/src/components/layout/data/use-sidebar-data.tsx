@@ -22,6 +22,7 @@ import {
 import { useTranslations } from "next-intl"
 import { useBranding } from "@/hooks/use-branding"
 import { useBusinessAccount } from "@/hooks/use-business-account"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { type SidebarData, type NavItem } from "../types"
 
 // Extended NavItem with optional roles for filtering
@@ -98,7 +99,7 @@ export function useSidebarData(): SidebarData {
         {
           title: t("whatsapp"),
           url: "/waba",
-          icon: MessageCircle,
+          icon: WhatsAppIcon,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
@@ -173,7 +174,7 @@ export function useSidebarData(): SidebarData {
   return {
     user: {
       name: "User",
-      email: "user@kirim.chat",
+      email: "user@example.com",
       avatar: "/favicon.svg",
     },
     teams: [

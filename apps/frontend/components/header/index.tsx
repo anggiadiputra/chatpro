@@ -1,4 +1,3 @@
-"use client";
 import { useScroll } from "@/hooks/use-scroll";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { MobileNav } from "@/components/header/mobile-nav";
+import { useBrandingContext } from "@/components/branding-provider";
 
 export const links = [
 	{ href: "/", label: "Home" },
@@ -20,6 +20,7 @@ export const links = [
 
 export function Header() {
 	const scrolled = useScroll(10);
+	const { websiteName } = useBrandingContext();
 
 	return (
 		<header
@@ -33,8 +34,8 @@ export function Header() {
 				href="/"
 			>
 				<Logo className="h-4" />
-				<span className="ml-2 font-semibold">KirimChat</span>
-				<span className="sr-only">KirimChat</span>
+				<span className="ml-2 font-semibold">{websiteName}</span>
+				<span className="sr-only">{websiteName}</span>
 			</a>
 
 			<NavigationMenu className="hidden md:block">

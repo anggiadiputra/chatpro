@@ -9,6 +9,7 @@
 import { useState } from 'react'
 import { CreditCard, Calendar, AlertCircle } from 'lucide-react'
 import { Header } from '@/components/layout/header'
+import { PageHeader } from '@/components/page-header'
 import { useTranslations } from 'next-intl'
 import {
   Card,
@@ -27,9 +28,9 @@ import { PaymentModal } from '@/components/payment/payment-modal'
 import { RoleGuard } from '@/components/auth/role-guard'
 
 // Status badge variants
-const statusVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  ACTIVE: 'default',
-  PENDING_PAYMENT: 'secondary',
+const statusVariants: Record<string, 'active' | 'warning' | 'destructive' | 'outline'> = {
+  ACTIVE: 'active',
+  PENDING_PAYMENT: 'warning',
   EXPIRED: 'destructive',
   CANCELLED: 'outline',
 }
@@ -108,12 +109,10 @@ export default function SubscriptionPage() {
       <Header />
       <div className="p-4 sm:p-6 lg:p-8 space-y-8">
         {/* Page Header */}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('title')}</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {t('subtitle')}
-          </p>
-        </div>
+        <PageHeader
+          title={t('title')}
+          description={t('subtitle')}
+        />
 
         {/* Error Alert */}
         {error && (
