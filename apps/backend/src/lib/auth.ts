@@ -118,6 +118,7 @@ export const auth = betterAuth({
       "http://localhost:3005",
       "https://kirim.chat",
       "https://api.kirim.chat",
+      "https://dash.prochat.work",
       "https://app.prochat.work",
       "https://api.prochat.work"
     ]
