@@ -1,7 +1,7 @@
 module.exports = {
   apps: [{
     name: 'whoops-frontend',
-    script: 'node_modules/next/dist/bin/next',
+    script: 'node_modules/.bin/next',
     args: 'start -p 3006',
     cwd: './',
     instances: 1,
