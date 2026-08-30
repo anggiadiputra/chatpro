@@ -191,6 +191,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
   const reconnectAttemptsRef = useRef(0)
   const isVisibleRef = useRef(true)
   const enabledRef = useRef(enabled)
+  const connectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isMountedRef = useRef(false)
 
   // Refs for callbacks to avoid stale closures in event listeners
   const onNewMessageRef = useRef(onNewMessage)
@@ -398,11 +400,20 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
   // Disconnect from WebSocket server
   const disconnect = useCallback(() => {
     clearReconnectTimeout()
+    if (connectTimeoutRef.current) {
+      clearTimeout(connectTimeoutRef.current)
+      connectTimeoutRef.current = null
+    }
     reconnectAttemptsRef.current = 0
 
     if (socketRef.current) {
       socketRef.current.removeAllListeners()
-      socketRef.current.disconnect()
+      // Only disconnect if connected or actively connecting
+      if (socketRef.current.connected) {
+        socketRef.current.disconnect()
+      } else {
+        socketRef.current.close()
+      }
       socketRef.current = null
     }
 
@@ -440,13 +451,25 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
     }
   }, [handleVisibilityChange])
 
-  // Connect on mount if enabled
+  // Connect on mount if enabled (with delay to handle React Strict Mode double-invoke)
   useEffect(() => {
+    isMountedRef.current = true
+
     if (enabled && isVisibleRef.current) {
-      connect()
+      // Small delay to let React Strict Mode complete its unmount-remount cycle
+      connectTimeoutRef.current = setTimeout(() => {
+        if (isMountedRef.current && enabledRef.current) {
+          connect()
+        }
+      }, 100)
     }
 
     return () => {
+      isMountedRef.current = false
+      if (connectTimeoutRef.current) {
+        clearTimeout(connectTimeoutRef.current)
+        connectTimeoutRef.current = null
+      }
       disconnect()
     }
   }, [enabled]) // Only depend on enabled, not connect/disconnect to avoid loops
