@@ -47,6 +47,13 @@
   "pnpm": {
     "overrides": {
       "jose": "^6.1.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "msgpackr-extract",
+      "prisma"
+    ]
   }
 }
