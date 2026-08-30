@@ -84,11 +84,22 @@ function getClientIP(c: Context): string {
   return sanitizeIP(forwarded || realIP || 'unknown')
 }
 
+// Helper to get the JWT signing secret.
+// Fails fast instead of falling back to a hardcoded secret: signing tokens with
+// a known default would let anyone forge valid JWTs if the env var is missing.
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      'JWT_SECRET is missing or too short (min 32 characters). Refusing to sign tokens with an insecure secret.'
+    )
+  }
+  return new TextEncoder().encode(secret)
+}
+
 // Helper function to generate JWT
 async function generateJWT(userId: string, email: string, role: string) {
-  const secret = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'your-secret-key'
-  )
+  const secret = getJwtSecret()
 
   return await new SignJWT({
     userId,

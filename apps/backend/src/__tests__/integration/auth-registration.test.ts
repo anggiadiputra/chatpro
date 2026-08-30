@@ -40,7 +40,7 @@ describe('Auth Registration Endpoints', () => {
 
   beforeAll(async () => {
     // Setup test environment
-    process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing';
+    process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only-32chars';
   });
 
   afterAll(async () => {
