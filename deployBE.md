@@ -12,9 +12,9 @@ Panduan komprehensif untuk mendeploy backend **ProChat API** di VPS berbasis **C
 | **Domain Frontend** | `https://dash.prochat.work` |
 | **Domain Utama** | `https://prochat.work` |
 | **Backend App Port** | `3005` |
-| **User CloudPanel** | `prochat` *(atau `prochat-api`)* |
-| **Path Domain Web** | `/home/prochat/htdocs/api.prochat.work` |
-| **Path Git Repository** | `/home/prochat/htdocs/chatpro` |
+| **User CloudPanel** | `prochat-api` *(atau sesuaikan user site Anda)* |
+| **Path Domain Web** | `/home/prochat-api/htdocs/api.prochat.work` |
+| **Path Git Repository** | `/home/prochat-api/htdocs/chatpro` |
 | **Node.js Version** | **v22.x (LTS)** *(Wajib untuk pnpm v10+)* |
 | **Package Manager** | `pnpm` |
 | **Process Manager** | `PM2` (Cluster / Fork mode) |
@@ -61,7 +61,7 @@ redis-cli ping  # Harus membalas PONG
    - **Domain**: `api.prochat.work`
    - **Node.js Version**: `v22.x`
    - **App Port**: `3005`
-   - **Site User**: `prochat` *(atau user yang sudah ada)*
+   - **Site User**: `prochat-api`
 3. Pasang **SSL (Let's Encrypt)**:
    - Masuk ke tab **SSL/TLS** pada site `api.prochat.work` ➡️ klik **New Let's Encrypt Certificate**.
 4. Konfigurasi **Vhost Nginx** (Tab **Vhost**):
@@ -85,10 +85,10 @@ redis-cli ping  # Harus membalas PONG
 
 ## 📥 Langkah 3: Setup Folder Git Repository
 
-Login sebagai root, lalu clone repositori ke folder `/home/prochat/htdocs/`:
+Login sebagai root, lalu clone repositori ke folder `/home/prochat-api/htdocs/`:
 
 ```bash
-cd /home/prochat/htdocs
+cd /home/prochat-api/htdocs
 git clone https://github.com/anggiadiputra/chatpro.git
 ```
 
@@ -96,10 +96,10 @@ git clone https://github.com/anggiadiputra/chatpro.git
 
 ## ⚙️ Langkah 4: Buat File `.env` Production
 
-Buat file environment di folder target domain `/home/prochat/htdocs/api.prochat.work/.env`:
+Buat file environment di folder target domain `/home/prochat-api/htdocs/api.prochat.work/.env`:
 
 ```bash
-cat << 'EOF' > /home/prochat/htdocs/api.prochat.work/.env
+cat << 'EOF' > /home/prochat-api/htdocs/api.prochat.work/.env
 # DATABASE CONNECTION (Neon Serverless PostgreSQL)
 DATABASE_URL="postgresql://neondb_owner:npg_wvV0kTK1qtlz@ep-dry-meadow-azrtkedb-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
@@ -166,7 +166,7 @@ GOOGLE_CLIENT_SECRET=""
 EOF
 
 # Kunci permission file .env agar aman
-chmod 600 /home/prochat/htdocs/api.prochat.work/.env
+chmod 600 /home/prochat-api/htdocs/api.prochat.work/.env
 ```
 
 ---
@@ -176,53 +176,39 @@ chmod 600 /home/prochat/htdocs/api.prochat.work/.env
 Jalankan satu baris perintah berikut untuk melakukan pull kode, sync rsync, instalasi dependensi, build TypeScript, penyesuaian hak akses file, dan reload PM2:
 
 ```bash
-cd /home/prochat/htdocs/chatpro && git pull origin main && rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' ./apps/backend/ /home/prochat/htdocs/api.prochat.work/ && cd /home/prochat/htdocs/api.prochat.work && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm exec prisma generate && pnpm build && chown -R prochat:prochat /home/prochat/htdocs/api.prochat.work && find /home/prochat/htdocs/api.prochat.work -type d -exec chmod 755 {} + && find /home/prochat/htdocs/api.prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat/htdocs/api.prochat.work/node_modules/.bin/ && chmod 600 /home/prochat/htdocs/api.prochat.work/.env && su - prochat -c "cd /home/prochat/htdocs/api.prochat.work && pm2 restart prochat-backend || pm2 start ecosystem.config.cjs"
+cd /home/prochat-api/htdocs/chatpro && git pull origin main && rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' ./apps/backend/ /home/prochat-api/htdocs/api.prochat.work/ && cd /home/prochat-api/htdocs/api.prochat.work && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm exec prisma generate && pnpm build && chown -R prochat-api:prochat-api /home/prochat-api/htdocs/api.prochat.work && find /home/prochat-api/htdocs/api.prochat.work -type d -exec chmod 755 {} + && find /home/prochat-api/htdocs/api.prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat-api/htdocs/api.prochat.work/node_modules/.bin/ && chmod 600 /home/prochat-api/htdocs/api.prochat.work/.env && su - prochat-api -c "cd /home/prochat-api/htdocs/api.prochat.work && pm2 restart prochat-backend || pm2 start ecosystem.config.cjs"
 ```
 
 ---
 
 ## 🔒 Langkah 6: Standarisasi Permission File & Folder
 
+Jalankan perintah ini kapan saja untuk merapikan seluruh permission `api.prochat.work`:
+
 ```bash
-# 1. Atur kepemilikan user & group prochat
-chown -R prochat:prochat /home/prochat/htdocs/api.prochat.work
-
-# 2. Atur permission semua FOLDER menjadi 755 (drwxr-xr-x)
-find /home/prochat/htdocs/api.prochat.work -type d -exec chmod 755 {} +
-
-# 3. Atur permission semua FILE menjadi 644 (-rw-r--r--)
-find /home/prochat/htdocs/api.prochat.work -type f -exec chmod 644 {} +
-
-# 4. Beri izin execute untuk binary di node_modules
-chmod -R +x /home/prochat/htdocs/api.prochat.work/node_modules/.bin/
-
-# 5. Kunci file .env agar hanya bisa dibaca oleh user prochat (600)
-chmod 600 /home/prochat/htdocs/api.prochat.work/.env
-
-# 6. Atur folder logs dan uploads agar bisa ditulis (775)
-chmod -R 775 /home/prochat/htdocs/api.prochat.work/logs /home/prochat/htdocs/api.prochat.work/uploads 2>/dev/null || true
+chown -R prochat-api:prochat-api /home/prochat-api/htdocs/api.prochat.work && find /home/prochat-api/htdocs/api.prochat.work -type d -exec chmod 755 {} + && find /home/prochat-api/htdocs/api.prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat-api/htdocs/api.prochat.work/node_modules/.bin/ && chmod 600 /home/prochat-api/htdocs/api.prochat.work/.env
 ```
 
 ---
 
 ## 📜 Langkah 7: Membuat Helper Script Deploy Otomatis
 
-Agar tidak perlu mengetik perintah panjang di masa depan, buat file script `deploy-backend.sh`:
+Agar tidak perlu mengetik perintah panjang di masa depan, buat file script `deploy-backend.sh` di `/home/prochat-api/`:
 
 ```bash
-cat << 'EOF' > /home/prochat/deploy-backend.sh
+cat << 'EOF' > /home/prochat-api/deploy-backend.sh
 #!/bin/bash
 set -e
 
 echo "🚀 [1/7] Pulling latest code from GitHub..."
-cd /home/prochat/htdocs/chatpro
+cd /home/prochat-api/htdocs/chatpro
 git pull origin main
 
 echo "📦 [2/7] Syncing backend files to api.prochat.work..."
-rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' ./apps/backend/ /home/prochat/htdocs/api.prochat.work/
+rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' ./apps/backend/ /home/prochat-api/htdocs/api.prochat.work/
 
 echo "🔨 [3/7] Installing dependencies..."
-cd /home/prochat/htdocs/api.prochat.work
+cd /home/prochat-api/htdocs/api.prochat.work
 pnpm install --dangerously-allow-all-builds
 chmod -R +x node_modules/.bin/
 
@@ -233,25 +219,24 @@ echo "⚙️ [5/7] Building TypeScript project..."
 pnpm build
 
 echo "🔒 [6/7] Fixing file & folder permissions..."
-chown -R prochat:prochat /home/prochat/htdocs/api.prochat.work
-find /home/prochat/htdocs/api.prochat.work -type d -exec chmod 755 {} +
-find /home/prochat/htdocs/api.prochat.work -type f -exec chmod 644 {} +
-chmod -R +x /home/prochat/htdocs/api.prochat.work/node_modules/.bin/
-chmod 600 /home/prochat/htdocs/api.prochat.work/.env 2>/dev/null || true
-chmod -R 775 /home/prochat/htdocs/api.prochat.work/logs /home/prochat/htdocs/api.prochat.work/uploads 2>/dev/null || true
+chown -R prochat-api:prochat-api /home/prochat-api/htdocs/api.prochat.work
+find /home/prochat-api/htdocs/api.prochat.work -type d -exec chmod 755 {} +
+find /home/prochat-api/htdocs/api.prochat.work -type f -exec chmod 644 {} +
+chmod -R +x /home/prochat-api/htdocs/api.prochat.work/node_modules/.bin/
+chmod 600 /home/prochat-api/htdocs/api.prochat.work/.env 2>/dev/null || true
 
 echo "🔄 [7/7] Restarting PM2 process..."
-su - prochat -c "cd /home/prochat/htdocs/api.prochat.work && pm2 restart prochat-backend || pm2 start ecosystem.config.cjs"
+su - prochat-api -c "cd /home/prochat-api/htdocs/api.prochat.work && pm2 restart prochat-backend || pm2 start ecosystem.config.cjs"
 
 echo "✅ Backend Deployment Finished Successfully!"
 EOF
 
-chmod +x /home/prochat/deploy-backend.sh
+chmod +x /home/prochat-api/deploy-backend.sh
 ```
 
 **Setiap kali Anda ingin deploy update backend terbaru, cukup jalankan:**
 ```bash
-/home/prochat/deploy-backend.sh
+/home/prochat-api/deploy-backend.sh
 ```
 
 ---
@@ -261,10 +246,10 @@ chmod +x /home/prochat/deploy-backend.sh
 ### 8.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses
-su - prochat -c "pm2 status"
+su - prochat-api -c "pm2 status"
 
 # Cek 30 baris log terakhir
-su - prochat -c "pm2 logs prochat-backend --lines 30 --nostream"
+su - prochat-api -c "pm2 logs prochat-backend --lines 30 --nostream"
 ```
 
 ### 8.2 Tes Endpoint Healthcheck
@@ -279,7 +264,7 @@ curl -I https://api.prochat.work/health
 
 ### 8.3 Simpan PM2 Startup
 ```bash
-su - prochat -c "pm2 save"
+su - prochat-api -c "pm2 save"
 pm2 startup
 ```
 
@@ -293,4 +278,5 @@ pm2 startup
 | `PrismaClientInitializationError` | URL database Neon salah / timeout | Pastikan parameter `?sslmode=require` aktif di `DATABASE_URL` |
 | `Redis connection refused (ECONNREFUSED)` | Service Redis belum berjalan di VPS | Jalankan `systemctl restart redis-server` |
 | `EADDRINUSE: port 3005 already in use` | Ada proses lama menggantung di port 3005 | Cek dengan `lsof -i :3005` atau `fuser -k 3005/tcp` lalu restart PM2 |
-| `sh: 1: prisma: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/prochat/htdocs/api.prochat.work/node_modules/.bin/` |
+| `sh: 1: prisma: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/prochat-api/htdocs/api.prochat.work/node_modules/.bin/` |
+| `Permission denied / EACCES` | Kepemilikan file belum disesuaikan | Jalankan langkah 6 (Standarisasi Permission File & Folder) |
