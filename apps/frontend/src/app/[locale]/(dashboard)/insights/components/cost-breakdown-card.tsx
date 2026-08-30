@@ -1,9 +1,15 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { IconCurrencyDollar } from "@tabler/icons-react"
+import { DollarSign } from "lucide-react"
 import type { ConversationAnalyticsData } from "@/lib/api/insights-api"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface CostBreakdownCardProps {
   data: ConversationAnalyticsData | null
@@ -30,7 +36,11 @@ const CATEGORY_LABELS = {
  * Displays cost per conversation category with locale-aware currency formatting
  * Requirements: 2.3, 8.3
  */
-export function CostBreakdownCard({ data, isLoading, locale = "id-ID" }: CostBreakdownCardProps) {
+export function CostBreakdownCard({
+  data,
+  isLoading,
+  locale = "id-ID",
+}: CostBreakdownCardProps) {
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat(locale, {
       style: "currency",
@@ -75,34 +85,39 @@ export function CostBreakdownCard({ data, isLoading, locale = "id-ID" }: CostBre
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-medium">
-          <IconCurrencyDollar className="h-4 w-4" />
+          <DollarSign className="h-4 w-4" />
           Cost Breakdown
         </CardTitle>
         <CardDescription>
-          {hasData ? `Total: ${formatCurrency(totalCost)}` : "Cost per conversation category"}
+          {hasData
+            ? `Total: ${formatCurrency(totalCost)}`
+            : "Cost per conversation category"}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!hasData ? (
-          <div className="flex h-[180px] items-center justify-center text-muted-foreground">
+          <div className="text-muted-foreground flex h-[180px] items-center justify-center">
             <div className="text-center">
-              <IconCurrencyDollar className="mx-auto h-12 w-12 opacity-50" />
+              <DollarSign className="mx-auto h-12 w-12 opacity-50" />
               <p className="mt-2">No cost data available</p>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
             {Object.entries(costByCategory).map(([category, cost]) => {
-              const percentage = totalCost > 0 ? ((cost / totalCost) * 100).toFixed(1) : "0"
-              const color = CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS]
-              const label = CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]
+              const percentage =
+                totalCost > 0 ? ((cost / totalCost) * 100).toFixed(1) : "0"
+              const color =
+                CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS]
+              const label =
+                CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]
 
               return (
                 <div key={category} className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div
-                        className="h-3 w-3 rounded-full shrink-0"
+                        className="h-3 w-3 shrink-0 rounded-full"
                         style={{ backgroundColor: color }}
                       />
                       <span className="font-medium">{label}</span>
@@ -111,7 +126,7 @@ export function CostBreakdownCard({ data, isLoading, locale = "id-ID" }: CostBre
                       {formatCurrency(cost)}
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                  <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
                     <div
                       className="h-full rounded-full transition-all duration-300"
                       style={{
@@ -125,10 +140,12 @@ export function CostBreakdownCard({ data, isLoading, locale = "id-ID" }: CostBre
             })}
 
             {/* Total summary */}
-            <div className="pt-4 border-t">
+            <div className="border-t pt-4">
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Total Cost</span>
-                <span className="font-bold text-lg">{formatCurrency(totalCost)}</span>
+                <span className="text-lg font-bold">
+                  {formatCurrency(totalCost)}
+                </span>
               </div>
             </div>
           </div>

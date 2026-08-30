@@ -1,4 +1,4 @@
-import { IconDots } from "@tabler/icons-react"
+import { Ellipsis } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import {
@@ -91,7 +91,7 @@ export default function RouteView() {
                     className="rounded-full"
                     size="icon"
                   >
-                    <IconDots />
+                    <Ellipsis />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

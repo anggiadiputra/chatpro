@@ -1,22 +1,28 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import {
+  RefreshCw,
+  PlugZap,
+  Save,
+  AlertCircle,
+  CircleCheck,
+  Info,
+} from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
-import { SensitiveInput } from "./sensitive-input"
 import { useAdminSettings } from "../../hooks/use-admin-settings"
-import {
-  IconRefresh,
-  IconPlugConnected,
-  IconDeviceFloppy,
-  IconAlertCircle,
-  IconCircleCheck,
-  IconInfoCircle,
-} from "@tabler/icons-react"
+import { SensitiveInput } from "./sensitive-input"
 
 interface OpenAISettings {
   apiKey: string
@@ -43,8 +49,14 @@ export function OpenAISettingsForm() {
   } = useAdminSettings<OpenAISettings>("openai")
 
   const [formData, setFormData] = useState<OpenAISettings>(defaultSettings)
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
-  const [saveResult, setSaveResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [testResult, setTestResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
+  const [saveResult, setSaveResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
 
   useEffect(() => {
     if (settings) {
@@ -52,12 +64,12 @@ export function OpenAISettingsForm() {
     }
   }, [settings])
 
-  const handleChange = (field: keyof OpenAISettings) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
-    setSaveResult(null)
-  }
+  const handleChange =
+    (field: keyof OpenAISettings) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+      setSaveResult(null)
+    }
 
   const handleEnabledChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, enabled: checked }))
@@ -82,7 +94,10 @@ export function OpenAISettingsForm() {
     setTestResult(null)
     const result = await resetToDefault()
     if (result.success) {
-      setSaveResult({ success: true, message: "Settings reset to .env defaults" })
+      setSaveResult({
+        success: true,
+        message: "Settings reset to .env defaults",
+      })
     } else {
       setSaveResult(result)
     }
@@ -118,7 +133,7 @@ export function OpenAISettingsForm() {
       <CardContent className="space-y-6">
         {source && (
           <Alert variant={source === "database" ? "default" : "destructive"}>
-            <IconInfoCircle className="h-4 w-4" />
+            <Info className="h-4 w-4" />
             <AlertDescription>
               {source === "database"
                 ? "Settings loaded from database"
@@ -129,7 +144,7 @@ export function OpenAISettingsForm() {
 
         {error && (
           <Alert variant="destructive">
-            <IconAlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -137,9 +152,9 @@ export function OpenAISettingsForm() {
         {testResult && (
           <Alert variant={testResult.success ? "default" : "destructive"}>
             {testResult.success ? (
-              <IconCircleCheck className="h-4 w-4" />
+              <CircleCheck className="h-4 w-4" />
             ) : (
-              <IconAlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" />
             )}
             <AlertDescription>{testResult.message}</AlertDescription>
           </Alert>
@@ -148,9 +163,9 @@ export function OpenAISettingsForm() {
         {saveResult && (
           <Alert variant={saveResult.success ? "default" : "destructive"}>
             {saveResult.success ? (
-              <IconCircleCheck className="h-4 w-4" />
+              <CircleCheck className="h-4 w-4" />
             ) : (
-              <IconAlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" />
             )}
             <AlertDescription>{saveResult.message}</AlertDescription>
           </Alert>
@@ -185,7 +200,7 @@ export function OpenAISettingsForm() {
             onClick={handleTest}
             disabled={isTesting || isUpdating || !formData.enabled}
           >
-            <IconPlugConnected className="mr-2 h-4 w-4" />
+            <PlugZap className="mr-2 h-4 w-4" />
             {isTesting ? "Testing..." : "Test API Key"}
           </Button>
           <Button
@@ -193,11 +208,11 @@ export function OpenAISettingsForm() {
             onClick={handleReset}
             disabled={isResetting || isUpdating}
           >
-            <IconRefresh className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             {isResetting ? "Resetting..." : "Reset to Default"}
           </Button>
           <Button onClick={handleSave} disabled={isUpdating}>
-            <IconDeviceFloppy className="mr-2 h-4 w-4" />
+            <Save className="mr-2 h-4 w-4" />
             {isUpdating ? "Saving..." : "Save Changes"}
           </Button>
         </div>

@@ -1,19 +1,28 @@
 "use client"
 
 import { useEffect, useState, useCallback, useMemo } from "react"
+import {
+  Search,
+  Variable,
+  Link,
+  DollarSign,
+  Calendar,
+  Image,
+  Video,
+  File,
+  CaseSensitive,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Plus,
+  Trash2,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -22,24 +31,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  IconSearch,
-  IconVariable,
-  IconLink,
-  IconCurrencyDollar,
-  IconCalendar,
-  IconPhoto,
-  IconVideo,
-  IconFile,
-  IconLetterCase,
-  IconChevronLeft,
-  IconChevronRight,
-  IconFilter,
-  IconPlus,
-  IconTrash,
-} from "@tabler/icons-react"
-import { useToast } from "@/hooks/use-toast"
-import { VariableFormDialog } from "./variable-form-dialog"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { VariableFormDialog } from "./variable-form-dialog"
 
 const ITEMS_PER_PAGE = 10
 
@@ -56,13 +56,13 @@ export interface TemplateVariable {
 }
 
 const typeIcons: Record<TemplateVariable["type"], React.ElementType> = {
-  TEXT: IconLetterCase,
-  URL: IconLink,
-  CURRENCY: IconCurrencyDollar,
-  DATE: IconCalendar,
-  IMAGE: IconPhoto,
-  VIDEO: IconVideo,
-  DOCUMENT: IconFile,
+  TEXT: CaseSensitive,
+  URL: Link,
+  CURRENCY: DollarSign,
+  DATE: Calendar,
+  IMAGE: Image,
+  VIDEO: Video,
+  DOCUMENT: File,
 }
 
 const typeColors: Record<TemplateVariable["type"], string> = {
@@ -75,8 +75,16 @@ const typeColors: Record<TemplateVariable["type"], string> = {
   DOCUMENT: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
 }
 
-const VARIABLE_TYPES = ["TEXT", "URL", "CURRENCY", "DATE", "IMAGE", "VIDEO", "DOCUMENT"] as const
-type VariableTypeFilter = typeof VARIABLE_TYPES[number] | "ALL"
+const VARIABLE_TYPES = [
+  "TEXT",
+  "URL",
+  "CURRENCY",
+  "DATE",
+  "IMAGE",
+  "VIDEO",
+  "DOCUMENT",
+] as const
+type VariableTypeFilter = (typeof VARIABLE_TYPES)[number] | "ALL"
 
 export function VariableLibrary() {
   const t = useTranslations("templates.variables")
@@ -87,7 +95,9 @@ export function VariableLibrary() {
   const [typeFilter, setTypeFilter] = useState<VariableTypeFilter>("ALL")
   const [currentPage, setCurrentPage] = useState(1)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [deleteVariable, setDeleteVariable] = useState<TemplateVariable | null>(null)
+  const [deleteVariable, setDeleteVariable] = useState<TemplateVariable | null>(
+    null
+  )
   const [isDeleting, setIsDeleting] = useState(false)
 
   const loadVariables = useCallback(async () => {
@@ -172,12 +182,12 @@ export function VariableLibrary() {
   // Filter variables by search query and type
   const filteredVariables = useMemo(() => {
     return variables.filter((variable) => {
-      const matchesSearch = 
+      const matchesSearch =
         variable.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         variable.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      
+
       const matchesType = typeFilter === "ALL" || variable.type === typeFilter
-      
+
       return matchesSearch && matchesType
     })
   }, [variables, searchQuery, typeFilter])
@@ -208,9 +218,9 @@ export function VariableLibrary() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center flex-1">
-          <div className="relative flex-1 max-w-sm">
-            <IconSearch className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+        <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder={t("search")}
               value={searchQuery}
@@ -223,7 +233,7 @@ export function VariableLibrary() {
             onValueChange={(value: VariableTypeFilter) => setTypeFilter(value)}
           >
             <SelectTrigger className="w-full sm:w-[160px]">
-              <IconFilter className="h-4 w-4 mr-2" />
+              <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder={t("filterByType")} />
             </SelectTrigger>
             <SelectContent>
@@ -237,7 +247,7 @@ export function VariableLibrary() {
           </Select>
         </div>
         <Button onClick={handleCreate}>
-          <IconPlus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           {t("createVariable")}
         </Button>
       </div>
@@ -245,9 +255,11 @@ export function VariableLibrary() {
       {filteredVariables.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <IconVariable className="text-muted-foreground mb-4 h-12 w-12" />
+            <Variable className="text-muted-foreground mb-4 h-12 w-12" />
             <h3 className="mb-2 text-lg font-semibold">
-              {searchQuery || typeFilter !== "ALL" ? t("noResults") : t("empty")}
+              {searchQuery || typeFilter !== "ALL"
+                ? t("noResults")
+                : t("empty")}
             </h3>
             <p className="text-muted-foreground mb-4 text-center text-sm">
               {searchQuery || typeFilter !== "ALL"
@@ -256,7 +268,7 @@ export function VariableLibrary() {
             </p>
             {!searchQuery && typeFilter === "ALL" && (
               <Button onClick={handleCreate}>
-                <IconPlus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 {t("createVariable")}
               </Button>
             )}
@@ -270,8 +282,12 @@ export function VariableLibrary() {
                 <TableRow>
                   <TableHead>{t("name")}</TableHead>
                   <TableHead>{t("type")}</TableHead>
-                  <TableHead className="hidden md:table-cell">{t("exampleValue")}</TableHead>
-                  <TableHead className="hidden sm:table-cell">{t("usageCount")}</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    {t("exampleValue")}
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    {t("usageCount")}
+                  </TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -284,7 +300,7 @@ export function VariableLibrary() {
                         <div className="flex flex-col gap-1">
                           <span className="font-medium">{variable.name}</span>
                           {variable.description && (
-                            <span className="text-muted-foreground text-xs line-clamp-1">
+                            <span className="text-muted-foreground line-clamp-1 text-xs">
                               {variable.description}
                             </span>
                           )}
@@ -300,7 +316,7 @@ export function VariableLibrary() {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        <span className="text-muted-foreground text-sm truncate max-w-[200px] block">
+                        <span className="text-muted-foreground block max-w-[200px] truncate text-sm">
                           {variable.exampleValue || "-"}
                         </span>
                       </TableCell>
@@ -313,10 +329,10 @@ export function VariableLibrary() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          className="text-destructive hover:text-destructive h-8 w-8"
                           onClick={() => setDeleteVariable(variable)}
                         >
-                          <IconTrash className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" />
                           <span className="sr-only">{t("deleteVariable")}</span>
                         </Button>
                       </TableCell>
@@ -333,7 +349,10 @@ export function VariableLibrary() {
               <p className="text-muted-foreground text-sm">
                 {t("pagination.showing", {
                   from: (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                  to: Math.min(currentPage * ITEMS_PER_PAGE, filteredVariables.length),
+                  to: Math.min(
+                    currentPage * ITEMS_PER_PAGE,
+                    filteredVariables.length
+                  ),
                   total: filteredVariables.length,
                 })}
               </p>
@@ -341,22 +360,29 @@ export function VariableLibrary() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
                   disabled={currentPage === 1}
                 >
-                  <IconChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" />
                   <span className="sr-only">{t("pagination.previous")}</span>
                 </Button>
                 <span className="text-sm">
-                  {t("pagination.page", { current: currentPage, total: totalPages })}
+                  {t("pagination.page", {
+                    current: currentPage,
+                    total: totalPages,
+                  })}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
                   disabled={currentPage === totalPages}
                 >
-                  <IconChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" />
                   <span className="sr-only">{t("pagination.next")}</span>
                 </Button>
               </div>

@@ -1,14 +1,14 @@
 "use client"
 
+import { format } from "date-fns"
 import { ColumnDef } from "@tanstack/react-table"
+import { Variable, Link } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { categories, statuses, qualities } from "../data/data"
 import { Template, countTemplateVariables, hasDynamicUrl } from "../data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
-import { format } from "date-fns"
-import { IconVariable, IconLink } from "@tabler/icons-react"
 
 export const columns: ColumnDef<Template>[] = [
   {
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Template>[] = [
     cell: ({ row }) => {
       const variableCount = countTemplateVariables(row.original)
       const isDynamicUrl = hasDynamicUrl(row.original)
-      
+
       return (
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
@@ -52,14 +52,17 @@ export const columns: ColumnDef<Template>[] = [
             </span>
             <div className="flex items-center gap-1">
               {variableCount > 0 && (
-                <Badge variant="outline" className="gap-1 text-xs px-1.5 py-0">
-                  <IconVariable className="h-3 w-3" />
+                <Badge variant="outline" className="gap-1 px-1.5 py-0 text-xs">
+                  <Variable className="h-3 w-3" />
                   {variableCount}
                 </Badge>
               )}
               {isDynamicUrl && (
-                <Badge variant="outline" className="gap-1 text-xs px-1.5 py-0 text-purple-600 border-purple-300">
-                  <IconLink className="h-3 w-3" />
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-purple-300 px-1.5 py-0 text-xs text-purple-600"
+                >
+                  <Link className="h-3 w-3" />
                   URL
                 </Badge>
               )}
@@ -156,9 +159,7 @@ export const columns: ColumnDef<Template>[] = [
       <DataTableColumnHeader column={column} title="Quality" />
     ),
     cell: ({ row }) => {
-      const quality = qualities.find(
-        (q) => q.value === row.getValue("quality")
-      )
+      const quality = qualities.find((q) => q.value === row.getValue("quality"))
 
       if (!quality || !row.getValue("quality")) {
         return <span className="text-muted-foreground text-sm">-</span>

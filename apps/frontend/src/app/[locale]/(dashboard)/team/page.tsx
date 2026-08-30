@@ -1,18 +1,23 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Plus, Users } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Header } from "@/components/layout/header"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { IconUsersGroup } from "@tabler/icons-react"
 import { useBusinessAccount } from "@/hooks/use-business-account"
-import { TeamMembersList } from "./components/team-members-list"
-import { PendingInvitations } from "./components/pending-invitations"
-import { InviteAgentDialog } from "./components/invite-agent-dialog"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { RoleGuard } from "@/components/auth/role-guard"
+import { Header } from "@/components/layout/header"
+import { InviteAgentDialog } from "./components/invite-agent-dialog"
+import { PendingInvitations } from "./components/pending-invitations"
+import { TeamMembersList } from "./components/team-members-list"
 
 interface TeamMember {
   id: string
@@ -45,7 +50,7 @@ interface AgentLimit {
 export default function TeamPage() {
   const t = useTranslations("team")
   const { userId, userRole, isLoading: isLoadingAccount } = useBusinessAccount()
-  
+
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [agentLimit, setAgentLimit] = useState<AgentLimit | null>(null)
@@ -93,10 +98,13 @@ export default function TeamPage() {
 
   const handleRemoveMember = async (memberId: string) => {
     try {
-      const response = await fetch(`${apiUrl}/api/v1/team/members/${memberId}`, {
-        method: "DELETE",
-        credentials: "include",
-      })
+      const response = await fetch(
+        `${apiUrl}/api/v1/team/members/${memberId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      )
 
       if (response.ok) {
         toast({ title: t("members.removeSuccess") })
@@ -111,10 +119,13 @@ export default function TeamPage() {
 
   const handleCancelInvitation = async (invitationId: string) => {
     try {
-      const response = await fetch(`${apiUrl}/api/v1/team/invitations/${invitationId}`, {
-        method: "DELETE",
-        credentials: "include",
-      })
+      const response = await fetch(
+        `${apiUrl}/api/v1/team/invitations/${invitationId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      )
 
       if (response.ok) {
         toast({ title: t("invitations.cancelSuccess") })
@@ -129,10 +140,13 @@ export default function TeamPage() {
 
   const handleResendInvitation = async (invitationId: string) => {
     try {
-      const response = await fetch(`${apiUrl}/api/v1/team/invitations/${invitationId}/resend`, {
-        method: "POST",
-        credentials: "include",
-      })
+      const response = await fetch(
+        `${apiUrl}/api/v1/team/invitations/${invitationId}/resend`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      )
 
       if (response.ok) {
         toast({ title: t("invitations.resendSuccess") })
@@ -164,7 +178,7 @@ export default function TeamPage() {
   }
 
   // Filter active members only
-  const activeMembers = teamMembers.filter(m => m.status === "ACTIVE")
+  const activeMembers = teamMembers.filter((m) => m.status === "ACTIVE")
 
   return (
     <RoleGuard>
@@ -185,14 +199,14 @@ export default function TeamPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <IconUsersGroup className="h-5 w-5" />
+              <Users className="h-5 w-5" />
               {t("members.title")}
             </CardTitle>
             {agentLimit && (
               <CardDescription>
-                {t("invite.currentCount", { 
-                  current: agentLimit.currentCount, 
-                  limit: agentLimit.limit 
+                {t("invite.currentCount", {
+                  current: agentLimit.currentCount,
+                  limit: agentLimit.limit,
                 })}
               </CardDescription>
             )}

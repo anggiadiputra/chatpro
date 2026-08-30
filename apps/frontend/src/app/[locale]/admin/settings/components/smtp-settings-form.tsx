@@ -1,24 +1,30 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  RefreshCw,
+  Mail,
+  Save,
+  AlertCircle,
+  CircleCheck,
+  Info,
+  AlertTriangle,
+} from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
-import { SensitiveInput } from "./sensitive-input"
 import { useAdminSettings } from "../../hooks/use-admin-settings"
-import {
-  IconRefresh,
-  IconMail,
-  IconDeviceFloppy,
-  IconAlertCircle,
-  IconCircleCheck,
-  IconInfoCircle,
-  IconAlertTriangle,
-} from "@tabler/icons-react"
+import { SensitiveInput } from "./sensitive-input"
 
 interface SmtpSettings {
   host: string
@@ -56,25 +62,34 @@ export function SmtpSettingsForm() {
 
   const [formData, setFormData] = useState<SmtpSettings>(defaultSettings)
   const [testEmail, setTestEmail] = useState("")
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
-  const [saveResult, setSaveResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [testResult, setTestResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
+  const [saveResult, setSaveResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
 
   useEffect(() => {
     if (settings) {
       setFormData({
         ...settings,
-        port: typeof settings.port === "string" ? parseInt(settings.port, 10) : settings.port,
+        port:
+          typeof settings.port === "string"
+            ? parseInt(settings.port, 10)
+            : settings.port,
       })
     }
   }, [settings])
 
-  const handleChange = (field: keyof SmtpSettings) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = field === "port" ? parseInt(e.target.value, 10) || 0 : e.target.value
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    setSaveResult(null)
-  }
+  const handleChange =
+    (field: keyof SmtpSettings) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value =
+        field === "port" ? parseInt(e.target.value, 10) || 0 : e.target.value
+      setFormData((prev) => ({ ...prev, [field]: value }))
+      setSaveResult(null)
+    }
 
   const handleSecureChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, secure: checked }))
@@ -90,7 +105,10 @@ export function SmtpSettingsForm() {
 
   const handleTest = async () => {
     if (!testEmail) {
-      setTestResult({ success: false, message: "Please enter a test email address" })
+      setTestResult({
+        success: false,
+        message: "Please enter a test email address",
+      })
       return
     }
     setTestResult(null)
@@ -103,7 +121,10 @@ export function SmtpSettingsForm() {
     setTestResult(null)
     const result = await resetToDefault()
     if (result.success) {
-      setSaveResult({ success: true, message: "Settings reset to .env defaults" })
+      setSaveResult({
+        success: true,
+        message: "Settings reset to .env defaults",
+      })
     } else {
       setSaveResult(result)
     }
@@ -143,16 +164,17 @@ export function SmtpSettingsForm() {
         {/* Warning banner when settings incomplete */}
         {isIncomplete && (
           <Alert variant="destructive">
-            <IconAlertTriangle className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              SMTP settings are incomplete. Email functionality is disabled until Host, Port, and From Email are configured.
+              SMTP settings are incomplete. Email functionality is disabled
+              until Host, Port, and From Email are configured.
             </AlertDescription>
           </Alert>
         )}
 
         {source && (
           <Alert variant={source === "database" ? "default" : "destructive"}>
-            <IconInfoCircle className="h-4 w-4" />
+            <Info className="h-4 w-4" />
             <AlertDescription>
               {source === "database"
                 ? "Settings loaded from database"
@@ -163,7 +185,7 @@ export function SmtpSettingsForm() {
 
         {error && (
           <Alert variant="destructive">
-            <IconAlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -171,9 +193,9 @@ export function SmtpSettingsForm() {
         {testResult && (
           <Alert variant={testResult.success ? "default" : "destructive"}>
             {testResult.success ? (
-              <IconCircleCheck className="h-4 w-4" />
+              <CircleCheck className="h-4 w-4" />
             ) : (
-              <IconAlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" />
             )}
             <AlertDescription>{testResult.message}</AlertDescription>
           </Alert>
@@ -182,9 +204,9 @@ export function SmtpSettingsForm() {
         {saveResult && (
           <Alert variant={saveResult.success ? "default" : "destructive"}>
             {saveResult.success ? (
-              <IconCircleCheck className="h-4 w-4" />
+              <CircleCheck className="h-4 w-4" />
             ) : (
-              <IconAlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" />
             )}
             <AlertDescription>{saveResult.message}</AlertDescription>
           </Alert>
@@ -286,7 +308,7 @@ export function SmtpSettingsForm() {
               onClick={handleTest}
               disabled={isTesting || isUpdating || !testEmail}
             >
-              <IconMail className="mr-2 h-4 w-4" />
+              <Mail className="mr-2 h-4 w-4" />
               {isTesting ? "Sending..." : "Send Test"}
             </Button>
           </div>
@@ -298,11 +320,11 @@ export function SmtpSettingsForm() {
             onClick={handleReset}
             disabled={isResetting || isUpdating}
           >
-            <IconRefresh className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             {isResetting ? "Resetting..." : "Reset to Default"}
           </Button>
           <Button onClick={handleSave} disabled={isUpdating}>
-            <IconDeviceFloppy className="mr-2 h-4 w-4" />
+            <Save className="mr-2 h-4 w-4" />
             {isUpdating ? "Saving..." : "Save Changes"}
           </Button>
         </div>

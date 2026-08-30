@@ -1,27 +1,28 @@
 "use client"
 
-import { useTranslations } from "next-intl"
 import {
-  IconLayoutDashboard,
-  IconSettings,
-  IconMessage,
-  IconUsers,
-  IconChartBar,
-  IconBrandInstagram,
-  IconBrandWhatsapp,
-  IconInbox,
-  IconCode,
-  IconTemplate,
-  IconCreditCard,
-  IconUsersGroup,
-  IconShieldCog,
-  IconBroadcast,
-  IconChartLine,
-} from "@tabler/icons-react"
-import { BrainCircuit, HelpCircle } from "lucide-react"
-import { type SidebarData, type NavItem } from "../types"
-import { useBusinessAccount } from "@/hooks/use-business-account"
+  BrainCircuit,
+  HelpCircle,
+  LayoutDashboard,
+  Settings,
+  MessageSquare,
+  Users,
+  BarChart3,
+  Instagram,
+  MessageCircle,
+  Inbox,
+  Code,
+  LayoutTemplate,
+  CreditCard,
+  Shield,
+  RadioTower,
+  LineChart,
+  Users as UsersGroupIcon,
+} from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useBranding } from "@/hooks/use-branding"
+import { useBusinessAccount } from "@/hooks/use-business-account"
+import { type SidebarData, type NavItem } from "../types"
 
 // Extended NavItem with optional roles for filtering
 type NavItemWithRoles = NavItem & { roles?: string[] }
@@ -33,10 +34,12 @@ export function useSidebarData(): SidebarData {
 
   // Filter items based on user role
   const filterByRole = (items: NavItemWithRoles[]): NavItem[] => {
-    return items.filter(item => {
-      if (!item.roles || item.roles.length === 0) return true
-      return item.roles.includes(userRole || '')
-    }).map(({ roles, ...rest }) => rest as NavItem)
+    return items
+      .filter((item) => {
+        if (!item.roles || item.roles.length === 0) return true
+        return item.roles.includes(userRole || "")
+      })
+      .map(({ roles, ...rest }) => rest as NavItem)
   }
 
   const navGroups = [
@@ -46,29 +49,29 @@ export function useSidebarData(): SidebarData {
         {
           title: t("dashboard"),
           url: "/dashboard",
-          icon: IconLayoutDashboard,
+          icon: LayoutDashboard,
         },
         {
           title: t("inbox"),
           url: "/oneinbox",
-          icon: IconInbox,
+          icon: Inbox,
         },
         {
           title: t("templates"),
           url: "/templates",
-          icon: IconTemplate,
+          icon: LayoutTemplate,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
           title: t("broadcast"),
           url: "/broadcast",
-          icon: IconBroadcast,
+          icon: RadioTower,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
           title: t("insights"),
           url: "/insights",
-          icon: IconChartLine,
+          icon: LineChart,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
       ]),
@@ -79,12 +82,12 @@ export function useSidebarData(): SidebarData {
         {
           title: t("customers"),
           url: "/customers",
-          icon: IconUsers,
+          icon: Users,
         },
         {
           title: t("pipeline"),
           url: "/crm/pipeline",
-          icon: IconChartBar,
+          icon: BarChart3,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
       ]),
@@ -95,13 +98,13 @@ export function useSidebarData(): SidebarData {
         {
           title: t("whatsapp"),
           url: "/waba",
-          icon: IconBrandWhatsapp,
+          icon: MessageCircle,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
           title: t("instagram"),
           url: "/instagram",
-          icon: IconBrandInstagram,
+          icon: Instagram,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
       ]),
@@ -112,7 +115,7 @@ export function useSidebarData(): SidebarData {
         {
           title: t("team"),
           url: "/team",
-          icon: IconUsersGroup,
+          icon: UsersGroupIcon,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
@@ -124,19 +127,19 @@ export function useSidebarData(): SidebarData {
         {
           title: t("developers"),
           url: "/developers",
-          icon: IconCode,
+          icon: Code,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
           title: t("subscription"),
           url: "/subscription",
-          icon: IconCreditCard,
+          icon: CreditCard,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
         {
           title: t("settings"),
           url: "/settings",
-          icon: IconSettings,
+          icon: Settings,
           roles: ["BUSINESS_OWNER", "ADMIN"],
         },
       ]),
@@ -157,7 +160,7 @@ export function useSidebarData(): SidebarData {
         {
           title: t("adminPanel"),
           url: "/admin",
-          icon: IconShieldCog,
+          icon: Shield,
           roles: ["ADMIN"],
         },
       ]),
@@ -165,7 +168,7 @@ export function useSidebarData(): SidebarData {
   ]
 
   // Filter out empty groups
-  const filteredNavGroups = navGroups.filter(group => group.items.length > 0)
+  const filteredNavGroups = navGroups.filter((group) => group.items.length > 0)
 
   return {
     user: {
@@ -182,7 +185,7 @@ export function useSidebarData(): SidebarData {
               <img src={logoUrl} alt={websiteName} className={className} />
             )
           : ({ className }: { className: string }) => (
-              <IconMessage className={className} />
+              <MessageSquare className={className} />
             ),
         plan: "WhatsApp Business",
       },

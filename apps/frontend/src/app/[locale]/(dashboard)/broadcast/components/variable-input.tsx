@@ -1,12 +1,18 @@
 "use client"
 
 import { useMemo } from "react"
+import { Variable, AlertCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { IconVariable, IconAlertCircle } from "@tabler/icons-react"
 import type { Template } from "../../templates/data/schema"
 
 interface VariableInputProps {
@@ -67,7 +73,11 @@ function extractVariables(template: Template): VariableInfo[] {
     for (const component of template.components) {
       if (component.type === "BUTTONS" && component.buttons) {
         for (const button of component.buttons) {
-          if (button.type === "URL" && button.example && button.example.length > 0) {
+          if (
+            button.type === "URL" &&
+            button.example &&
+            button.example.length > 0
+          ) {
             // Dynamic URL buttons have variables
             button.example.forEach((_, index) => {
               const key = `url_${index + 1}`
@@ -94,7 +104,11 @@ function extractVariables(template: Template): VariableInfo[] {
   })
 }
 
-export function VariableInput({ template, values, onChange }: VariableInputProps) {
+export function VariableInput({
+  template,
+  values,
+  onChange,
+}: VariableInputProps) {
   const t = useTranslations("broadcast.variableInput")
 
   const variables = useMemo(() => extractVariables(template), [template])
@@ -119,7 +133,7 @@ export function VariableInput({ template, values, onChange }: VariableInputProps
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <IconVariable className="h-5 w-5" />
+          <Variable className="h-5 w-5" />
           <CardTitle className="text-base">{t("title")}</CardTitle>
         </div>
         <CardDescription>{t("description")}</CardDescription>
@@ -140,17 +154,20 @@ export function VariableInput({ template, values, onChange }: VariableInputProps
               value={values[variable.key] || ""}
               onChange={(e) => handleChange(variable.key, e.target.value)}
               placeholder={variable.placeholder}
-              className={!values[variable.key]?.trim() ? "border-amber-300" : ""}
+              className={
+                !values[variable.key]?.trim() ? "border-amber-300" : ""
+              }
             />
           </div>
         ))}
 
         {/* Validation warning */}
         {missingVariables.length > 0 && (
-          <div className="flex items-start gap-2 text-amber-600 text-sm bg-amber-50 dark:bg-amber-950/20 p-3 rounded-md">
-            <IconAlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <div className="flex items-start gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-600 dark:bg-amber-950/20">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              {t("required")}: {missingVariables.map((v) => `{{${v.key}}}`).join(", ")}
+              {t("required")}:{" "}
+              {missingVariables.map((v) => `{{${v.key}}}`).join(", ")}
             </span>
           </div>
         )}
@@ -162,7 +179,10 @@ export function VariableInput({ template, values, onChange }: VariableInputProps
 /**
  * Check if all variables in a template are filled
  */
-export function validateVariables(template: Template, values: Record<string, string>): boolean {
+export function validateVariables(
+  template: Template,
+  values: Record<string, string>
+): boolean {
   const variables = extractVariables(template)
   return variables.every((v) => values[v.key]?.trim())
 }

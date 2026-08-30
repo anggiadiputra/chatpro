@@ -1,31 +1,31 @@
 "use client"
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { LayoutTemplate, Variable } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { useBusinessAccount } from "@/hooks/use-business-account"
+import { useTemplates } from "@/hooks/use-templates"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { RoleGuard } from "@/components/auth/role-guard"
 import { Header } from "@/components/layout/header"
 import { columns } from "./components/templates-columns"
 import { TemplatesPrimaryActions } from "./components/templates-primary-actions"
 import { TemplatesTable } from "./components/templates-table"
 import { VariableLibrary } from "./components/variable-library"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { IconTemplate, IconVariable } from "@tabler/icons-react"
-import { useBusinessAccount } from "@/hooks/use-business-account"
-import { RoleGuard } from "@/components/auth/role-guard"
-import { useTemplates } from "@/hooks/use-templates"
 
 export default function TemplatesPage() {
   const t = useTranslations("templates")
   const { userId, isLoading: isLoadingAccount } = useBusinessAccount()
-  
+
   // Use TanStack Query for templates data with caching
   // Requirements: 3.1, 3.3
-  const { 
-    data: templates = [], 
-    isLoading, 
-    isFetching 
+  const {
+    data: templates = [],
+    isLoading,
+    isFetching,
   } = useTemplates(undefined, !isLoadingAccount && !!userId)
-  
+
   // Tab navigation with URL params
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -62,31 +62,32 @@ export default function TemplatesPage() {
       <div className="space-y-4 p-4">
         <div className="mb-2 flex flex-col justify-between gap-4 md:flex-row md:items-baseline md:gap-2">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              {t("title")}
-            </h2>
+            <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
             <p className="text-muted-foreground">
-              {activeTab === "templates" 
+              {activeTab === "templates"
                 ? "Create and manage WhatsApp message templates for your business"
-                : t("variables.description")
-              }
+                : t("variables.description")}
             </p>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-flex">
+            <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:w-auto">
               <TabsTrigger value="templates" className="gap-2">
-                <IconTemplate className="h-4 w-4" />
+                <LayoutTemplate className="h-4 w-4" />
                 <span>{t("tabs.templates")}</span>
               </TabsTrigger>
               <TabsTrigger value="variables" className="gap-2">
-                <IconVariable className="h-4 w-4" />
+                <Variable className="h-4 w-4" />
                 <span>{t("tabs.variables")}</span>
               </TabsTrigger>
             </TabsList>
-            
+
             {activeTab === "templates" && (
               <div className="w-full sm:w-auto">
                 <TemplatesPrimaryActions />
@@ -98,8 +99,10 @@ export default function TemplatesPage() {
             {templates.length === 0 && !isLoading ? (
               <Card className="border-dashed">
                 <CardContent className="flex flex-col items-center justify-center py-16">
-                  <IconTemplate className="text-muted-foreground mb-4 h-12 w-12" />
-                  <h3 className="mb-2 text-lg font-semibold">No templates yet</h3>
+                  <LayoutTemplate className="text-muted-foreground mb-4 h-12 w-12" />
+                  <h3 className="mb-2 text-lg font-semibold">
+                    No templates yet
+                  </h3>
                   <p className="text-muted-foreground mb-4 text-center text-sm">
                     Create your first WhatsApp message template to start sending
                     messages

@@ -2,7 +2,11 @@
 
 import * as React from "react"
 import { useState, useEffect } from "react"
+import { UserPlus, UserX, Check, ChevronDown, Bot } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { assignmentApi } from "@/lib/api/assignment-api"
+import { cn } from "@/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,21 +17,21 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { IconUserPlus, IconUserOff, IconCheck, IconChevronDown, IconRobot } from "@tabler/icons-react"
-import { cn } from "@/lib/utils"
-import type { AssignableUser, AssignableEntity, AssigneeType } from "../types/unified-inbox"
+import type {
+  AssignableUser,
+  AssignableEntity,
+  AssigneeType,
+} from "../types/unified-inbox"
 import { AssignmentBadge } from "./assignment-badge"
-import { assignmentApi } from "@/lib/api/assignment-api"
 
 /**
  * AssignmentDropdown Component
- * 
+ *
  * Dropdown for selecting an assignee for a conversation.
  * Lists assignable users and AI Agents, supports self-assign and unassign actions.
  * Shows current assignee as selected.
  * Groups items into "Team Members" and "AI Agents" sections.
- * 
+ *
  * Requirements: 1.1, 1.3, 1.4, 1.5, 2.1, 2.3, 3.1
  */
 
@@ -41,7 +45,7 @@ interface AssignmentDropdownProps {
   currentAIAgentName?: string | null
   assignableUsers: AssignableUser[]
   currentUserId: string
-  onAssign: (userId: string, type?: 'human' | 'ai') => Promise<void>
+  onAssign: (userId: string, type?: "human" | "ai") => Promise<void>
   onUnassign: () => Promise<void>
   disabled?: boolean
   size?: "sm" | "md"
@@ -63,7 +67,7 @@ export function AssignmentDropdown({
   const t = useTranslations("messages.assignment.dropdown")
   const [isLoading, setIsLoading] = useState(false)
   const [open, setOpen] = useState(false)
-  
+
   // State for AI Agents fetched from API
   const [aiAgents, setAIAgents] = useState<AssignableEntity[]>([])
   const [aiEnabled, setAIEnabled] = useState(false)
@@ -84,7 +88,10 @@ export function AssignmentDropdown({
       setAIEnabled(response.aiAgents && response.aiAgents.length > 0)
       setEntitiesLoaded(true)
     } catch (error) {
-      console.error("[AssignmentDropdown] Failed to fetch assignable entities:", error)
+      console.error(
+        "[AssignmentDropdown] Failed to fetch assignable entities:",
+        error
+      )
       setEntitiesLoaded(true)
     }
   }
@@ -106,10 +113,11 @@ export function AssignmentDropdown({
   // Find current user in assignable users for self-assign
   const currentUserData = assignableUsers.find((u) => u.id === currentUserId)
   const isAssignedToCurrentUser = currentAssignee?.id === currentUserId
-  
+
   // Check if currently assigned to an AI Agent
-  const isAssignedToAI = currentAssigneeType === "AI_AGENT" && !!currentAIAgentId
-  
+  const isAssignedToAI =
+    currentAssigneeType === "AI_AGENT" && !!currentAIAgentId
+
   // Determine if there's any current assignment (human or AI)
   const hasCurrentAssignment = !!currentAssignee || isAssignedToAI
 
@@ -124,10 +132,10 @@ export function AssignmentDropdown({
 
   const handleAssignToHuman = async (userId: string) => {
     if (isLoading || disabled) return
-    
+
     setIsLoading(true)
     try {
-      await onAssign(userId, 'human')
+      await onAssign(userId, "human")
       setOpen(false)
     } catch (error) {
       console.error("Failed to assign to human:", error)
@@ -138,10 +146,10 @@ export function AssignmentDropdown({
 
   const handleAssignToAI = async (aiAgentId: string) => {
     if (isLoading || disabled) return
-    
+
     setIsLoading(true)
     try {
-      await onAssign(aiAgentId, 'ai')
+      await onAssign(aiAgentId, "ai")
       setOpen(false)
     } catch (error) {
       console.error("Failed to assign to AI:", error)
@@ -153,7 +161,7 @@ export function AssignmentDropdown({
   const handleUnassign = async () => {
     // Allow unassign if assigned to human OR AI Agent
     if (isLoading || disabled || !hasCurrentAssignment) return
-    
+
     setIsLoading(true)
     try {
       await onUnassign()
@@ -186,7 +194,7 @@ export function AssignmentDropdown({
                 size === "sm" ? "h-6 w-6" : "h-8 w-8"
               )}
             >
-              <IconRobot className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
+              <Bot className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
             </div>
           ) : (
             <AssignmentBadge
@@ -195,18 +203,20 @@ export function AssignmentDropdown({
               showTooltip={false}
             />
           )}
-          <IconChevronDown className={cn(
-            "text-muted-foreground",
-            size === "sm" ? "h-3 w-3" : "h-4 w-4"
-          )} />
+          <ChevronDown
+            className={cn(
+              "text-muted-foreground",
+              size === "sm" ? "h-3 w-3" : "h-4 w-4"
+            )}
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-xs text-muted-foreground">
+        <DropdownMenuLabel className="text-muted-foreground text-xs">
           {t("assignTo")}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         {/* Self-assign option if not already assigned to current user */}
         {currentUserData && !isAssignedToCurrentUser && !isAssignedToAI && (
           <>
@@ -215,20 +225,27 @@ export function AssignmentDropdown({
               disabled={isLoading}
               className="cursor-pointer"
             >
-              <div className="flex items-center gap-2 flex-1">
+              <div className="flex flex-1 items-center gap-2">
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={currentUserData.image || undefined} />
-                  <AvatarFallback className={cn("text-[10px]", getRoleColor(currentUserData.role))}>
+                  <AvatarFallback
+                    className={cn(
+                      "text-[10px]",
+                      getRoleColor(currentUserData.role)
+                    )}
+                  >
                     {getInitials(currentUserData.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
                     {currentUserData.name}
-                    <span className="text-muted-foreground font-normal ml-1">{t("me")}</span>
+                    <span className="text-muted-foreground ml-1 font-normal">
+                      {t("me")}
+                    </span>
                   </p>
                 </div>
-                <IconUserPlus className="h-4 w-4 text-muted-foreground" />
+                <UserPlus className="text-muted-foreground h-4 w-4" />
               </div>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -237,46 +254,54 @@ export function AssignmentDropdown({
 
         {/* Team Members Section */}
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-xs text-muted-foreground px-2 py-1">
+          <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-xs">
             {t("teamMembers")}
           </DropdownMenuLabel>
           {sortedUsers.map((user) => {
-            const isCurrentAssignee = currentAssignee?.id === user.id && currentAssigneeType === "HUMAN"
+            const isCurrentAssignee =
+              currentAssignee?.id === user.id && currentAssigneeType === "HUMAN"
             const isCurrentUser = user.id === currentUserId
 
             // Skip current user in main list if shown above
-            if (isCurrentUser && !isAssignedToCurrentUser && !isAssignedToAI) return null
+            if (isCurrentUser && !isAssignedToCurrentUser && !isAssignedToAI)
+              return null
 
             return (
               <DropdownMenuItem
                 key={user.id}
-                onClick={() => !isCurrentAssignee && handleAssignToHuman(user.id)}
+                onClick={() =>
+                  !isCurrentAssignee && handleAssignToHuman(user.id)
+                }
                 disabled={isLoading || isCurrentAssignee}
                 className={cn(
                   "cursor-pointer",
                   isCurrentAssignee && "bg-accent"
                 )}
               >
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex flex-1 items-center gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={user.image || undefined} />
-                    <AvatarFallback className={cn("text-[10px]", getRoleColor(user.role))}>
+                    <AvatarFallback
+                      className={cn("text-[10px]", getRoleColor(user.role))}
+                    >
                       {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
                       {user.name}
                       {isCurrentUser && (
-                        <span className="text-muted-foreground font-normal ml-1">{t("me")}</span>
+                        <span className="text-muted-foreground ml-1 font-normal">
+                          {t("me")}
+                        </span>
                       )}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {user.role === "BUSINESS_OWNER" ? t("owner") : t("agent")}
                     </p>
                   </div>
                   {isCurrentAssignee && (
-                    <IconCheck className="h-4 w-4 text-primary" />
+                    <Check className="text-primary h-4 w-4" />
                   )}
                 </div>
               </DropdownMenuItem>
@@ -289,32 +314,39 @@ export function AssignmentDropdown({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs text-muted-foreground px-2 py-1">
+              <DropdownMenuLabel className="text-muted-foreground px-2 py-1 text-xs">
                 {t("aiAgents")}
               </DropdownMenuLabel>
               {aiAgents.map((agent) => {
-                const isCurrentAIAssignee = isAssignedToAI && currentAIAgentId === agent.id
+                const isCurrentAIAssignee =
+                  isAssignedToAI && currentAIAgentId === agent.id
 
                 return (
                   <DropdownMenuItem
                     key={agent.id}
-                    onClick={() => !isCurrentAIAssignee && handleAssignToAI(agent.id)}
+                    onClick={() =>
+                      !isCurrentAIAssignee && handleAssignToAI(agent.id)
+                    }
                     disabled={isLoading || isCurrentAIAssignee}
                     className={cn(
                       "cursor-pointer",
                       isCurrentAIAssignee && "bg-accent"
                     )}
                   >
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="h-6 w-6 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                        <IconRobot className="h-3.5 w-3.5" />
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                        <Bot className="h-3.5 w-3.5" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{agent.name}</p>
-                        <p className="text-xs text-muted-foreground">{t("aiAgent")}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {agent.name}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {t("aiAgent")}
+                        </p>
                       </div>
                       {isCurrentAIAssignee && (
-                        <IconCheck className="h-4 w-4 text-primary" />
+                        <Check className="text-primary h-4 w-4" />
                       )}
                     </div>
                   </DropdownMenuItem>
@@ -331,9 +363,9 @@ export function AssignmentDropdown({
             <DropdownMenuItem
               onClick={handleUnassign}
               disabled={isLoading}
-              className="cursor-pointer text-destructive focus:text-destructive"
+              className="text-destructive focus:text-destructive cursor-pointer"
             >
-              <IconUserOff className="h-4 w-4 mr-2" />
+              <UserX className="mr-2 h-4 w-4" />
               {t("unassign")}
             </DropdownMenuItem>
           </>

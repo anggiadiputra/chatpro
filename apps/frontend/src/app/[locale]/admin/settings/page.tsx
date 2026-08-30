@@ -1,28 +1,22 @@
 "use client"
 
 import { useState } from "react"
+import { MessageCircle, Instagram, Mail, Brain, CreditCard } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  IconBrandWhatsapp,
-  IconBrandInstagram,
-  IconMail,
-  IconBrain,
-  IconCreditCard,
-} from "@tabler/icons-react"
-import { WhatsAppSettingsForm } from "./components/whatsapp-settings-form"
-import { InstagramSettingsForm } from "./components/instagram-settings-form"
-import { SmtpSettingsForm } from "./components/smtp-settings-form"
-import { OpenAISettingsForm } from "./components/openai-settings-form"
 import { DuitkuSettingsForm } from "./components/duitku-settings-form"
+import { InstagramSettingsForm } from "./components/instagram-settings-form"
+import { OpenAISettingsForm } from "./components/openai-settings-form"
+import { SmtpSettingsForm } from "./components/smtp-settings-form"
+import { WhatsAppSettingsForm } from "./components/whatsapp-settings-form"
 
 type SettingsTab = "whatsapp" | "instagram" | "smtp" | "openai" | "duitku"
 
 const tabs = [
-  { id: "whatsapp" as const, label: "WhatsApp", icon: IconBrandWhatsapp },
-  { id: "instagram" as const, label: "Instagram", icon: IconBrandInstagram },
-  { id: "smtp" as const, label: "Email", icon: IconMail },
-  { id: "openai" as const, label: "OpenAI", icon: IconBrain },
-  { id: "duitku" as const, label: "Payment", icon: IconCreditCard },
+  { id: "whatsapp" as const, label: "WhatsApp", icon: MessageCircle },
+  { id: "instagram" as const, label: "Instagram", icon: Instagram },
+  { id: "smtp" as const, label: "Email", icon: Mail },
+  { id: "openai" as const, label: "OpenAI", icon: Brain },
+  { id: "duitku" as const, label: "Payment", icon: CreditCard },
 ]
 
 export default function AdminSettingsPage() {
@@ -37,8 +31,11 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SettingsTab)}>
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as SettingsTab)}
+      >
+        <TabsList className="grid w-full grid-cols-5 lg:inline-flex lg:w-auto">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id} className="gap-2">
               <tab.icon className="h-4 w-4" />

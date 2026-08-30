@@ -1,9 +1,8 @@
 "use client"
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons"
-import { IconChecklist, IconUserCheck, IconUserX } from "@tabler/icons-react"
-import { Row } from "@tanstack/react-table"
 import { Link } from "@/i18n/routing"
+import { Row } from "@tanstack/react-table"
+import { MoreHorizontal, ListChecks, UserCheck, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,6 +12,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
 // Types
 export type Role = "ADMIN" | "BUSINESS_OWNER" | "AGENT"
 
@@ -45,7 +45,7 @@ export function DataTableRowActions({ row, onActivate, onDeactivate }: Props) {
           variant="ghost"
           className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
         >
-          <DotsHorizontalIcon className="h-4 w-4" />
+          <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -54,7 +54,7 @@ export function DataTableRowActions({ row, onActivate, onDeactivate }: Props) {
           <Link href={`/admin/users/${user.id}`}>
             View Detail
             <DropdownMenuShortcut>
-              <IconChecklist size={16} />
+              <ListChecks size={16} />
             </DropdownMenuShortcut>
           </Link>
         </DropdownMenuItem>
@@ -66,7 +66,7 @@ export function DataTableRowActions({ row, onActivate, onDeactivate }: Props) {
           >
             Deactivate
             <DropdownMenuShortcut>
-              <IconUserX size={16} />
+              <UserX size={16} />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
         ) : (
@@ -76,7 +76,7 @@ export function DataTableRowActions({ row, onActivate, onDeactivate }: Props) {
           >
             Activate
             <DropdownMenuShortcut>
-              <IconUserCheck size={16} />
+              <UserCheck size={16} />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
         )}

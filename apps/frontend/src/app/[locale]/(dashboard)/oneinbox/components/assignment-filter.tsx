@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { User, Users, UserX, Users as UsersGroupIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import {
   Select,
@@ -9,15 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { IconUser, IconUsers, IconUserOff, IconUsersGroup } from "@tabler/icons-react"
 import type { AssignmentFilterType } from "../types/unified-inbox"
 
 /**
  * AssignmentFilter Component
- * 
+ *
  * Dropdown filter for filtering conversations by assignment status.
  * Options: All, My Assignments, Unassigned, Assigned to Others
- * 
+ *
  * Requirements: 5.1
  */
 
@@ -33,36 +33,43 @@ interface FilterOption {
   icon: React.ReactNode
 }
 
-export function AssignmentFilter({ value, onChange, className }: AssignmentFilterProps) {
+export function AssignmentFilter({
+  value,
+  onChange,
+  className,
+}: AssignmentFilterProps) {
   const t = useTranslations("messages.assignment.filter")
 
   const filters: FilterOption[] = [
     {
       key: "all",
       labelKey: "all",
-      icon: <IconUsersGroup className="h-4 w-4" />,
+      icon: <UsersGroupIcon className="h-4 w-4" />,
     },
     {
       key: "mine",
       labelKey: "mine",
-      icon: <IconUser className="h-4 w-4" />,
+      icon: <User className="h-4 w-4" />,
     },
     {
       key: "unassigned",
       labelKey: "unassigned",
-      icon: <IconUserOff className="h-4 w-4" />,
+      icon: <UserX className="h-4 w-4" />,
     },
     {
       key: "others",
       labelKey: "others",
-      icon: <IconUsers className="h-4 w-4" />,
+      icon: <Users className="h-4 w-4" />,
     },
   ]
 
   const selectedFilter = filters.find((f) => f.key === value)
 
   return (
-    <Select value={value} onValueChange={(v) => onChange(v as AssignmentFilterType)}>
+    <Select
+      value={value}
+      onValueChange={(v) => onChange(v as AssignmentFilterType)}
+    >
       <SelectTrigger className={`h-8 text-xs ${className}`}>
         <SelectValue>
           <div className="flex items-center gap-2">

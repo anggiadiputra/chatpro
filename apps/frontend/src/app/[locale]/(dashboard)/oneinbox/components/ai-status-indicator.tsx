@@ -1,24 +1,24 @@
 "use client"
 
 import * as React from "react"
+import { Bot, BotOff } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { IconRobot, IconRobotOff } from "@tabler/icons-react"
+import { cn } from "@/lib/utils"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
 import type { AssignmentResult, AssigneeType } from "../types/unified-inbox"
 
 /**
  * AIStatusIndicator Component
- * 
+ *
  * Displays the AI status for a conversation based on assignment state.
  * Shows "AI Active" when assigned to AI Agent or unassigned with AI enabled.
  * Shows "AI Inactive" when assigned to a human.
- * 
+ *
  * Requirements: 5.1, 5.2, 5.3, 5.4
  */
 
@@ -51,28 +51,34 @@ export interface AIStatusIndicatorProps {
 function getAIStatus(props: AIStatusIndicatorProps): {
   isActive: boolean
   agentName: string | null
-  reason: "assigned_to_ai" | "assigned_to_human" | "unassigned_ai_enabled" | "ai_disabled"
+  reason:
+    | "assigned_to_ai"
+    | "assigned_to_human"
+    | "unassigned_ai_enabled"
+    | "ai_disabled"
 } {
-  const { 
-    assignment, 
-    aiEnabled, 
+  const {
+    assignment,
+    aiEnabled,
     defaultAIAgentName,
     assigneeType,
     aiAgentName,
-    hasHumanAssignee
+    hasHumanAssignee,
   } = props
 
   // Use direct props if provided, otherwise extract from assignment
   const effectiveAssigneeType = assigneeType ?? assignment?.assigneeType
   const effectiveAIAgentName = aiAgentName ?? assignment?.aiAgentName
-  const effectiveHasHumanAssignee = hasHumanAssignee ?? (assignment?.assigneeId != null && effectiveAssigneeType !== "AI_AGENT")
+  const effectiveHasHumanAssignee =
+    hasHumanAssignee ??
+    (assignment?.assigneeId != null && effectiveAssigneeType !== "AI_AGENT")
 
   // Case 1: Assigned to AI Agent - AI Active with specific agent
   if (effectiveAssigneeType === "AI_AGENT" && effectiveAIAgentName) {
     return {
       isActive: true,
       agentName: effectiveAIAgentName,
-      reason: "assigned_to_ai"
+      reason: "assigned_to_ai",
     }
   }
 
@@ -81,7 +87,7 @@ function getAIStatus(props: AIStatusIndicatorProps): {
     return {
       isActive: false,
       agentName: null,
-      reason: "assigned_to_human"
+      reason: "assigned_to_human",
     }
   }
 
@@ -90,7 +96,7 @@ function getAIStatus(props: AIStatusIndicatorProps): {
     return {
       isActive: true,
       agentName: defaultAIAgentName || null,
-      reason: "unassigned_ai_enabled"
+      reason: "unassigned_ai_enabled",
     }
   }
 
@@ -98,7 +104,7 @@ function getAIStatus(props: AIStatusIndicatorProps): {
   return {
     isActive: false,
     agentName: null,
-    reason: "ai_disabled"
+    reason: "ai_disabled",
   }
 }
 
@@ -149,11 +155,13 @@ export function AIStatusIndicator({
       )}
     >
       {status.isActive ? (
-        <IconRobot className={iconSizeClasses[size]} />
+        <Bot className={iconSizeClasses[size]} />
       ) : (
-        <IconRobotOff className={iconSizeClasses[size]} />
+        <BotOff className={iconSizeClasses[size]} />
       )}
-      <span>{status.isActive ? t("aiStatus.active") : t("aiStatus.inactive")}</span>
+      <span>
+        {status.isActive ? t("aiStatus.active") : t("aiStatus.inactive")}
+      </span>
     </div>
   )
 
@@ -166,7 +174,9 @@ export function AIStatusIndicator({
   if (status.isActive && status.agentName) {
     tooltipContent = (
       <div className="text-center">
-        <p className="font-medium">{t("aiStatus.activeWithAgent", { name: status.agentName })}</p>
+        <p className="font-medium">
+          {t("aiStatus.activeWithAgent", { name: status.agentName })}
+        </p>
       </div>
     )
   } else if (status.isActive) {

@@ -1,7 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { formatDistanceToNow } from "date-fns"
+import { Users, Trash2 } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -10,11 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { IconUsersGroup, IconTrash } from "@tabler/icons-react"
-import { formatDistanceToNow } from "date-fns"
 
 interface TeamMember {
   id: string
@@ -47,7 +47,7 @@ export function TeamMembersList({ members, onRemove }: TeamMembersListProps) {
 
   const handleConfirmRemove = async () => {
     if (!selectedMember) return
-    
+
     setIsRemoving(true)
     try {
       await onRemove(selectedMember.id)
@@ -61,7 +61,7 @@ export function TeamMembersList({ members, onRemove }: TeamMembersListProps) {
   if (members.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <IconUsersGroup className="text-muted-foreground mb-4 h-12 w-12" />
+        <Users className="text-muted-foreground mb-4 h-12 w-12" />
         <h3 className="mb-2 text-lg font-semibold">{t("members.empty")}</h3>
         <p className="text-muted-foreground text-center text-sm">
           {t("members.emptyDescription")}
@@ -90,13 +90,17 @@ export function TeamMembersList({ members, onRemove }: TeamMembersListProps) {
               </TableCell>
               <TableCell>{member.agent?.email || "-"}</TableCell>
               <TableCell>
-                <Badge variant={member.status === "ACTIVE" ? "default" : "secondary"}>
+                <Badge
+                  variant={member.status === "ACTIVE" ? "default" : "secondary"}
+                >
                   {t(`status.${member.status}`)}
                 </Badge>
               </TableCell>
               <TableCell>
                 {member.joinedAt
-                  ? formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true })
+                  ? formatDistanceToNow(new Date(member.joinedAt), {
+                      addSuffix: true,
+                    })
                   : "-"}
               </TableCell>
               <TableCell className="text-right">
@@ -106,7 +110,7 @@ export function TeamMembersList({ members, onRemove }: TeamMembersListProps) {
                   onClick={() => handleRemoveClick(member)}
                   className="text-destructive hover:text-destructive"
                 >
-                  <IconTrash className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" />
                   <span className="sr-only">{t("members.remove")}</span>
                 </Button>
               </TableCell>
@@ -119,8 +123,8 @@ export function TeamMembersList({ members, onRemove }: TeamMembersListProps) {
         open={removeDialogOpen}
         onOpenChange={setRemoveDialogOpen}
         title={t("members.removeConfirmTitle")}
-        desc={t("members.removeConfirmDescription", { 
-          name: selectedMember?.agent?.name || "this agent" 
+        desc={t("members.removeConfirmDescription", {
+          name: selectedMember?.agent?.name || "this agent",
         })}
         destructive
         handleConfirm={handleConfirmRemove}

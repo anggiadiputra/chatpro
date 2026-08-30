@@ -1,5 +1,24 @@
 "use client"
 
+import { format, formatDistanceToNow } from "date-fns"
+import {
+  User,
+  Phone,
+  Mail,
+  Clock,
+  Check,
+  X,
+  Tags,
+  FileText,
+  MessageCircle,
+  Calendar,
+  BarChart3,
+  List,
+  Trophy,
+} from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetContent,
@@ -8,25 +27,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Customer } from "../data/schema"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { format, formatDistanceToNow } from "date-fns"
-import {
-  IconUser,
-  IconPhone,
-  IconMail,
-  IconClock,
-  IconCheck,
-  IconX,
-  IconTags,
-  IconFileText,
-  IconMessageCircle,
-  IconCalendar,
-  IconChartBar,
-  IconListDetails,
-  IconTrophy,
-} from "@tabler/icons-react"
 import { CustomerDetailTabs } from "./customer-detail-tabs"
 
 interface Props {
@@ -38,33 +38,34 @@ interface Props {
 export function CustomerViewDrawer({ open, onOpenChange, customer }: Props) {
   if (!customer) return null
 
-  const initials = (customer.name || "")
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "U"
+  const initials =
+    (customer.name || "")
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U"
 
   const getConsentBadge = (status: string) => {
     switch (status) {
       case "CONSENTED":
         return (
           <Badge className="bg-emerald-500">
-            <IconCheck className="mr-1 h-3 w-3" />
+            <Check className="mr-1 h-3 w-3" />
             Consented
           </Badge>
         )
       case "NOT_CONSENTED":
         return (
           <Badge variant="outline">
-            <IconX className="mr-1 h-3 w-3" />
+            <X className="mr-1 h-3 w-3" />
             Not Consented
           </Badge>
         )
       case "REVOKED":
         return (
           <Badge variant="destructive">
-            <IconX className="mr-1 h-3 w-3" />
+            <X className="mr-1 h-3 w-3" />
             Revoked
           </Badge>
         )
@@ -92,12 +93,16 @@ export function CustomerViewDrawer({ open, onOpenChange, customer }: Props) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold">{customer.name || "Unnamed Customer"}</h3>
+              <h3 className="text-xl font-semibold">
+                {customer.name || "Unnamed Customer"}
+              </h3>
               <p className="text-muted-foreground text-sm">
                 {customer.phoneNumber}
               </p>
               {customer.email && (
-                <p className="text-muted-foreground text-xs">{customer.email}</p>
+                <p className="text-muted-foreground text-xs">
+                  {customer.email}
+                </p>
               )}
             </div>
           </div>
@@ -107,9 +112,11 @@ export function CustomerViewDrawer({ open, onOpenChange, customer }: Props) {
           {/* CRM Status */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <IconChartBar className="h-4 w-4" />
-                <span className="text-xs font-medium uppercase">Pipeline Stage</span>
+              <div className="text-muted-foreground flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                <span className="text-xs font-medium uppercase">
+                  Pipeline Stage
+                </span>
               </div>
               <div className="font-medium">
                 {customer.pipelineStage ? (
@@ -117,22 +124,26 @@ export function CustomerViewDrawer({ open, onOpenChange, customer }: Props) {
                     variant="outline"
                     style={{
                       borderColor: customer.pipelineStage.color,
-                      color: customer.pipelineStage.color
+                      color: customer.pipelineStage.color,
                     }}
                   >
                     {customer.pipelineStage.name}
                   </Badge>
                 ) : (
-                  <span className="text-sm text-muted-foreground">No Stage</span>
+                  <span className="text-muted-foreground text-sm">
+                    No Stage
+                  </span>
                 )}
               </div>
             </div>
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <IconTrophy className="h-4 w-4" />
-                <span className="text-xs font-medium uppercase">Lead Score</span>
+              <div className="text-muted-foreground flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                <span className="text-xs font-medium uppercase">
+                  Lead Score
+                </span>
               </div>
-              <div className="font-medium text-lg">
+              <div className="text-lg font-medium">
                 {customer.leadScore || 0}
               </div>
             </div>

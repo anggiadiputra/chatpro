@@ -1,5 +1,6 @@
 "use client"
 
+import { MessageCircle, Instagram, Inbox } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -7,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { IconBrandWhatsapp, IconBrandInstagram, IconInbox } from "@tabler/icons-react"
 import type { ChannelType } from "../types/unified-inbox"
 
 interface ChannelFilterProps {
@@ -16,16 +16,31 @@ interface ChannelFilterProps {
 }
 
 export function ChannelFilter({ value, onChange }: ChannelFilterProps) {
-  const filters: { key: ChannelType | "all"; label: string; icon: React.ReactNode }[] = [
-    { key: "all", label: "All Channels", icon: <IconInbox className="h-4 w-4" /> },
-    { key: "whatsapp", label: "WhatsApp", icon: <IconBrandWhatsapp className="h-4 w-4 text-green-500" /> },
-    { key: "instagram", label: "Instagram", icon: <IconBrandInstagram className="h-4 w-4 text-pink-500" /> },
+  const filters: {
+    key: ChannelType | "all"
+    label: string
+    icon: React.ReactNode
+  }[] = [
+    { key: "all", label: "All Channels", icon: <Inbox className="h-4 w-4" /> },
+    {
+      key: "whatsapp",
+      label: "WhatsApp",
+      icon: <MessageCircle className="h-4 w-4 text-green-500" />,
+    },
+    {
+      key: "instagram",
+      label: "Instagram",
+      icon: <Instagram className="h-4 w-4 text-pink-500" />,
+    },
   ]
 
   const selectedFilter = filters.find((f) => f.key === value)
 
   return (
-    <Select value={value} onValueChange={(v) => onChange(v as ChannelType | "all")}>
+    <Select
+      value={value}
+      onValueChange={(v) => onChange(v as ChannelType | "all")}
+    >
       <SelectTrigger className="h-8 text-xs">
         <SelectValue>
           <div className="flex items-center gap-2">

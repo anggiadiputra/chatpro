@@ -1,23 +1,23 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Header } from "@/components/layout/header"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Settings, Instagram, Webhook } from "lucide-react"
+import {
+  instagramApi,
+  type InstagramAccount,
+  type TokenStatus,
+} from "@/lib/api/instagram"
 import { useBusinessAccount } from "@/hooks/use-business-account"
-import { instagramApi, type InstagramAccount, type TokenStatus } from "@/lib/api/instagram"
-import { DisconnectModal } from "@/components/disconnect-modal"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RoleGuard } from "@/components/auth/role-guard"
-import { 
+import { DisconnectModal } from "@/components/disconnect-modal"
+import { Header } from "@/components/layout/header"
+import {
   InstagramConnectionCard,
   InstagramAccountCard,
   InstagramConnectCard,
-  InstagramWebhookCard
+  InstagramWebhookCard,
 } from "./components"
-import {
-  IconSettings,
-  IconBrandInstagram,
-  IconWebhook,
-} from "@tabler/icons-react"
 
 export default function InstagramPage() {
   const { userId, isLoading: sessionLoading } = useBusinessAccount()
@@ -66,7 +66,9 @@ export default function InstagramPage() {
       )
 
       if (!popup) {
-        setError("Pop-up was blocked. Please allow pop-ups for this site and try again.")
+        setError(
+          "Pop-up was blocked. Please allow pop-ups for this site and try again."
+        )
         return
       }
 
@@ -143,8 +145,8 @@ export default function InstagramPage() {
       <div className="space-y-6 p-4">
         {/* Header */}
         <div>
-          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <IconBrandInstagram className="h-7 w-7" />
+          <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <Instagram className="h-7 w-7" />
             Instagram Direct Messages
           </h2>
           <p className="text-muted-foreground">
@@ -158,11 +160,10 @@ export default function InstagramPage() {
           </div>
         )}
 
-
         {/* Connect Card (if not connected) */}
         {!isConnected && (
           <div className="max-w-2xl">
-            <InstagramConnectCard 
+            <InstagramConnectCard
               onConnect={handleConnect}
               requiresReauth={account?.connectionStatus === "requires_reauth"}
             />
@@ -174,11 +175,11 @@ export default function InstagramPage() {
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList className="w-full justify-start overflow-x-auto md:w-auto">
               <TabsTrigger value="overview" className="flex items-center gap-2">
-                <IconSettings size={14} />
+                <Settings size={14} />
                 Overview
               </TabsTrigger>
               <TabsTrigger value="webhooks" className="flex items-center gap-2">
-                <IconWebhook size={16} />
+                <Webhook size={16} />
                 Webhooks
               </TabsTrigger>
             </TabsList>

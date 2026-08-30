@@ -1,20 +1,14 @@
 "use client"
 
-import { IconInfoCircle } from "@tabler/icons-react"
-import {
-  IconUsersGroup,
-  IconUsersPlus,
-  IconUserCheck,
-  IconUserX,
-} from "@tabler/icons-react"
+import { Info, Users, UserPlus, UserCheck, UserX } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Skeleton } from "@/components/ui/skeleton"
 
 interface UserStatProps {
   title: string
@@ -45,7 +39,7 @@ export function UsersStats({ stats, isLoading }: UsersStatsProps) {
               <Skeleton className="h-4 w-4" />
             </CardHeader>
             <CardContent className="pb-4">
-              <Skeleton className="h-8 w-16 mb-1" />
+              <Skeleton className="mb-1 h-8 w-16" />
               <Skeleton className="h-3 w-32" />
             </CardContent>
           </Card>
@@ -60,28 +54,28 @@ export function UsersStats({ stats, isLoading }: UsersStatsProps) {
       desc: "Total number of registered users",
       stat: stats?.totalUsers ?? 0,
       statDesc: "All registered users",
-      icon: IconUsersGroup,
+      icon: Users,
     },
     {
       title: "Active Users",
       desc: "Users with active status",
       stat: stats?.activeUsers ?? 0,
       statDesc: `${stats?.totalUsers ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% of all users`,
-      icon: IconUserCheck,
+      icon: UserCheck,
     },
     {
       title: "Inactive Users",
       desc: "Users with inactive status",
       stat: stats?.inactiveUsers ?? 0,
       statDesc: `${stats?.totalUsers ? Math.round((stats.inactiveUsers / stats.totalUsers) * 100) : 0}% of all users`,
-      icon: IconUserX,
+      icon: UserX,
     },
     {
       title: "New This Month",
       desc: "Users who joined this month",
       stat: stats?.newUsersThisMonth ?? 0,
       statDesc: "Joined in the last 30 days",
-      icon: IconUsersPlus,
+      icon: UserPlus,
     },
   ]
 
@@ -105,7 +99,7 @@ function UserStat(props: UserStatProps) {
         <TooltipProvider>
           <Tooltip delayDuration={50}>
             <TooltipTrigger>
-              <IconInfoCircle className="text-muted-foreground scale-90 stroke-[1.25]" />
+              <Info className="text-muted-foreground scale-90 stroke-[1.25]" />
               <span className="sr-only">More Info</span>
             </TooltipTrigger>
             <TooltipContent>

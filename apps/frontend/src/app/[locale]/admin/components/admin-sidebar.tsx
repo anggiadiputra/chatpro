@@ -1,5 +1,18 @@
 "use client"
 
+import { Link, usePathname } from "@/i18n/routing"
+import {
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  Activity,
+  FileText,
+  ArrowLeft,
+  ShieldAlert,
+  Settings,
+  Banknote,
+  Palette,
+} from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -12,64 +25,53 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar"
-import {
-  IconLayoutDashboard,
-  IconUsers,
-  IconCreditCard,
-  IconActivity,
-  IconFileText,
-  IconArrowLeft,
-  IconShieldLock,
-  IconSettings,
-  IconCash,
-  IconPalette,
-} from "@tabler/icons-react"
-import { Link, usePathname } from "@/i18n/routing"
 
 const adminNavItems = [
   {
     title: "Overview",
     url: "/admin",
-    icon: IconLayoutDashboard,
+    icon: LayoutDashboard,
   },
   {
     title: "Users",
     url: "/admin/users",
-    icon: IconUsers,
+    icon: Users,
   },
   {
     title: "Subscriptions",
     url: "/admin/subscriptions",
-    icon: IconCreditCard,
+    icon: CreditCard,
   },
   {
     title: "Revenue",
     url: "/admin/revenue",
-    icon: IconCash,
+    icon: Banknote,
   },
   {
     title: "System Health",
     url: "/admin/system",
-    icon: IconActivity,
+    icon: Activity,
   },
   {
     title: "Audit Logs",
     url: "/admin/audit",
-    icon: IconFileText,
+    icon: FileText,
   },
   {
     title: "Settings",
     url: "/admin/settings",
-    icon: IconSettings,
+    icon: Settings,
   },
   {
     title: "Branding",
     url: "/admin/settings/branding",
-    icon: IconPalette,
+    icon: Palette,
   },
 ]
 
-export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdminSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile } = useSidebar()
   const pathname = usePathname()
 
@@ -83,11 +85,13 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
               className="ring-sidebar-primary/50 focus-visible:ring-1"
             >
               <div className="flex aspect-square size-8 items-center justify-center">
-                <IconShieldLock className="size-5 text-primary" />
+                <ShieldAlert className="text-primary size-5" />
               </div>
               <div className="grid flex-1 text-left text-xs leading-tight">
                 <span className="truncate font-semibold">Admin Panel</span>
-                <span className="truncate text-xs text-muted-foreground">KirimChat</span>
+                <span className="text-muted-foreground truncate text-xs">
+                  KirimChat
+                </span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -101,7 +105,10 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.url || (item.url !== "/admin" && pathname.startsWith(item.url))}
+                  isActive={
+                    pathname === item.url ||
+                    (item.url !== "/admin" && pathname.startsWith(item.url))
+                  }
                   tooltip={item.title}
                 >
                   <Link href={item.url} onClick={() => setOpenMobile(false)}>
@@ -119,7 +126,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Back to Dashboard">
                 <Link href="/dashboard" onClick={() => setOpenMobile(false)}>
-                  <IconArrowLeft className="size-4" />
+                  <ArrowLeft className="size-4" />
                   <span>Back to Dashboard</span>
                 </Link>
               </SidebarMenuButton>

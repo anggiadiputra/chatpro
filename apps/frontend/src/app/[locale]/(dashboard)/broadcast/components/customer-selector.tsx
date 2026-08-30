@@ -1,13 +1,21 @@
 "use client"
 
 import { useEffect, useState, useMemo, useCallback } from "react"
+import {
+  Search,
+  Users,
+  AlertCircle,
+  Check,
+  X,
+  Filter,
+  RefreshCw,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
   Select,
   SelectContent,
@@ -15,15 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  IconSearch,
-  IconUsers,
-  IconAlertCircle,
-  IconCheck,
-  IconX,
-  IconFilter,
-  IconRefresh,
-} from "@tabler/icons-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface BroadcastCustomer {
   id: string
@@ -48,7 +48,10 @@ interface CustomerSelectorProps {
   onSelectionChange: (ids: string[]) => void
 }
 
-export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSelectorProps) {
+export function CustomerSelector({
+  selectedIds,
+  onSelectionChange,
+}: CustomerSelectorProps) {
   const t = useTranslations("broadcast.customerSelector")
   const tRecipient = useTranslations("broadcast.recipientSelector")
 
@@ -159,16 +162,22 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
 
   const hasFilters = search || selectedTag || selectedStageId
 
-  const allCurrentSelected = customers.length > 0 && customers.every((c) => selectedIds.includes(c.id))
+  const allCurrentSelected =
+    customers.length > 0 && customers.every((c) => selectedIds.includes(c.id))
   const someCurrentSelected = customers.some((c) => selectedIds.includes(c.id))
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
-        <IconAlertCircle className="text-destructive mb-2 h-8 w-8" />
+        <AlertCircle className="text-destructive mb-2 h-8 w-8" />
         <p className="text-destructive text-sm">{error}</p>
-        <Button variant="outline" size="sm" className="mt-2" onClick={loadCustomers}>
-          <IconRefresh className="mr-2 h-4 w-4" />
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2"
+          onClick={loadCustomers}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
           {t("retry")}
         </Button>
       </div>
@@ -180,7 +189,7 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <IconSearch className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder={t("searchPlaceholder")}
             value={search}
@@ -189,8 +198,8 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
           />
         </div>
         {availableTags.length > 0 && (
-          <Select 
-            value={selectedTag || "__all__"} 
+          <Select
+            value={selectedTag || "__all__"}
             onValueChange={(v) => setSelectedTag(v === "__all__" ? "" : v)}
           >
             <SelectTrigger className="w-full sm:w-[180px]">
@@ -207,8 +216,8 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
           </Select>
         )}
         {availableStages.length > 0 && (
-          <Select 
-            value={selectedStageId || "__all__"} 
+          <Select
+            value={selectedStageId || "__all__"}
             onValueChange={(v) => setSelectedStageId(v === "__all__" ? "" : v)}
           >
             <SelectTrigger className="w-full sm:w-[180px]">
@@ -232,7 +241,7 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
         )}
         {hasFilters && (
           <Button variant="ghost" size="icon" onClick={clearFilters}>
-            <IconX className="h-4 w-4" />
+            <X className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -246,7 +255,7 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
             onClick={handleSelectAll}
             disabled={loading || customers.length === 0}
           >
-            <IconCheck className="mr-1 h-4 w-4" />
+            <Check className="mr-1 h-4 w-4" />
             {t("selectAll")}
           </Button>
           <Button
@@ -255,7 +264,7 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
             onClick={handleDeselectAll}
             disabled={loading || !someCurrentSelected}
           >
-            <IconX className="mr-1 h-4 w-4" />
+            <X className="mr-1 h-4 w-4" />
             {t("deselectAll")}
           </Button>
         </div>
@@ -273,8 +282,10 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
         </div>
       ) : customers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <IconUsers className="text-muted-foreground mb-2 h-8 w-8" />
-          <p className="text-muted-foreground text-sm">{tRecipient("noCustomers")}</p>
+          <Users className="text-muted-foreground mb-2 h-8 w-8" />
+          <p className="text-muted-foreground text-sm">
+            {tRecipient("noCustomers")}
+          </p>
         </div>
       ) : (
         <ScrollArea className="h-[300px] rounded-md border">
@@ -314,7 +325,8 @@ export function CustomerSelector({ selectedIds, onSelectionChange }: CustomerSel
                         <span>•</span>
                         <span className="truncate">
                           {customer.tags.slice(0, 3).join(", ")}
-                          {customer.tags.length > 3 && ` +${customer.tags.length - 3}`}
+                          {customer.tags.length > 3 &&
+                            ` +${customer.tags.length - 3}`}
                         </span>
                       </>
                     )}

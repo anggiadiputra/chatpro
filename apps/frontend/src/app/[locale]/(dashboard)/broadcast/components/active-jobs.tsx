@@ -1,12 +1,18 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import { formatDistanceToNow } from "date-fns"
+import { id, enUS } from "date-fns/locale"
+import {
+  Play,
+  Clock,
+  X,
+  RefreshCw,
+  AlertCircle,
+  LayoutTemplate,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useLocale } from "next-intl"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,17 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import {
-  IconPlayerPlay,
-  IconClock,
-  IconX,
-  IconRefresh,
-  IconAlertCircle,
-  IconTemplate,
-} from "@tabler/icons-react"
-import { formatDistanceToNow } from "date-fns"
-import { id, enUS } from "date-fns/locale"
-import { useLocale } from "next-intl"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface BroadcastJob {
   id: string
@@ -56,7 +56,6 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
 
   const dateLocale = locale === "id" ? id : enUS
 
-
   const loadJobs = useCallback(async () => {
     try {
       setError(null)
@@ -70,7 +69,8 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
         const result = await response.json()
         // Filter only PENDING and PROCESSING jobs
         const activeJobs = (result.data || []).filter(
-          (job: BroadcastJob) => job.status === "PENDING" || job.status === "PROCESSING"
+          (job: BroadcastJob) =>
+            job.status === "PENDING" || job.status === "PROCESSING"
         )
         setJobs(activeJobs)
       } else {
@@ -87,10 +87,10 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
   // Initial load and polling for real-time updates
   useEffect(() => {
     loadJobs()
-    
+
     // Poll every 3 seconds for real-time progress
     const interval = setInterval(loadJobs, 3000)
-    
+
     return () => clearInterval(interval)
   }, [loadJobs])
 
@@ -139,14 +139,14 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
       case "PENDING":
         return (
           <Badge variant="secondary" className="gap-1">
-            <IconClock className="h-3 w-3" />
+            <Clock className="h-3 w-3" />
             {t("status.pending")}
           </Badge>
         )
       case "PROCESSING":
         return (
           <Badge variant="default" className="gap-1 bg-blue-500">
-            <IconPlayerPlay className="h-3 w-3" />
+            <Play className="h-3 w-3" />
             {t("status.processing")}
           </Badge>
         )
@@ -154,7 +154,6 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
         return <Badge variant="outline">{status}</Badge>
     }
   }
-
 
   if (loading) {
     return (
@@ -183,8 +182,8 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
-        <IconAlertCircle className="mb-2 h-8 w-8 text-destructive" />
-        <p className="text-sm text-destructive">{error}</p>
+        <AlertCircle className="text-destructive mb-2 h-8 w-8" />
+        <p className="text-destructive text-sm">{error}</p>
         <Button
           variant="outline"
           size="sm"
@@ -194,7 +193,7 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
             loadJobs()
           }}
         >
-          <IconRefresh className="h-4 w-4" />
+          <RefreshCw className="h-4 w-4" />
           {t("customerSelector.retry")}
         </Button>
       </div>
@@ -204,7 +203,7 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
   if (jobs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <IconPlayerPlay className="mb-4 h-12 w-12 text-muted-foreground" />
+        <Play className="text-muted-foreground mb-4 h-12 w-12" />
         <p className="text-muted-foreground">{t("activeJobs.noJobs")}</p>
       </div>
     )
@@ -228,7 +227,7 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <IconTemplate className="h-4 w-4 text-muted-foreground" />
+                      <LayoutTemplate className="text-muted-foreground h-4 w-4" />
                       <span className="font-medium">{job.templateName}</span>
                     </div>
                     {getStatusBadge(job.status)}
@@ -237,7 +236,7 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
                   {/* Progress Bar */}
                   <div className="space-y-1">
                     <Progress value={progress} className="h-2" />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex justify-between text-xs">
                       <span>
                         {t("jobCard.progress")}: {progress}%
                       </span>
@@ -264,7 +263,7 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {formatDistanceToNow(new Date(job.createdAt), {
                         addSuffix: true,
                         locale: dateLocale,
@@ -284,7 +283,7 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
                         handleCancelJob(job)
                       }}
                     >
-                      <IconX className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                       {cancellingJobId === job.id
                         ? "..."
                         : t("jobCard.cancelJob")}
@@ -298,7 +297,10 @@ export function ActiveJobs({ onJobClick }: ActiveJobsProps) {
       </div>
 
       {/* Cancel Confirmation Dialog */}
-      <AlertDialog open={!!jobToCancel} onOpenChange={() => setJobToCancel(null)}>
+      <AlertDialog
+        open={!!jobToCancel}
+        onOpenChange={() => setJobToCancel(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("jobCard.cancelJob")}?</AlertDialogTitle>

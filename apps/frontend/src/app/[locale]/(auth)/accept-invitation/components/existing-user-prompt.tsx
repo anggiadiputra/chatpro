@@ -4,9 +4,11 @@ import { useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { UserCheck } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Card } from "@/components/ui/card"
+import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -16,8 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { PasswordInput } from "@/components/password-input"
-import { IconUserCheck } from "@tabler/icons-react"
-import { authClient } from "@/lib/auth-client"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
 
@@ -75,12 +75,15 @@ export function ExistingUserPrompt({
       }
 
       // Then accept the invitation to link the account
-      const response = await fetch(`${API_URL}/api/v1/team/invitations/accept`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ token }),
-      })
+      const response = await fetch(
+        `${API_URL}/api/v1/team/invitations/accept`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ token }),
+        }
+      )
 
       const result = await response.json()
 
@@ -106,22 +109,22 @@ export function ExistingUserPrompt({
     <div className="space-y-6" data-auth-content>
       <Card className="border-border/50 bg-card/50 p-8 shadow-xl backdrop-blur-sm transition-all hover:shadow-2xl">
         <div className="mb-6 flex flex-col items-center gap-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <IconUserCheck className="h-8 w-8 text-primary" />
+          <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full">
+            <UserCheck className="text-primary h-8 w-8" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">{t("existingAccount")}</h1>
-            <p className="mt-1 text-muted-foreground">
+            <p className="text-muted-foreground mt-1">
               {t("subtitle")}{" "}
-              <span className="font-semibold text-foreground">
+              <span className="text-foreground font-semibold">
                 {invitation.businessOwnerName}
               </span>
             </p>
           </div>
         </div>
 
-        <div className="mb-6 rounded-lg bg-muted/50 p-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-muted/50 mb-6 rounded-lg p-4">
+          <p className="text-muted-foreground text-sm">
             {t("existingAccountDesc")}
           </p>
           <p className="mt-2 text-sm">
@@ -155,7 +158,7 @@ export function ExistingUserPrompt({
               />
 
               {error && (
-                <div className="rounded-lg bg-destructive/10 p-3 text-center text-sm text-destructive">
+                <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-center text-sm">
                   {error}
                 </div>
               )}

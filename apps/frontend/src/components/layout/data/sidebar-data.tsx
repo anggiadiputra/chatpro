@@ -1,17 +1,18 @@
 import {
-  IconLayoutDashboard,
-  IconSettings,
-  IconMessage,
-  IconUsers,
-  IconChartBar,
-  IconBrandInstagram,
-  IconBrandWhatsapp,
-  IconInbox,
-  IconCode,
-  IconTemplate,
-  IconCreditCard,
-} from "@tabler/icons-react"
-import { BrainCircuit, HelpCircle } from "lucide-react"
+  BrainCircuit,
+  HelpCircle,
+  LayoutDashboard,
+  Settings,
+  MessageSquare,
+  Users,
+  BarChart3,
+  Instagram,
+  MessageCircle,
+  Inbox,
+  Code,
+  LayoutTemplate,
+  CreditCard,
+} from "lucide-react"
 import { type SidebarData } from "../types"
 
 export const sidebarData: SidebarData = {
@@ -24,7 +25,7 @@ export const sidebarData: SidebarData = {
     {
       name: process.env.NEXT_PUBLIC_APP_NAME || "Kirim.Chat",
       logo: ({ className }: { className: string }) => (
-        <IconMessage className={className} />
+        <MessageSquare className={className} />
       ),
       plan: "WhatsApp Business",
     },
@@ -36,17 +37,17 @@ export const sidebarData: SidebarData = {
         {
           title: "Dashboard",
           url: "/dashboard",
-          icon: IconLayoutDashboard,
+          icon: LayoutDashboard,
         },
         {
           title: "Inbox",
           url: "/oneinbox",
-          icon: IconInbox,
+          icon: Inbox,
         },
         {
           title: "Templates",
           url: "/templates",
-          icon: IconTemplate,
+          icon: LayoutTemplate,
         },
       ],
     },
@@ -56,12 +57,12 @@ export const sidebarData: SidebarData = {
         {
           title: "Customers",
           url: "/customers",
-          icon: IconUsers,
+          icon: Users,
         },
         {
           title: "Pipeline",
           url: "/crm/pipeline",
-          icon: IconChartBar,
+          icon: BarChart3,
         },
       ],
     },
@@ -71,12 +72,12 @@ export const sidebarData: SidebarData = {
         {
           title: "WhatsApp",
           url: "/waba",
-          icon: IconBrandWhatsapp,
+          icon: MessageCircle,
         },
         {
           title: "Instagram",
           url: "/instagram",
-          icon: IconBrandInstagram,
+          icon: Instagram,
         },
       ],
     },
@@ -91,17 +92,17 @@ export const sidebarData: SidebarData = {
         {
           title: "Developers",
           url: "/developers",
-          icon: IconCode,
+          icon: Code,
         },
         {
           title: "Subscription",
           url: "/subscription",
-          icon: IconCreditCard,
+          icon: CreditCard,
         },
         {
           title: "Settings",
           url: "/settings",
-          icon: IconSettings,
+          icon: Settings,
         },
       ],
     },

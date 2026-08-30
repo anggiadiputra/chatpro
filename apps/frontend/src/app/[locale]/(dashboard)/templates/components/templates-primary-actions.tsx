@@ -1,10 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { IconPlus, IconRefresh } from "@tabler/icons-react"
 import { useState } from "react"
-import { TemplatesMutateDrawer } from "./templates-mutate-drawer"
+import { Plus, RefreshCw } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+import { TemplatesMutateDrawer } from "./templates-mutate-drawer"
 
 export function TemplatesPrimaryActions() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -25,14 +25,16 @@ export function TemplatesPrimaryActions() {
       if (response.ok) {
         toast({
           title: "Templates Synced!",
-          description: result.data.message || "Templates synced successfully from Meta",
+          description:
+            result.data.message || "Templates synced successfully from Meta",
         })
         // Reload to show new templates
         setTimeout(() => window.location.reload(), 1000)
       } else {
         toast({
           title: "Sync Failed",
-          description: result.error?.message || "Failed to sync templates from Meta",
+          description:
+            result.error?.message || "Failed to sync templates from Meta",
           variant: "destructive",
         })
       }
@@ -56,11 +58,11 @@ export function TemplatesPrimaryActions() {
         onClick={handleSync}
         disabled={isSyncing}
       >
-        <IconRefresh className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+        <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
         {isSyncing ? "Syncing..." : "Sync from Meta"}
       </Button>
       <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-        <IconPlus className="h-4 w-4" />
+        <Plus className="h-4 w-4" />
         Create Template
       </Button>
 

@@ -1,15 +1,15 @@
 "use client"
 
+import { format, formatDistanceToNow } from "date-fns"
 import { ColumnDef } from "@tanstack/react-table"
+import { Clock } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { consentStatuses, windowStatuses } from "../data/data"
 import { Customer } from "../data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
-import { format, formatDistanceToNow } from "date-fns"
-import { IconClock } from "@tabler/icons-react"
 
 export const columns: ColumnDef<Customer>[] = [
   {
@@ -43,12 +43,13 @@ export const columns: ColumnDef<Customer>[] = [
     ),
     cell: ({ row }) => {
       const name = row.getValue("name") as string | null
-      const initials = (name || "")
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2) || "U"
+      const initials =
+        (name || "")
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2) || "U"
 
       return (
         <div className="flex items-center gap-3">
@@ -113,7 +114,7 @@ export const columns: ColumnDef<Customer>[] = [
         return (
           <div className="flex items-center gap-2">
             <Badge variant="default" className="bg-emerald-600">
-              <IconClock className="mr-1 h-3 w-3" />
+              <Clock className="mr-1 h-3 w-3" />
               Active
             </Badge>
             <span className="text-muted-foreground text-xs">

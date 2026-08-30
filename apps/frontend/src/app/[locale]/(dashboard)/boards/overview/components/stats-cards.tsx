@@ -1,14 +1,14 @@
 "use client"
 
 import {
-  IconMessageCircle,
-  IconUsers,
-  IconClock,
-  IconShieldCheck,
-  IconCaretUpFilled,
-  IconCaretDownFilled,
-  IconInfoCircle,
-} from "@tabler/icons-react"
+  MessageCircle,
+  Users,
+  Clock,
+  ShieldCheck,
+  ChevronUp,
+  ChevronDown,
+  Info,
+} from "lucide-react"
 import { Line, LineChart } from "recharts"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -47,8 +47,10 @@ const qualityColors = {
 
 // Quality rating badge colors
 const badgeColorClasses = {
-  green: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  yellow: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  green:
+    "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  yellow:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   red: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 }
 
@@ -80,9 +82,8 @@ export default function StatsCards() {
   // Calculate new customers trend
   const newCustomersThisWeek = stats?.customers?.newThisWeek ?? 0
   const totalCustomers = stats?.customers?.total ?? 0
-  const newCustomersPercentage = totalCustomers > 0 
-    ? ((newCustomersThisWeek / totalCustomers) * 100) 
-    : 0
+  const newCustomersPercentage =
+    totalCustomers > 0 ? (newCustomersThisWeek / totalCustomers) * 100 : 0
 
   // Quality rating
   const qualityRating = stats?.quality?.rating ?? null
@@ -106,7 +107,7 @@ export default function StatsCards() {
         { value: stats?.messages?.today ?? 42 },
       ],
       strokeColor: "hsl(var(--chart-1))",
-      icon: IconMessageCircle,
+      icon: MessageCircle,
     },
     {
       label: "Total Customers",
@@ -124,7 +125,7 @@ export default function StatsCards() {
         { value: totalCustomers },
       ],
       strokeColor: "hsl(var(--chart-2))",
-      icon: IconUsers,
+      icon: Users,
     },
     {
       label: "Active Windows",
@@ -141,17 +142,22 @@ export default function StatsCards() {
         { value: stats?.customers?.activeWindows ?? 18 },
       ],
       strokeColor: "hsl(var(--chart-3))",
-      icon: IconClock,
+      icon: Clock,
     },
     {
       label: "Quality Rating",
       description: "WhatsApp phone number quality rating from Meta",
       stats: 0, // Not used for this card
-      type: qualityRating === "HIGH" ? "up" : qualityRating === "LOW" ? "down" : "neutral",
+      type:
+        qualityRating === "HIGH"
+          ? "up"
+          : qualityRating === "LOW"
+            ? "down"
+            : "neutral",
       percentage: 0,
       chartData: [],
       strokeColor: "hsl(var(--chart-4))",
-      icon: IconShieldCheck,
+      icon: ShieldCheck,
       badge: {
         label: qualityRating ?? "N/A",
         color: qualityColor,
@@ -201,7 +207,7 @@ function StatsCard({
         <TooltipProvider>
           <Tooltip delayDuration={50}>
             <TooltipTrigger>
-              <IconInfoCircle className="text-muted-foreground scale-90 stroke-[1.25]" />
+              <Info className="text-muted-foreground scale-90 stroke-[1.25]" />
               <span className="sr-only">More Info</span>
             </TooltipTrigger>
             <TooltipContent>
@@ -264,11 +270,11 @@ function StatsCard({
                 "text-muted-foreground": type === "neutral",
               })}
             >
-              <p className={"text-[13px] font-medium leading-none"}>
+              <p className={"text-[13px] leading-none font-medium"}>
                 {percentage.toFixed(1)}%
               </p>
-              {type === "up" && <IconCaretUpFilled size={18} />}
-              {type === "down" && <IconCaretDownFilled size={18} />}
+              {type === "up" && <ChevronUp size={18} />}
+              {type === "down" && <ChevronDown size={18} />}
             </div>
           </div>
         )}

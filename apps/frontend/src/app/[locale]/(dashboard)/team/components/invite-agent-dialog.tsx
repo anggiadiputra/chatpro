@@ -1,7 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { AlertTriangle, ArrowUp } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
+import { toast } from "@/hooks/use-toast"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -10,13 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { IconAlertTriangle, IconArrowUp } from "@tabler/icons-react"
-import { toast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
 
 interface AgentLimit {
   currentCount: number
@@ -74,10 +74,12 @@ export function InviteAgentDialog({
       } else {
         const errorCode = data.error?.code
         if (errorCode === "AGENT_LIMIT_REACHED") {
-          setError(t("invite.limitReachedDescription", {
-            limit: agentLimit?.limit || 0,
-            tier: agentLimit?.tier || "FREE",
-          }))
+          setError(
+            t("invite.limitReachedDescription", {
+              limit: agentLimit?.limit || 0,
+              tier: agentLimit?.tier || "FREE",
+            })
+          )
         } else if (errorCode === "INVITATION_EXISTS") {
           setError("An invitation has already been sent to this email")
         } else if (errorCode === "ALREADY_AGENT") {
@@ -112,7 +114,7 @@ export function InviteAgentDialog({
         {isLimitReached ? (
           <div className="space-y-4">
             <Alert variant="destructive">
-              <IconAlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4" />
               <AlertTitle>{t("invite.limitReached")}</AlertTitle>
               <AlertDescription>
                 {t("invite.limitReachedDescription", {
@@ -122,7 +124,7 @@ export function InviteAgentDialog({
               </AlertDescription>
             </Alert>
             <Button onClick={handleUpgrade} className="w-full">
-              <IconArrowUp className="mr-2 h-4 w-4" />
+              <ArrowUp className="mr-2 h-4 w-4" />
               {t("invite.upgradePrompt")}
             </Button>
           </div>
@@ -153,7 +155,7 @@ export function InviteAgentDialog({
 
               {error && (
                 <Alert variant="destructive">
-                  <IconAlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}

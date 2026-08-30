@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { Row } from "@tanstack/react-table"
+import { MoreHorizontal, Trash2, Eye, Send } from "lucide-react"
+import { useSubmitTemplate, useDeleteTemplate } from "@/hooks/use-templates"
+import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,10 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Template } from "../data/schema"
-import { IconTrash, IconEye, IconSend } from "@tabler/icons-react"
-import { useToast } from "@/hooks/use-toast"
 import { TemplateDetailDialog } from "./template-detail-dialog"
-import { useSubmitTemplate, useDeleteTemplate } from "@/hooks/use-templates"
 
 interface Props {
   row: Row<Template>
@@ -25,7 +24,7 @@ export function DataTableRowActions({ row }: Props) {
   const template = row.original
   const { toast } = useToast()
   const [showDetail, setShowDetail] = useState(false)
-  
+
   // Use mutation hooks with cache invalidation
   // Requirements: 3.2, 8.1
   const submitMutation = useSubmitTemplate()
@@ -48,7 +47,11 @@ export function DataTableRowActions({ row }: Props) {
   }
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this template? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this template? This action cannot be undone."
+      )
+    ) {
       return
     }
 
@@ -78,24 +81,24 @@ export function DataTableRowActions({ row }: Props) {
             variant="ghost"
             className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
           >
-            <DotsHorizontalIcon className="h-4 w-4" />
+            <MoreHorizontal className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem onClick={() => setShowDetail(true)}>
-            <IconEye className="mr-2 h-4 w-4" />
+            <Eye className="mr-2 h-4 w-4" />
             View Details
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {template.status === "PENDING" && template.metaTemplateId ? (
             <DropdownMenuItem disabled className="text-muted-foreground">
-              <IconSend className="mr-2 h-4 w-4" />
+              <Send className="mr-2 h-4 w-4" />
               Pending Review
             </DropdownMenuItem>
           ) : template.status !== "APPROVED" ? (
             <DropdownMenuItem onClick={handleSubmit} disabled={isSubmitting}>
-              <IconSend className="mr-2 h-4 w-4" />
+              <Send className="mr-2 h-4 w-4" />
               {isSubmitting ? "Submitting..." : "Submit to Meta"}
             </DropdownMenuItem>
           ) : null}
@@ -105,7 +108,7 @@ export function DataTableRowActions({ row }: Props) {
             disabled={isDeleting}
             className="text-red-600 focus:text-red-600"
           >
-            <IconTrash className="mr-2 h-4 w-4" />
+            <Trash2 className="mr-2 h-4 w-4" />
             {isDeleting ? "Deleting..." : "Delete"}
           </DropdownMenuItem>
         </DropdownMenuContent>

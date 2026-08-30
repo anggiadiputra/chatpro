@@ -2,15 +2,17 @@
 
 import { useState } from "react"
 import {
-  IconDotsVertical,
-  IconEdit,
-  IconTrash,
-  IconPlayerPlay,
-  IconToggleLeft,
-  IconToggleRight,
-  IconHistory,
-} from "@tabler/icons-react"
-import { Loader2 } from "lucide-react"
+  Loader2,
+  EllipsisVertical,
+  Pencil,
+  Trash2,
+  Play,
+  ToggleLeft,
+  ToggleRight,
+  History,
+} from "lucide-react"
+import { webhooksApi, type WebhookEndpoint } from "@/lib/api/webhooks-api"
+import { toast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -20,8 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { toast } from "@/hooks/use-toast"
-import { webhooksApi, type WebhookEndpoint } from "@/lib/api/webhooks-api"
 import { MutateWebhook } from "./mutate-webhook"
 import { WebhookLogsDialog } from "./webhook-logs-dialog"
 import { WebhookTestDialog } from "./webhook-test-dialog"
@@ -88,31 +88,31 @@ export function WebhookRowActions({ webhook }: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8">
-            <IconDotsVertical className="h-4 w-4" />
+            <EllipsisVertical className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem onClick={() => setTestOpen(true)}>
-            <IconPlayerPlay className="mr-2 h-4 w-4" />
+            <Play className="mr-2 h-4 w-4" />
             Test Webhook
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setLogsOpen(true)}>
-            <IconHistory className="mr-2 h-4 w-4" />
+            <History className="mr-2 h-4 w-4" />
             View Logs
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setEditOpen(true)}>
-            <IconEdit className="mr-2 h-4 w-4" />
+            <Pencil className="mr-2 h-4 w-4" />
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleToggle} disabled={isToggling}>
             {isToggling ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : webhook.isActive ? (
-              <IconToggleLeft className="mr-2 h-4 w-4" />
+              <ToggleLeft className="mr-2 h-4 w-4" />
             ) : (
-              <IconToggleRight className="mr-2 h-4 w-4" />
+              <ToggleRight className="mr-2 h-4 w-4" />
             )}
             {webhook.isActive ? "Disable" : "Enable"}
           </DropdownMenuItem>
@@ -121,7 +121,7 @@ export function WebhookRowActions({ webhook }: Props) {
             onClick={() => setDeleteOpen(true)}
             className="text-red-600 focus:text-red-600"
           >
-            <IconTrash className="mr-2 h-4 w-4" />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -1,16 +1,22 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Phone,
+  CircleCheck,
+  AlertTriangle,
+  CircleX,
+  TrendingUp,
+} from "lucide-react"
+import { getTierInfo, type PhoneNumberDetails } from "@/lib/api/waba"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
-  IconPhone,
-  IconCircleCheck,
-  IconAlertTriangle,
-  IconCircleX,
-  IconTrendingUp
-} from "@tabler/icons-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { getTierInfo, type PhoneNumberDetails } from "@/lib/api/waba"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 interface Props {
   phoneInfo: PhoneNumberDetails | null
@@ -21,7 +27,7 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
     return (
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <IconPhone className="text-muted-foreground mb-4 h-12 w-12" />
+          <Phone className="text-muted-foreground mb-4 h-12 w-12" />
           <h3 className="mb-2 text-lg font-semibold">No Phone Number</h3>
           <p className="text-muted-foreground text-sm">
             Connect a WABA to see phone number details
@@ -35,26 +41,26 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
     GREEN: {
       label: "High Quality",
       color: "bg-emerald-600",
-      icon: IconCircleCheck,
-      description: "Excellent messaging quality"
+      icon: CircleCheck,
+      description: "Excellent messaging quality",
     },
     YELLOW: {
       label: "Medium Quality",
       color: "bg-amber-600",
-      icon: IconAlertTriangle,
-      description: "Quality under review"
+      icon: AlertTriangle,
+      description: "Quality under review",
     },
     RED: {
       label: "Low Quality",
       color: "bg-red-600",
-      icon: IconCircleX,
-      description: "Quality issues detected"
+      icon: CircleX,
+      description: "Quality issues detected",
     },
     UNKNOWN: {
       label: "Unknown",
       color: "bg-gray-600",
-      icon: IconAlertTriangle,
-      description: "Quality not rated yet"
+      icon: AlertTriangle,
+      description: "Quality not rated yet",
     },
   }
 
@@ -66,7 +72,7 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <IconPhone className="h-5 w-5" />
+          <Phone className="h-5 w-5" />
           Phone Number
           {phoneInfo.isPrimary && (
             <Badge variant="default" className="text-xs">
@@ -74,7 +80,9 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
             </Badge>
           )}
         </CardTitle>
-        <CardDescription>Your WhatsApp Business phone number details</CardDescription>
+        <CardDescription>
+          Your WhatsApp Business phone number details
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -82,13 +90,17 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12">
               <AvatarFallback className="bg-primary text-primary-foreground">
-                <IconPhone className="h-6 w-6" />
+                <Phone className="h-6 w-6" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <p className="font-mono text-lg font-bold">{phoneInfo.displayPhoneNumber}</p>
+              <p className="font-mono text-lg font-bold">
+                {phoneInfo.displayPhoneNumber}
+              </p>
               {phoneInfo.verifiedName && (
-                <p className="text-muted-foreground text-sm">{phoneInfo.verifiedName}</p>
+                <p className="text-muted-foreground text-sm">
+                  {phoneInfo.verifiedName}
+                </p>
               )}
             </div>
           </div>
@@ -102,19 +114,21 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
                 {quality.label}
               </Badge>
             </div>
-            <p className="text-muted-foreground text-sm">{quality.description}</p>
+            <p className="text-muted-foreground text-sm">
+              {quality.description}
+            </p>
 
             {/* Quality Progress Bar */}
-            <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
+            <div className="mt-3 h-2 w-full rounded-full bg-gray-200">
               <div
                 className={`h-2 rounded-full transition-all ${
                   phoneInfo.qualityRating === "GREEN"
-                    ? "bg-green-500 w-full"
+                    ? "w-full bg-green-500"
                     : phoneInfo.qualityRating === "YELLOW"
-                      ? "bg-yellow-500 w-2/3"
+                      ? "w-2/3 bg-yellow-500"
                       : phoneInfo.qualityRating === "RED"
-                        ? "bg-red-500 w-1/3"
-                        : "bg-gray-400 w-0"
+                        ? "w-1/3 bg-red-500"
+                        : "w-0 bg-gray-400"
                 }`}
               />
             </div>
@@ -124,7 +138,7 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <IconTrendingUp className="h-4 w-4 text-gray-400" />
+                <TrendingUp className="h-4 w-4 text-gray-400" />
                 <span className="text-sm font-medium">Messaging Limit</span>
               </div>
               <span className={`text-lg font-bold ${tierInfo.color}`}>
@@ -134,23 +148,28 @@ export function PhoneNumberCard({ phoneInfo }: Props) {
 
             {/* Tier Progress Indicator */}
             <div className="flex gap-1">
-              {["TIER_1K", "TIER_10K", "TIER_100K", "TIER_UNLIMITED"].map((tier, index) => {
-                const currentTierIndex = ["TIER_1K", "TIER_10K", "TIER_100K", "TIER_UNLIMITED"].indexOf(
-                  phoneInfo.messagingLimitTier || ""
-                )
-                const isActive = index <= currentTierIndex
+              {["TIER_1K", "TIER_10K", "TIER_100K", "TIER_UNLIMITED"].map(
+                (tier, index) => {
+                  const currentTierIndex = [
+                    "TIER_1K",
+                    "TIER_10K",
+                    "TIER_100K",
+                    "TIER_UNLIMITED",
+                  ].indexOf(phoneInfo.messagingLimitTier || "")
+                  const isActive = index <= currentTierIndex
 
-                return (
-                  <div
-                    key={tier}
-                    className={`flex-1 h-1.5 rounded-full ${
-                      isActive ? "bg-blue-500" : "bg-gray-200"
-                    }`}
-                  />
-                )
-              })}
+                  return (
+                    <div
+                      key={tier}
+                      className={`h-1.5 flex-1 rounded-full ${
+                        isActive ? "bg-blue-500" : "bg-gray-200"
+                      }`}
+                    />
+                  )
+                }
+              )}
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex justify-between text-xs">
               <span>1K</span>
               <span>10K</span>
               <span>100K</span>

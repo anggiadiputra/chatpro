@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { Send, Loader2, Users, FileSpreadsheet, Eye, Clock } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { toast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -11,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -19,22 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import {
-  IconSend,
-  IconLoader2,
-  IconUsers,
-  IconFileTypeCsv,
-  IconEye,
-  IconClock,
-} from "@tabler/icons-react"
-import { toast } from "@/hooks/use-toast"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import type { Template } from "../../templates/data/schema"
+import { CsvUploader } from "./csv-uploader"
+import { CustomerSelector } from "./customer-selector"
+import { TemplatePreviewLive } from "./template-preview-live"
 import { TemplateSelector } from "./template-selector"
 import { VariableInput, validateVariables } from "./variable-input"
-import { CustomerSelector } from "./customer-selector"
-import { CsvUploader } from "./csv-uploader"
-import { TemplatePreviewLive } from "./template-preview-live"
-import type { Template } from "../../templates/data/schema"
 
 interface BroadcastFormProps {
   onSuccess?: () => void
@@ -120,8 +113,9 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
 
       // Use templateName from API response (backend uses templateName, not name)
-      const templateName = (selectedTemplate as any).templateName || selectedTemplate.name
-      
+      const templateName =
+        (selectedTemplate as any).templateName || selectedTemplate.name
+
       const payload = {
         templateName,
         languageCode: selectedTemplate.language,
@@ -144,7 +138,7 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
 
       const result = await response.json()
 
-      console.log('Broadcast response:', { status: response.status, result })
+      console.log("Broadcast response:", { status: response.status, result })
 
       if (response.ok && result.success) {
         toast({
@@ -167,7 +161,9 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
         console.error("Broadcast error:", result.error)
         toast({
           title: result.error?.message || t("form.error"),
-          description: result.error?.code ? `Error code: ${result.error.code}` : undefined,
+          description: result.error?.code
+            ? `Error code: ${result.error.code}`
+            : undefined,
           variant: "destructive",
         })
       }
@@ -217,11 +213,11 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
               >
                 <TabsList className="mb-4 grid w-full grid-cols-2">
                   <TabsTrigger value="customers" className="gap-2">
-                    <IconUsers className="h-4 w-4" />
+                    <Users className="h-4 w-4" />
                     {t("recipientSelector.fromCustomers")}
                   </TabsTrigger>
                   <TabsTrigger value="csv" className="gap-2">
-                    <IconFileTypeCsv className="h-4 w-4" />
+                    <FileSpreadsheet className="h-4 w-4" />
                     {t("recipientSelector.fromCsv")}
                   </TabsTrigger>
                 </TabsList>
@@ -242,9 +238,9 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
               </Tabs>
 
               {/* Delay Setting */}
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex items-center gap-2 mb-2">
-                  <IconClock className="h-4 w-4 text-muted-foreground" />
+              <div className="mt-4 border-t pt-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Clock className="text-muted-foreground h-4 w-4" />
                   <Label className="text-sm font-medium">
                     {t("form.delayLabel")}
                   </Label>
@@ -261,7 +257,7 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-xs">
                   {t("form.delayDescription")}
                 </p>
               </div>
@@ -283,12 +279,12 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
             >
               {isSubmitting ? (
                 <>
-                  <IconLoader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   {t("form.sending")}
                 </>
               ) : (
                 <>
-                  <IconSend className="h-4 w-4" />
+                  <Send className="h-4 w-4" />
                   {t("form.send")}
                 </>
               )}
@@ -302,10 +298,8 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <IconEye className="h-5 w-5" />
-              <CardTitle className="text-base">
-                {t("preview.title")}
-              </CardTitle>
+              <Eye className="h-5 w-5" />
+              <CardTitle className="text-base">{t("preview.title")}</CardTitle>
             </div>
             <CardDescription>{t("preview.description")}</CardDescription>
           </CardHeader>
@@ -317,7 +311,7 @@ export function BroadcastForm({ onSuccess }: BroadcastFormProps) {
               />
             ) : (
               <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center">
-                <IconEye className="text-muted-foreground mb-3 h-10 w-10" />
+                <Eye className="text-muted-foreground mb-3 h-10 w-10" />
                 <p className="text-muted-foreground text-sm">
                   {t("preview.placeholder")}
                 </p>

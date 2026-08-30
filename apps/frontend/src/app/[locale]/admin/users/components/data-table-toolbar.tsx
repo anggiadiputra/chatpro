@@ -1,21 +1,16 @@
 "use client"
 
-import { Cross2Icon } from "@radix-ui/react-icons"
 import { Table } from "@tanstack/react-table"
+import { X, Shield, ShieldCheck, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableViewOptions } from "./data-table-view-options"
-import {
-  IconShield,
-  IconUserShield,
-  IconUser,
-} from "@tabler/icons-react"
 
 const roleOptions = [
-  { label: "Admin", value: "ADMIN", icon: IconShield },
-  { label: "Business Owner", value: "BUSINESS_OWNER", icon: IconUserShield },
-  { label: "Agent", value: "AGENT", icon: IconUser },
+  { label: "Admin", value: "ADMIN", icon: Shield },
+  { label: "Business Owner", value: "BUSINESS_OWNER", icon: ShieldCheck },
+  { label: "Agent", value: "AGENT", icon: User },
 ]
 
 const statusOptions = [
@@ -77,7 +72,7 @@ export function DataTableToolbar<TData>({ table }: Props<TData>) {
             className="h-8 px-2 lg:px-3"
           >
             Reset
-            <Cross2Icon className="ml-2 h-4 w-4" />
+            <X className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>

@@ -1,7 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { formatDistanceToNow } from "date-fns"
+import { Mail, RefreshCw, X } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -10,10 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { IconMail, IconRefresh, IconX } from "@tabler/icons-react"
-import { formatDistanceToNow } from "date-fns"
 
 interface Invitation {
   id: string
@@ -29,14 +29,15 @@ interface PendingInvitationsProps {
   onResend: (invitationId: string) => Promise<void>
 }
 
-export function PendingInvitations({ 
-  invitations, 
-  onCancel, 
-  onResend 
+export function PendingInvitations({
+  invitations,
+  onCancel,
+  onResend,
 }: PendingInvitationsProps) {
   const t = useTranslations("team")
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  const [selectedInvitation, setSelectedInvitation] = useState<Invitation | null>(null)
+  const [selectedInvitation, setSelectedInvitation] =
+    useState<Invitation | null>(null)
   const [isCancelling, setIsCancelling] = useState(false)
   const [resendingId, setResendingId] = useState<string | null>(null)
 
@@ -47,7 +48,7 @@ export function PendingInvitations({
 
   const handleConfirmCancel = async () => {
     if (!selectedInvitation) return
-    
+
     setIsCancelling(true)
     try {
       await onCancel(selectedInvitation.id)
@@ -70,8 +71,10 @@ export function PendingInvitations({
   if (invitations.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-8">
-        <IconMail className="text-muted-foreground mb-4 h-10 w-10" />
-        <p className="text-muted-foreground text-sm">{t("invitations.empty")}</p>
+        <Mail className="text-muted-foreground mb-4 h-10 w-10" />
+        <p className="text-muted-foreground text-sm">
+          {t("invitations.empty")}
+        </p>
       </div>
     )
   }
@@ -84,7 +87,9 @@ export function PendingInvitations({
             <TableHead>{t("invitations.email")}</TableHead>
             <TableHead>{t("invitations.sentAt")}</TableHead>
             <TableHead>{t("invitations.expiresAt")}</TableHead>
-            <TableHead className="text-right">{t("invitations.actions")}</TableHead>
+            <TableHead className="text-right">
+              {t("invitations.actions")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -92,10 +97,14 @@ export function PendingInvitations({
             <TableRow key={invitation.id}>
               <TableCell className="font-medium">{invitation.email}</TableCell>
               <TableCell>
-                {formatDistanceToNow(new Date(invitation.createdAt), { addSuffix: true })}
+                {formatDistanceToNow(new Date(invitation.createdAt), {
+                  addSuffix: true,
+                })}
               </TableCell>
               <TableCell>
-                {formatDistanceToNow(new Date(invitation.expiresAt), { addSuffix: true })}
+                {formatDistanceToNow(new Date(invitation.expiresAt), {
+                  addSuffix: true,
+                })}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
@@ -105,8 +114,12 @@ export function PendingInvitations({
                     onClick={() => handleResend(invitation)}
                     disabled={resendingId === invitation.id}
                   >
-                    <IconRefresh className={`h-4 w-4 ${resendingId === invitation.id ? 'animate-spin' : ''}`} />
-                    <span className="ml-1 hidden sm:inline">{t("invitations.resend")}</span>
+                    <RefreshCw
+                      className={`h-4 w-4 ${resendingId === invitation.id ? "animate-spin" : ""}`}
+                    />
+                    <span className="ml-1 hidden sm:inline">
+                      {t("invitations.resend")}
+                    </span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -114,8 +127,10 @@ export function PendingInvitations({
                     onClick={() => handleCancelClick(invitation)}
                     className="text-destructive hover:text-destructive"
                   >
-                    <IconX className="h-4 w-4" />
-                    <span className="ml-1 hidden sm:inline">{t("invitations.cancel")}</span>
+                    <X className="h-4 w-4" />
+                    <span className="ml-1 hidden sm:inline">
+                      {t("invitations.cancel")}
+                    </span>
                   </Button>
                 </div>
               </TableCell>
@@ -128,8 +143,8 @@ export function PendingInvitations({
         open={cancelDialogOpen}
         onOpenChange={setCancelDialogOpen}
         title={t("invitations.cancelConfirmTitle")}
-        desc={t("invitations.cancelConfirmDescription", { 
-          email: selectedInvitation?.email || "" 
+        desc={t("invitations.cancelConfirmDescription", {
+          email: selectedInvitation?.email || "",
         })}
         destructive
         handleConfirm={handleConfirmCancel}

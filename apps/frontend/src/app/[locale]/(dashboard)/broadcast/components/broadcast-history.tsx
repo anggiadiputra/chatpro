@@ -1,11 +1,23 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import { formatDistanceToNow, format } from "date-fns"
+import { id, enUS } from "date-fns/locale"
+import {
+  Check,
+  X,
+  AlertCircle,
+  RefreshCw,
+  History,
+  LayoutTemplate,
+  Eye,
+  Ban,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useLocale } from "next-intl"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -21,19 +33,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import {
-  IconCheck,
-  IconX,
-  IconAlertCircle,
-  IconRefresh,
-  IconHistory,
-  IconTemplate,
-  IconEye,
-  IconBan,
-} from "@tabler/icons-react"
-import { formatDistanceToNow, format } from "date-fns"
-import { id, enUS } from "date-fns/locale"
-import { useLocale } from "next-intl"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface BroadcastJob {
   id: string
@@ -62,7 +62,6 @@ interface PaginationInfo {
   total: number
   totalPages: number
 }
-
 
 export function BroadcastHistory() {
   const t = useTranslations("broadcast")
@@ -101,12 +100,14 @@ export function BroadcastHistory() {
             job.status === "CANCELLED"
         )
         setJobs(historyJobs)
-        setPagination(result.pagination || {
-          page: 1,
-          limit: 10,
-          total: historyJobs.length,
-          totalPages: 1,
-        })
+        setPagination(
+          result.pagination || {
+            page: 1,
+            limit: 10,
+            total: historyJobs.length,
+            totalPages: 1,
+          }
+        )
       } else {
         setError("Failed to load history")
       }
@@ -126,10 +127,9 @@ export function BroadcastHistory() {
     try {
       setLoadingDetail(true)
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
-      const response = await fetch(
-        `${apiUrl}/api/v1/broadcast/jobs/${jobId}`,
-        { credentials: "include" }
-      )
+      const response = await fetch(`${apiUrl}/api/v1/broadcast/jobs/${jobId}`, {
+        credentials: "include",
+      })
 
       if (response.ok) {
         const result = await response.json()
@@ -151,21 +151,21 @@ export function BroadcastHistory() {
       case "COMPLETED":
         return (
           <Badge variant="default" className="gap-1 bg-green-500">
-            <IconCheck className="h-3 w-3" />
+            <Check className="h-3 w-3" />
             {t("status.completed")}
           </Badge>
         )
       case "FAILED":
         return (
           <Badge variant="destructive" className="gap-1">
-            <IconX className="h-3 w-3" />
+            <X className="h-3 w-3" />
             {t("status.failed")}
           </Badge>
         )
       case "CANCELLED":
         return (
           <Badge variant="secondary" className="gap-1">
-            <IconBan className="h-3 w-3" />
+            <Ban className="h-3 w-3" />
             {t("status.cancelled")}
           </Badge>
         )
@@ -173,7 +173,6 @@ export function BroadcastHistory() {
         return <Badge variant="outline">{status}</Badge>
     }
   }
-
 
   if (loading) {
     return (
@@ -198,15 +197,15 @@ export function BroadcastHistory() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
-        <IconAlertCircle className="mb-2 h-8 w-8 text-destructive" />
-        <p className="text-sm text-destructive">{error}</p>
+        <AlertCircle className="text-destructive mb-2 h-8 w-8" />
+        <p className="text-destructive text-sm">{error}</p>
         <Button
           variant="outline"
           size="sm"
           className="mt-4 gap-2"
           onClick={() => loadJobs()}
         >
-          <IconRefresh className="h-4 w-4" />
+          <RefreshCw className="h-4 w-4" />
           {t("customerSelector.retry")}
         </Button>
       </div>
@@ -216,7 +215,7 @@ export function BroadcastHistory() {
   if (jobs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <IconHistory className="mb-4 h-12 w-12 text-muted-foreground" />
+        <History className="text-muted-foreground mb-4 h-12 w-12" />
         <p className="text-muted-foreground">{t("history.noHistory")}</p>
       </div>
     )
@@ -235,11 +234,11 @@ export function BroadcastHistory() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <IconTemplate className="h-4 w-4 text-muted-foreground" />
+                    <LayoutTemplate className="text-muted-foreground h-4 w-4" />
                     <span className="font-medium">{job.templateName}</span>
                     {getStatusBadge(job.status)}
                   </div>
-                  <div className="flex gap-4 text-sm text-muted-foreground">
+                  <div className="text-muted-foreground flex gap-4 text-sm">
                     <span>
                       {t("jobCard.recipients")}: {job.totalRecipients}
                     </span>
@@ -250,9 +249,11 @@ export function BroadcastHistory() {
                       {t("jobCard.failed")}: {job.failedCount}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {job.completedAt
-                      ? format(new Date(job.completedAt), "PPp", { locale: dateLocale })
+                      ? format(new Date(job.completedAt), "PPp", {
+                          locale: dateLocale,
+                        })
                       : formatDistanceToNow(new Date(job.createdAt), {
                           addSuffix: true,
                           locale: dateLocale,
@@ -260,7 +261,7 @@ export function BroadcastHistory() {
                   </p>
                 </div>
                 <Button variant="ghost" size="sm" className="gap-1">
-                  <IconEye className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                   {t("jobCard.viewDetails")}
                 </Button>
               </div>
@@ -318,13 +319,12 @@ export function BroadcastHistory() {
         )}
       </div>
 
-
       {/* Job Detail Dialog */}
       <Dialog open={!!selectedJob} onOpenChange={() => setSelectedJob(null)}>
         <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <IconTemplate className="h-5 w-5" />
+              <LayoutTemplate className="h-5 w-5" />
               {selectedJob?.templateName}
             </DialogTitle>
             <DialogDescription>
@@ -349,7 +349,7 @@ export function BroadcastHistory() {
                     <p className="text-2xl font-bold">
                       {selectedJob.totalRecipients}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {t("jobCard.recipients")}
                     </p>
                   </CardContent>
@@ -359,17 +359,17 @@ export function BroadcastHistory() {
                     <p className="text-2xl font-bold text-green-600">
                       {selectedJob.successCount}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {t("jobCard.success")}
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold text-destructive">
+                    <p className="text-destructive text-2xl font-bold">
                       {selectedJob.failedCount}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {t("jobCard.failed")}
                     </p>
                   </CardContent>
@@ -384,22 +384,22 @@ export function BroadcastHistory() {
                     {selectedJob.results.map((result, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between rounded-md bg-muted/50 p-2 text-sm"
+                        className="bg-muted/50 flex items-center justify-between rounded-md p-2 text-sm"
                       >
                         <span className="font-mono">{result.phoneNumber}</span>
                         {result.success ? (
                           <Badge variant="default" className="bg-green-500">
-                            <IconCheck className="mr-1 h-3 w-3" />
+                            <Check className="mr-1 h-3 w-3" />
                             Success
                           </Badge>
                         ) : (
                           <div className="flex flex-col items-end gap-1">
                             <Badge variant="destructive">
-                              <IconX className="mr-1 h-3 w-3" />
+                              <X className="mr-1 h-3 w-3" />
                               Failed
                             </Badge>
                             {result.error && (
-                              <span className="text-xs text-muted-foreground max-w-[300px] text-right">
+                              <span className="text-muted-foreground max-w-[300px] text-right text-xs">
                                 {result.error}
                               </span>
                             )}

@@ -1,25 +1,31 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
-  IconRefresh,
-  IconDeviceFloppy,
-  IconAlertCircle,
-  IconCircleCheck,
-  IconInfoCircle,
-  IconBrandWhatsapp,
-  IconMail,
-  IconPhoto,
-  IconWorld,
-} from "@tabler/icons-react"
+  RefreshCw,
+  Save,
+  AlertCircle,
+  CircleCheck,
+  Info,
+  MessageCircle,
+  Mail,
+  Image as ImageIcon,
+  Globe,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
 
@@ -45,9 +51,13 @@ export default function BrandingSettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
-  const [saveResult, setSaveResult] = useState<{ success: boolean; message: string } | null>(null)
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
-
+  const [saveResult, setSaveResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({})
 
   // Fetch branding settings
   const fetchSettings = async () => {
@@ -55,9 +65,12 @@ export default function BrandingSettingsPage() {
       setIsLoading(true)
       setError(null)
 
-      const response = await fetch(`${API_URL}/api/v1/admin/settings/branding`, {
-        credentials: "include",
-      })
+      const response = await fetch(
+        `${API_URL}/api/v1/admin/settings/branding`,
+        {
+          credentials: "include",
+        }
+      )
 
       if (!response.ok) {
         if (response.status === 403) {
@@ -100,34 +113,34 @@ export default function BrandingSettingsPage() {
     return phoneRegex.test(phone)
   }
 
-  const handleChange = (field: keyof BrandingSettings) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value
-    setSettings((prev) => ({ ...prev, [field]: value }))
-    setSaveResult(null)
+  const handleChange =
+    (field: keyof BrandingSettings) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      setSettings((prev) => ({ ...prev, [field]: value }))
+      setSaveResult(null)
 
-    // Clear validation error for this field
-    setValidationErrors((prev) => {
-      const newErrors = { ...prev }
-      delete newErrors[field]
-      return newErrors
-    })
+      // Clear validation error for this field
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[field]
+        return newErrors
+      })
 
-    // Validate on change
-    if (field === "supportEmail" && value && !validateEmail(value)) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        supportEmail: t("branding.invalidEmail") || "Invalid email format",
-      }))
+      // Validate on change
+      if (field === "supportEmail" && value && !validateEmail(value)) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          supportEmail: t("branding.invalidEmail") || "Invalid email format",
+        }))
+      }
+      if (field === "supportWhatsapp" && value && !validatePhone(value)) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          supportWhatsapp: t("branding.invalidPhone") || "Invalid phone format",
+        }))
+      }
     }
-    if (field === "supportWhatsapp" && value && !validatePhone(value)) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        supportWhatsapp: t("branding.invalidPhone") || "Invalid phone format",
-      }))
-    }
-  }
 
   const handleSave = async () => {
     // Validate before saving
@@ -136,7 +149,8 @@ export default function BrandingSettingsPage() {
       errors.supportEmail = t("branding.invalidEmail") || "Invalid email format"
     }
     if (settings.supportWhatsapp && !validatePhone(settings.supportWhatsapp)) {
-      errors.supportWhatsapp = t("branding.invalidPhone") || "Invalid phone format"
+      errors.supportWhatsapp =
+        t("branding.invalidPhone") || "Invalid phone format"
     }
 
     if (Object.keys(errors).length > 0) {
@@ -148,14 +162,17 @@ export default function BrandingSettingsPage() {
       setIsUpdating(true)
       setSaveResult(null)
 
-      const response = await fetch(`${API_URL}/api/v1/admin/settings/branding`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(settings),
-      })
+      const response = await fetch(
+        `${API_URL}/api/v1/admin/settings/branding`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(settings),
+        }
+      )
 
       const result = await response.json()
 
@@ -170,7 +187,10 @@ export default function BrandingSettingsPage() {
       await fetchSettings()
       setSaveResult({
         success: true,
-        message: result.message || t("branding.saveSuccess") || "Settings saved successfully",
+        message:
+          result.message ||
+          t("branding.saveSuccess") ||
+          "Settings saved successfully",
       })
     } catch (err) {
       setSaveResult({
@@ -187,10 +207,13 @@ export default function BrandingSettingsPage() {
       setIsResetting(true)
       setSaveResult(null)
 
-      const response = await fetch(`${API_URL}/api/v1/admin/settings/branding/reset`, {
-        method: "POST",
-        credentials: "include",
-      })
+      const response = await fetch(
+        `${API_URL}/api/v1/admin/settings/branding/reset`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      )
 
       const result = await response.json()
 
@@ -205,7 +228,10 @@ export default function BrandingSettingsPage() {
       await fetchSettings()
       setSaveResult({
         success: true,
-        message: result.message || t("branding.resetSuccess") || "Settings reset to defaults",
+        message:
+          result.message ||
+          t("branding.resetSuccess") ||
+          "Settings reset to defaults",
       })
     } catch (err) {
       setSaveResult({
@@ -217,14 +243,16 @@ export default function BrandingSettingsPage() {
     }
   }
 
-
   if (isLoading) {
     return (
       <div className="flex flex-col gap-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("branding.title") || "Branding Settings"}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("branding.title") || "Branding Settings"}
+          </h1>
           <p className="text-muted-foreground">
-            {t("branding.description") || "Configure website branding and support contact information"}
+            {t("branding.description") ||
+              "Configure website branding and support contact information"}
           </p>
         </div>
         <Card>
@@ -248,9 +276,12 @@ export default function BrandingSettingsPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t("branding.title") || "Branding Settings"}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {t("branding.title") || "Branding Settings"}
+        </h1>
         <p className="text-muted-foreground">
-          {t("branding.description") || "Configure website branding and support contact information"}
+          {t("branding.description") ||
+            "Configure website branding and support contact information"}
         </p>
       </div>
 
@@ -258,28 +289,31 @@ export default function BrandingSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <IconWorld className="h-5 w-5" />
+            <Globe className="h-5 w-5" />
             {t("branding.websiteBranding") || "Website Branding"}
           </CardTitle>
           <CardDescription>
-            {t("branding.websiteBrandingDesc") || "Configure website name and logo displayed across the application"}
+            {t("branding.websiteBrandingDesc") ||
+              "Configure website name and logo displayed across the application"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {source && (
             <Alert variant={source === "database" ? "default" : "destructive"}>
-              <IconInfoCircle className="h-4 w-4" />
+              <Info className="h-4 w-4" />
               <AlertDescription>
                 {source === "database"
-                  ? t("branding.sourceDatabase") || "Settings loaded from database"
-                  : t("branding.sourceEnv") || "Settings loaded from .env (database unavailable or empty)"}
+                  ? t("branding.sourceDatabase") ||
+                    "Settings loaded from database"
+                  : t("branding.sourceEnv") ||
+                    "Settings loaded from .env (database unavailable or empty)"}
               </AlertDescription>
             </Alert>
           )}
 
           {error && (
             <Alert variant="destructive">
-              <IconAlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -287,9 +321,9 @@ export default function BrandingSettingsPage() {
           {saveResult && (
             <Alert variant={saveResult.success ? "default" : "destructive"}>
               {saveResult.success ? (
-                <IconCircleCheck className="h-4 w-4" />
+                <CircleCheck className="h-4 w-4" />
               ) : (
-                <IconAlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4" />
               )}
               <AlertDescription>{saveResult.message}</AlertDescription>
             </Alert>
@@ -298,7 +332,7 @@ export default function BrandingSettingsPage() {
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="websiteName">
-                <IconWorld className="inline h-4 w-4 mr-1" />
+                <Globe className="mr-1 inline h-4 w-4" />
                 {t("branding.websiteName") || "Website Name"}
               </Label>
               <Input
@@ -307,14 +341,15 @@ export default function BrandingSettingsPage() {
                 onChange={handleChange("websiteName")}
                 placeholder="KirimChat"
               />
-              <p className="text-xs text-muted-foreground">
-                {t("branding.websiteNameHint") || "Displayed in page titles, headers, and sidebar"}
+              <p className="text-muted-foreground text-xs">
+                {t("branding.websiteNameHint") ||
+                  "Displayed in page titles, headers, and sidebar"}
               </p>
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="logoUrl">
-                <IconPhoto className="inline h-4 w-4 mr-1" />
+                <ImageIcon className="mr-1 inline h-4 w-4" />
                 {t("branding.logoUrl") || "Logo URL"}
               </Label>
               <Input
@@ -323,18 +358,19 @@ export default function BrandingSettingsPage() {
                 onChange={handleChange("logoUrl")}
                 placeholder="https://example.com/logo.png"
               />
-              <p className="text-xs text-muted-foreground">
-                {t("branding.logoUrlHint") || "URL to logo image. Leave empty to show website name as text"}
+              <p className="text-muted-foreground text-xs">
+                {t("branding.logoUrlHint") ||
+                  "URL to logo image. Leave empty to show website name as text"}
               </p>
             </div>
           </div>
 
           {/* Preview Section */}
-          <div className="border rounded-lg p-4 bg-muted/30">
-            <Label className="text-sm font-medium mb-3 block">
+          <div className="bg-muted/30 rounded-lg border p-4">
+            <Label className="mb-3 block text-sm font-medium">
               {t("branding.preview") || "Preview"}
             </Label>
-            <div className="flex items-center gap-3 p-3 bg-background rounded-md border">
+            <div className="bg-background flex items-center gap-3 rounded-md border p-3">
               {settings.logoUrl ? (
                 <Image
                   src={settings.logoUrl}
@@ -344,39 +380,41 @@ export default function BrandingSettingsPage() {
                   className="h-8 w-8 object-contain"
                   onError={(e) => {
                     // Hide broken image
-                    (e.target as HTMLImageElement).style.display = "none"
+                    ;(e.target as HTMLImageElement).style.display = "none"
                   }}
                 />
               ) : (
-                <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-bold text-sm">
+                <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded">
+                  <span className="text-primary text-sm font-bold">
                     {(settings.websiteName || "K").charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
-              <span className="font-semibold">{settings.websiteName || "KirimChat"}</span>
+              <span className="font-semibold">
+                {settings.websiteName || "KirimChat"}
+              </span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-
       {/* Support Contact Card */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <IconMail className="h-5 w-5" />
+            <Mail className="h-5 w-5" />
             {t("branding.supportContact") || "Support Contact"}
           </CardTitle>
           <CardDescription>
-            {t("branding.supportContactDesc") || "Configure support contact information displayed on Help & Support page"}
+            {t("branding.supportContactDesc") ||
+              "Configure support contact information displayed on Help & Support page"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="supportEmail">
-                <IconMail className="inline h-4 w-4 mr-1" />
+                <Mail className="mr-1 inline h-4 w-4" />
                 {t("branding.supportEmail") || "Support Email"}
               </Label>
               <Input
@@ -385,19 +423,24 @@ export default function BrandingSettingsPage() {
                 value={settings.supportEmail}
                 onChange={handleChange("supportEmail")}
                 placeholder="support@example.com"
-                className={validationErrors.supportEmail ? "border-destructive" : ""}
+                className={
+                  validationErrors.supportEmail ? "border-destructive" : ""
+                }
               />
               {validationErrors.supportEmail && (
-                <p className="text-xs text-destructive">{validationErrors.supportEmail}</p>
+                <p className="text-destructive text-xs">
+                  {validationErrors.supportEmail}
+                </p>
               )}
-              <p className="text-xs text-muted-foreground">
-                {t("branding.supportEmailHint") || "Email address for customer support inquiries"}
+              <p className="text-muted-foreground text-xs">
+                {t("branding.supportEmailHint") ||
+                  "Email address for customer support inquiries"}
               </p>
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="supportWhatsapp">
-                <IconBrandWhatsapp className="inline h-4 w-4 mr-1" />
+                <MessageCircle className="mr-1 inline h-4 w-4" />
                 {t("branding.supportWhatsapp") || "Support WhatsApp"}
               </Label>
               <Input
@@ -405,38 +448,47 @@ export default function BrandingSettingsPage() {
                 value={settings.supportWhatsapp}
                 onChange={handleChange("supportWhatsapp")}
                 placeholder="+6281234567890"
-                className={validationErrors.supportWhatsapp ? "border-destructive" : ""}
+                className={
+                  validationErrors.supportWhatsapp ? "border-destructive" : ""
+                }
               />
               {validationErrors.supportWhatsapp && (
-                <p className="text-xs text-destructive">{validationErrors.supportWhatsapp}</p>
+                <p className="text-destructive text-xs">
+                  {validationErrors.supportWhatsapp}
+                </p>
               )}
-              <p className="text-xs text-muted-foreground">
-                {t("branding.supportWhatsappHint") || "WhatsApp number for customer support (include country code)"}
+              <p className="text-muted-foreground text-xs">
+                {t("branding.supportWhatsappHint") ||
+                  "WhatsApp number for customer support (include country code)"}
               </p>
             </div>
           </div>
 
           {/* Support Preview */}
-          <div className="border rounded-lg p-4 bg-muted/30">
-            <Label className="text-sm font-medium mb-3 block">
+          <div className="bg-muted/30 rounded-lg border p-4">
+            <Label className="mb-3 block text-sm font-medium">
               {t("branding.supportPreview") || "Support Links Preview"}
             </Label>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <a
                 href={`mailto:${settings.supportEmail || "support@kirim.chat"}`}
-                className="flex items-center gap-2 px-4 py-2 bg-background rounded-md border hover:bg-muted transition-colors"
+                className="bg-background hover:bg-muted flex items-center gap-2 rounded-md border px-4 py-2 transition-colors"
               >
-                <IconMail className="h-4 w-4 text-primary" />
-                <span className="text-sm">{settings.supportEmail || "support@kirim.chat"}</span>
+                <Mail className="text-primary h-4 w-4" />
+                <span className="text-sm">
+                  {settings.supportEmail || "support@kirim.chat"}
+                </span>
               </a>
               <a
                 href={`https://wa.me/${(settings.supportWhatsapp || "+6281295648580").replace(/[^0-9]/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-background rounded-md border hover:bg-muted transition-colors"
+                className="bg-background hover:bg-muted flex items-center gap-2 rounded-md border px-4 py-2 transition-colors"
               >
-                <IconBrandWhatsapp className="h-4 w-4 text-green-600" />
-                <span className="text-sm">{settings.supportWhatsapp || "+6281295648580"}</span>
+                <MessageCircle className="h-4 w-4 text-green-600" />
+                <span className="text-sm">
+                  {settings.supportWhatsapp || "+6281295648580"}
+                </span>
               </a>
             </div>
           </div>
@@ -450,15 +502,19 @@ export default function BrandingSettingsPage() {
           onClick={handleReset}
           disabled={isResetting || isUpdating}
         >
-          <IconRefresh className="mr-2 h-4 w-4" />
-          {isResetting ? (t("branding.resetting") || "Resetting...") : (t("branding.resetToDefault") || "Reset to Default")}
+          <RefreshCw className="mr-2 h-4 w-4" />
+          {isResetting
+            ? t("branding.resetting") || "Resetting..."
+            : t("branding.resetToDefault") || "Reset to Default"}
         </Button>
-        <Button 
-          onClick={handleSave} 
+        <Button
+          onClick={handleSave}
           disabled={isUpdating || Object.keys(validationErrors).length > 0}
         >
-          <IconDeviceFloppy className="mr-2 h-4 w-4" />
-          {isUpdating ? (t("branding.saving") || "Saving...") : (t("branding.saveChanges") || "Save Changes")}
+          <Save className="mr-2 h-4 w-4" />
+          {isUpdating
+            ? t("branding.saving") || "Saving..."
+            : t("branding.saveChanges") || "Save Changes"}
         </Button>
       </div>
     </div>

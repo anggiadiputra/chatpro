@@ -1,40 +1,46 @@
 "use client"
 
+import { useState } from "react"
+import { Users } from "lucide-react"
+import { useBusinessAccount } from "@/hooks/use-business-account"
+import { useCustomers } from "@/hooks/use-customers"
+import { Card, CardContent } from "@/components/ui/card"
 import { Header } from "@/components/layout/header"
+import { CustomerViewDrawer } from "./components/customer-view-drawer"
 import { columns } from "./components/customers-columns"
+import { CustomersMutateDrawer } from "./components/customers-mutate-drawer"
 import { CustomersPrimaryActions } from "./components/customers-primary-actions"
 import { CustomersTable } from "./components/customers-table"
 import { Customer } from "./data/schema"
-import { Card, CardContent } from "@/components/ui/card"
-import { IconUsers } from "@tabler/icons-react"
-import { useBusinessAccount } from "@/hooks/use-business-account"
-import { CustomerViewDrawer } from "./components/customer-view-drawer"
-import { CustomersMutateDrawer } from "./components/customers-mutate-drawer"
-import { useCustomers } from "@/hooks/use-customers"
-import { useState } from "react"
 
 export default function CustomersPage() {
   const { userId, isLoading: isLoadingAccount } = useBusinessAccount()
 
   // Use TanStack Query for customers data with caching
   // Requirements: 4.1, 4.3, 4.4
-  const { data: customersData = [], isLoading: customersLoading, isFetching } = useCustomers(
-    undefined,
-    !isLoadingAccount && !!userId
-  )
+  const {
+    data: customersData = [],
+    isLoading: customersLoading,
+    isFetching,
+  } = useCustomers(undefined, !isLoadingAccount && !!userId)
 
   // Transform data to match frontend schema
   const customers: Customer[] = customersData.map((customer: any) => ({
     ...customer,
-    consentStatus: typeof customer.consentStatus === 'boolean'
-      ? (customer.consentStatus ? 'CONSENTED' : 'NOT_CONSENTED')
-      : customer.consentStatus
+    consentStatus:
+      typeof customer.consentStatus === "boolean"
+        ? customer.consentStatus
+          ? "CONSENTED"
+          : "NOT_CONSENTED"
+        : customer.consentStatus,
   }))
 
   // Drawer states
   const [viewDrawerOpen, setViewDrawerOpen] = useState(false)
   const [editDrawerOpen, setEditDrawerOpen] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  )
 
   const loading = isLoadingAccount || customersLoading
 
@@ -73,7 +79,7 @@ export default function CustomersPage() {
               Customers
               {/* Show subtle indicator when background refetching */}
               {isFetching && !loading && (
-                <span className="ml-2 text-xs text-muted-foreground animate-pulse">
+                <span className="text-muted-foreground ml-2 animate-pulse text-xs">
                   Updating...
                 </span>
               )}
@@ -90,7 +96,7 @@ export default function CustomersPage() {
         {customers.length === 0 && !loading ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <IconUsers className="text-muted-foreground mb-4 h-12 w-12" />
+              <Users className="text-muted-foreground mb-4 h-12 w-12" />
               <h3 className="mb-2 text-lg font-semibold">No customers yet</h3>
               <p className="text-muted-foreground mb-4 text-center text-sm">
                 Add your first customer to start sending WhatsApp messages

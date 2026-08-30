@@ -1,19 +1,19 @@
 "use client"
 
 import { useState, useCallback, useRef } from "react"
-import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
-  IconUpload,
-  IconFileTypeCsv,
-  IconDownload,
-  IconX,
-  IconCheck,
-  IconAlertTriangle,
-} from "@tabler/icons-react"
+  Upload,
+  FileSpreadsheet,
+  Download,
+  X,
+  Check,
+  AlertTriangle,
+} from "lucide-react"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface CsvUploaderProps {
   phoneNumbers: string[]
@@ -50,7 +50,12 @@ const parseCSV = (content: string): ParseResult => {
   // Find phoneNumber column
   const headers = lines[0].split(",").map((h) => h.trim().toLowerCase())
   const phoneIndex = headers.findIndex(
-    (h) => h === "phonenumber" || h === "phone_number" || h === "phone" || h === "nomor" || h === "no_telepon"
+    (h) =>
+      h === "phonenumber" ||
+      h === "phone_number" ||
+      h === "phone" ||
+      h === "nomor" ||
+      h === "no_telepon"
   )
 
   const valid: string[] = []
@@ -67,7 +72,7 @@ const parseCSV = (content: string): ParseResult => {
     if (!rawPhone) continue
 
     const normalized = normalizePhoneNumber(rawPhone)
-    
+
     // Skip duplicates
     if (seen.has(normalized)) continue
     seen.add(normalized)
@@ -82,7 +87,10 @@ const parseCSV = (content: string): ParseResult => {
   return { valid, invalid }
 }
 
-export function CsvUploader({ phoneNumbers, onPhoneNumbersChange }: CsvUploaderProps) {
+export function CsvUploader({
+  phoneNumbers,
+  onPhoneNumbersChange,
+}: CsvUploaderProps) {
   const t = useTranslations("broadcast.csvUploader")
   const tRecipient = useTranslations("broadcast.recipientSelector")
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -188,16 +196,16 @@ export function CsvUploader({ phoneNumbers, onPhoneNumbersChange }: CsvUploaderP
 
         {hasData ? (
           <div className="space-y-2">
-            <IconFileTypeCsv className="text-primary mx-auto h-10 w-10" />
+            <FileSpreadsheet className="text-primary mx-auto h-10 w-10" />
             <p className="font-medium">{fileName}</p>
             <div className="flex items-center justify-center gap-4">
               <Badge variant="default" className="gap-1">
-                <IconCheck className="h-3 w-3" />
+                <Check className="h-3 w-3" />
                 {t("validCount", { count: phoneNumbers.length })}
               </Badge>
               {invalidNumbers.length > 0 && (
                 <Badge variant="destructive" className="gap-1">
-                  <IconAlertTriangle className="h-3 w-3" />
+                  <AlertTriangle className="h-3 w-3" />
                   {t("invalidCount", { count: invalidNumbers.length })}
                 </Badge>
               )}
@@ -205,9 +213,11 @@ export function CsvUploader({ phoneNumbers, onPhoneNumbersChange }: CsvUploaderP
           </div>
         ) : (
           <div className="space-y-2">
-            <IconUpload className="text-muted-foreground mx-auto h-10 w-10" />
+            <Upload className="text-muted-foreground mx-auto h-10 w-10" />
             <p className="font-medium">{t("dropzone.title")}</p>
-            <p className="text-muted-foreground text-sm">{t("dropzone.subtitle")}</p>
+            <p className="text-muted-foreground text-sm">
+              {t("dropzone.subtitle")}
+            </p>
           </div>
         )}
       </div>
@@ -215,12 +225,12 @@ export function CsvUploader({ phoneNumbers, onPhoneNumbersChange }: CsvUploaderP
       {/* Actions */}
       <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" onClick={downloadTemplate}>
-          <IconDownload className="mr-2 h-4 w-4" />
+          <Download className="mr-2 h-4 w-4" />
           {t("downloadTemplate")}
         </Button>
         {hasData && (
           <Button variant="ghost" size="sm" onClick={handleClear}>
-            <IconX className="mr-2 h-4 w-4" />
+            <X className="mr-2 h-4 w-4" />
             {t("clear")}
           </Button>
         )}
@@ -228,7 +238,7 @@ export function CsvUploader({ phoneNumbers, onPhoneNumbersChange }: CsvUploaderP
 
       {/* Invalid numbers list */}
       {invalidNumbers.length > 0 && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/5 p-3">
+        <div className="border-destructive/50 bg-destructive/5 rounded-md border p-3">
           <p className="text-destructive mb-2 text-sm font-medium">
             {t("invalidNumbers")}
           </p>

@@ -1,15 +1,16 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
+import { CircleCheck, AlertCircle, RefreshCw, Unlink } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  IconCircleCheck,
-  IconAlertCircle,
-  IconRefresh,
-  IconUnlink
-} from "@tabler/icons-react"
-import { useState } from "react"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 interface WABAInfo {
   id: string
@@ -26,7 +27,11 @@ interface Props {
   onDisconnect: () => void
 }
 
-export function WABAConnectionCard({ wabaInfo, onRefresh, onDisconnect }: Props) {
+export function WABAConnectionCard({
+  wabaInfo,
+  onRefresh,
+  onDisconnect,
+}: Props) {
   const [refreshing, setRefreshing] = useState(false)
 
   const handleRefresh = async () => {
@@ -42,7 +47,7 @@ export function WABAConnectionCard({ wabaInfo, onRefresh, onDisconnect }: Props)
     return (
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <IconAlertCircle className="text-muted-foreground mb-4 h-12 w-12" />
+          <AlertCircle className="text-muted-foreground mb-4 h-12 w-12" />
           <h3 className="mb-2 text-lg font-semibold">No WABA Connected</h3>
           <p className="text-muted-foreground mb-4 text-center text-sm">
             Connect your WhatsApp Business Account to get started
@@ -61,12 +66,14 @@ export function WABAConnectionCard({ wabaInfo, onRefresh, onDisconnect }: Props)
               WhatsApp Business Account
               {wabaInfo.status === "CONNECTED" && (
                 <Badge className="bg-emerald-600">
-                  <IconCircleCheck className="mr-1 h-3 w-3" />
+                  <CircleCheck className="mr-1 h-3 w-3" />
                   Connected
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription>Manage your WABA connection and settings</CardDescription>
+            <CardDescription>
+              Manage your WABA connection and settings
+            </CardDescription>
           </div>
           <div className="flex gap-2">
             <Button
@@ -76,16 +83,18 @@ export function WABAConnectionCard({ wabaInfo, onRefresh, onDisconnect }: Props)
               disabled={refreshing}
               className="flex-1 md:flex-none"
             >
-              <IconRefresh className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+              />
               Refresh
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={onDisconnect}
-              className="text-red-600 hover:text-red-700 flex-1 md:flex-none"
+              className="flex-1 text-red-600 hover:text-red-700 md:flex-none"
             >
-              <IconUnlink className="h-4 w-4" />
+              <Unlink className="h-4 w-4" />
               Disconnect
             </Button>
           </div>

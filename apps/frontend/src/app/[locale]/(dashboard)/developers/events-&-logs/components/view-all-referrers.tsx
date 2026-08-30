@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { IconMaximize, IconSearch } from "@tabler/icons-react"
+import { Maximize, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -39,7 +39,7 @@ export default function ViewAllReferrersDialog() {
           className="rounded-full px-3 pt-[2px] pb-[2px] text-xs"
         >
           View All
-          <IconMaximize className="ml-2 h-4 w-4" />
+          <Maximize className="ml-2 h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
@@ -58,7 +58,7 @@ export default function ViewAllReferrersDialog() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
-          <IconSearch
+          <Search
             className="absolute top-1/2 left-3 -translate-y-1/2 transform text-neutral-400"
             size={16}
           />

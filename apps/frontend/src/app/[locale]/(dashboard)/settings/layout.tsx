@@ -1,11 +1,11 @@
-import { IconTool } from "@tabler/icons-react"
+import { Wrench } from "lucide-react"
 import { Header } from "@/components/layout/header"
 import SidebarNav from "./components/sidebar-nav"
 
 const sidebarNavItems = [
   {
     title: "General",
-    icon: <IconTool />,
+    icon: <Wrench />,
     href: "/settings",
   },
 ]

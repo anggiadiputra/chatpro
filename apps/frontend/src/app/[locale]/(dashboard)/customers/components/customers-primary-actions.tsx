@@ -1,8 +1,8 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { IconPlus, IconUpload } from "@tabler/icons-react"
 import { useState } from "react"
+import { Plus, Upload } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { CustomersMutateDrawer } from "./customers-mutate-drawer"
 
 export function CustomersPrimaryActions() {
@@ -15,11 +15,11 @@ export function CustomersPrimaryActions() {
   return (
     <div className="flex items-center gap-2">
       <Button variant="outline" size="sm" onClick={handleImport}>
-        <IconUpload className="h-4 w-4" />
+        <Upload className="h-4 w-4" />
         Import CSV
       </Button>
       <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-        <IconPlus className="h-4 w-4" />
+        <Plus className="h-4 w-4" />
         Add Customer
       </Button>
 

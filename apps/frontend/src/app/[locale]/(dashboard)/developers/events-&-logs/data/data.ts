@@ -1,10 +1,4 @@
-import {
-  IconBrandFacebook,
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandLinkedin,
-  IconBrandVercel,
-} from "@tabler/icons-react"
+import { Facebook, Github, Chrome, Linkedin, Triangle } from "lucide-react"
 import { BadgeProps } from "@/components/ui/badge"
 
 export const routeViews = [
@@ -56,27 +50,27 @@ export const pageViews = [
 export const referrers = [
   {
     name: "facebook.com",
-    icon: IconBrandFacebook,
+    icon: Facebook,
     visitors: 8,
   },
   {
     name: "github.com",
-    icon: IconBrandGithub,
+    icon: Github,
     visitors: 6,
   },
   {
     name: "google.com",
-    icon: IconBrandGoogle,
+    icon: Chrome,
     visitors: 5,
   },
   {
     name: "lnkd.in",
-    icon: IconBrandLinkedin,
+    icon: Linkedin,
     visitors: 9,
   },
   {
     name: "vercel.com",
-    icon: IconBrandVercel,
+    icon: Triangle,
     visitors: 2,
   },
 ]

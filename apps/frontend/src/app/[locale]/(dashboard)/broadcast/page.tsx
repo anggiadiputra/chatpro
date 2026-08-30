@@ -1,24 +1,31 @@
 "use client"
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { Link } from "@/i18n/routing"
+import { RadioTower, Play, History, AlertTriangle, PlugZap } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { Header } from "@/components/layout/header"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { useBusinessAccount } from "@/hooks/use-business-account"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { IconBroadcast, IconPlayerPlay, IconHistory, IconAlertTriangle, IconPlugConnected } from "@tabler/icons-react"
-import { useBusinessAccount } from "@/hooks/use-business-account"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { RoleGuard } from "@/components/auth/role-guard"
-import { Link } from "@/i18n/routing"
+import { Header } from "@/components/layout/header"
 import { ActiveJobs } from "./components/active-jobs"
-import { BroadcastHistory } from "./components/broadcast-history"
 import { BroadcastForm } from "./components/broadcast-form"
+import { BroadcastHistory } from "./components/broadcast-history"
 
 export default function BroadcastPage() {
   const t = useTranslations("broadcast")
-  const { isLoading, isWABAConnected, wabaConnectionStatus } = useBusinessAccount()
-  
+  const { isLoading, isWABAConnected, wabaConnectionStatus } =
+    useBusinessAccount()
+
   // Tab navigation with URL params
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -32,7 +39,7 @@ export default function BroadcastPage() {
   }
 
   // Check if WABA is connected
-  const isConnected = isWABAConnected && wabaConnectionStatus === 'connected'
+  const isConnected = isWABAConnected && wabaConnectionStatus === "connected"
 
   if (isLoading) {
     return (
@@ -54,25 +61,21 @@ export default function BroadcastPage() {
       <div className="space-y-4 p-4">
         <div className="mb-2 flex flex-col justify-between gap-4 md:flex-row md:items-baseline md:gap-2">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              {t("title")}
-            </h2>
-            <p className="text-muted-foreground">
-              {t("description")}
-            </p>
+            <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
+            <p className="text-muted-foreground">{t("description")}</p>
           </div>
         </div>
 
         {/* WABA Not Connected Warning */}
         {!isConnected && (
           <Alert variant="destructive">
-            <IconAlertTriangle className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" />
             <AlertTitle>{t("wabaNotConnected.title")}</AlertTitle>
             <AlertDescription className="flex flex-col gap-2">
               <span>{t("wabaNotConnected.description")}</span>
               <Link href="/waba">
                 <Button variant="outline" size="sm" className="w-fit gap-2">
-                  <IconPlugConnected className="h-4 w-4" />
+                  <PlugZap className="h-4 w-4" />
                   {t("wabaNotConnected.connectButton")}
                 </Button>
               </Link>
@@ -80,18 +83,26 @@ export default function BroadcastPage() {
           </Alert>
         )}
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
-            <TabsTrigger value="create" className="gap-2" disabled={!isConnected}>
-              <IconBroadcast className="h-4 w-4" />
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-3 sm:inline-flex sm:w-auto">
+            <TabsTrigger
+              value="create"
+              className="gap-2"
+              disabled={!isConnected}
+            >
+              <RadioTower className="h-4 w-4" />
               <span className="hidden sm:inline">{t("tabs.create")}</span>
             </TabsTrigger>
             <TabsTrigger value="active" className="gap-2">
-              <IconPlayerPlay className="h-4 w-4" />
+              <Play className="h-4 w-4" />
               <span className="hidden sm:inline">{t("tabs.active")}</span>
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
-              <IconHistory className="h-4 w-4" />
+              <History className="h-4 w-4" />
               <span className="hidden sm:inline">{t("tabs.history")}</span>
             </TabsTrigger>
           </TabsList>
@@ -101,7 +112,9 @@ export default function BroadcastPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>{t("createBroadcast.title")}</CardTitle>
-                  <CardDescription>{t("createBroadcast.description")}</CardDescription>
+                  <CardDescription>
+                    {t("createBroadcast.description")}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <BroadcastForm />
@@ -110,14 +123,16 @@ export default function BroadcastPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="flex flex-col items-center justify-center py-16">
-                  <IconBroadcast className="text-muted-foreground mb-4 h-12 w-12" />
-                  <h3 className="mb-2 text-lg font-semibold">{t("wabaNotConnected.title")}</h3>
+                  <RadioTower className="text-muted-foreground mb-4 h-12 w-12" />
+                  <h3 className="mb-2 text-lg font-semibold">
+                    {t("wabaNotConnected.title")}
+                  </h3>
                   <p className="text-muted-foreground mb-4 text-center text-sm">
                     {t("wabaNotConnected.description")}
                   </p>
                   <Link href="/waba">
                     <Button variant="default" className="gap-2">
-                      <IconPlugConnected className="h-4 w-4" />
+                      <PlugZap className="h-4 w-4" />
                       {t("wabaNotConnected.connectButton")}
                     </Button>
                   </Link>

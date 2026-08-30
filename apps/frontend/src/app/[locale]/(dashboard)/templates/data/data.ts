@@ -1,30 +1,30 @@
 import {
-  IconCircleCheck,
-  IconClock,
-  IconAlertCircle,
-  IconSparkles,
-  IconMessageCircle,
-  IconShieldCheck,
-} from "@tabler/icons-react"
+  CircleCheck,
+  Clock,
+  AlertCircle,
+  Sparkles,
+  MessageCircle,
+  ShieldCheck,
+} from "lucide-react"
 
 // Template statuses
 export const statuses = [
   {
     value: "APPROVED",
     label: "Approved",
-    icon: IconCircleCheck,
+    icon: CircleCheck,
     color: "text-emerald-600",
   },
   {
     value: "PENDING",
     label: "Pending",
-    icon: IconClock,
+    icon: Clock,
     color: "text-amber-600",
   },
   {
     value: "REJECTED",
     label: "Rejected",
-    icon: IconAlertCircle,
+    icon: AlertCircle,
     color: "text-red-600",
   },
 ]
@@ -34,19 +34,19 @@ export const categories = [
   {
     value: "MARKETING",
     label: "Marketing",
-    icon: IconSparkles,
+    icon: Sparkles,
     description: "Promotional and marketing messages",
   },
   {
     value: "UTILITY",
     label: "Utility",
-    icon: IconMessageCircle,
+    icon: MessageCircle,
     description: "Account updates, order updates, alerts",
   },
   {
     value: "AUTHENTICATION",
     label: "Authentication",
-    icon: IconShieldCheck,
+    icon: ShieldCheck,
     description: "OTP and verification codes",
   },
 ]

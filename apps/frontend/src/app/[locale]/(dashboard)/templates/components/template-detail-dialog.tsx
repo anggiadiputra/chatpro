@@ -1,7 +1,18 @@
 "use client"
 
+import {
+  Image,
+  Video,
+  File,
+  CaseSensitive,
+  Link,
+  Phone,
+  MessageSquare,
+  Variable,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -9,22 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  IconPhoto,
-  IconVideo,
-  IconFile,
-  IconLetterCase,
-  IconLink,
-  IconPhone,
-  IconMessage,
-  IconVariable,
-} from "@tabler/icons-react"
 import { Template, countTemplateVariables, hasDynamicUrl } from "../data/schema"
 
 interface TemplateDetailDialogProps {
@@ -34,10 +29,10 @@ interface TemplateDetailDialogProps {
 }
 
 const headerTypeIcons: Record<string, React.ElementType> = {
-  TEXT: IconLetterCase,
-  IMAGE: IconPhoto,
-  VIDEO: IconVideo,
-  DOCUMENT: IconFile,
+  TEXT: CaseSensitive,
+  IMAGE: Image,
+  VIDEO: Video,
+  DOCUMENT: File,
 }
 
 /**
@@ -50,7 +45,7 @@ function highlightVariables(text: string): React.ReactNode {
       return (
         <span
           key={index}
-          className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-1 rounded font-mono text-sm"
+          className="rounded bg-yellow-100 px-1 font-mono text-sm text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
         >
           {part}
         </span>
@@ -72,27 +67,29 @@ export function TemplateDetailDialog({
 
   const variableCount = countTemplateVariables(template)
   const isDynamicUrl = hasDynamicUrl(template)
-  const HeaderIcon = template.headerType ? headerTypeIcons[template.headerType] : null
+  const HeaderIcon = template.headerType
+    ? headerTypeIcons[template.headerType]
+    : null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {template.name}
             <div className="flex items-center gap-1">
               {variableCount > 0 && (
                 <Badge variant="outline" className="gap-1 text-xs">
-                  <IconVariable className="h-3 w-3" />
+                  <Variable className="h-3 w-3" />
                   {tList("variableCount", { count: variableCount })}
                 </Badge>
               )}
               {isDynamicUrl && (
                 <Badge
                   variant="outline"
-                  className="gap-1 text-xs text-purple-600 border-purple-300"
+                  className="gap-1 border-purple-300 text-xs text-purple-600"
                 >
-                  <IconLink className="h-3 w-3" />
+                  <Link className="h-3 w-3" />
                   {tList("dynamicUrl")}
                 </Badge>
               )}
@@ -113,10 +110,12 @@ export function TemplateDetailDialog({
               {/* Header */}
               {template.headerType && (
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                     {HeaderIcon && <HeaderIcon className="h-4 w-4" />}
                     {t("header")}
-                    {["IMAGE", "VIDEO", "DOCUMENT"].includes(template.headerType) && (
+                    {["IMAGE", "VIDEO", "DOCUMENT"].includes(
+                      template.headerType
+                    ) && (
                       <Badge variant="secondary" className="text-xs">
                         {template.headerType}
                       </Badge>
@@ -127,8 +126,10 @@ export function TemplateDetailDialog({
                       {highlightVariables(template.headerContent)}
                     </div>
                   )}
-                  {["IMAGE", "VIDEO", "DOCUMENT"].includes(template.headerType) && (
-                    <div className="bg-muted rounded-md p-2 text-sm text-muted-foreground italic">
+                  {["IMAGE", "VIDEO", "DOCUMENT"].includes(
+                    template.headerType
+                  ) && (
+                    <div className="bg-muted text-muted-foreground rounded-md p-2 text-sm italic">
                       Media variable (upload required)
                     </div>
                   )}
@@ -137,8 +138,8 @@ export function TemplateDetailDialog({
 
               {/* Body */}
               <div className="space-y-1">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <IconMessage className="h-4 w-4" />
+                <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                  <MessageSquare className="h-4 w-4" />
                   {t("body")}
                 </div>
                 <div className="bg-muted rounded-md p-2 text-sm whitespace-pre-wrap">
@@ -149,10 +150,10 @@ export function TemplateDetailDialog({
               {/* Footer */}
               {template.footerText && (
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-muted-foreground">
+                  <div className="text-muted-foreground text-sm font-medium">
                     {t("footer")}
                   </div>
-                  <div className="bg-muted rounded-md p-2 text-sm text-muted-foreground">
+                  <div className="bg-muted text-muted-foreground rounded-md p-2 text-sm">
                     {template.footerText}
                   </div>
                 </div>
@@ -161,7 +162,7 @@ export function TemplateDetailDialog({
               {/* Buttons */}
               {template.components?.some((c) => c.type === "BUTTONS") && (
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-muted-foreground">
+                  <div className="text-muted-foreground text-sm font-medium">
                     {t("buttons")}
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -169,18 +170,24 @@ export function TemplateDetailDialog({
                       .filter((c) => c.type === "BUTTONS")
                       .flatMap((c) => c.buttons || [])
                       .map((button, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="gap-1"
-                        >
-                          {button.type === "URL" && <IconLink className="h-3 w-3" />}
-                          {button.type === "PHONE_NUMBER" && <IconPhone className="h-3 w-3" />}
-                          {button.type === "QUICK_REPLY" && <IconMessage className="h-3 w-3" />}
-                          {button.text}
-                          {button.type === "URL" && button.example && button.example.length > 0 && (
-                            <span className="text-purple-600 text-xs">(dynamic)</span>
+                        <Badge key={index} variant="outline" className="gap-1">
+                          {button.type === "URL" && (
+                            <Link className="h-3 w-3" />
                           )}
+                          {button.type === "PHONE_NUMBER" && (
+                            <Phone className="h-3 w-3" />
+                          )}
+                          {button.type === "QUICK_REPLY" && (
+                            <MessageSquare className="h-3 w-3" />
+                          )}
+                          {button.text}
+                          {button.type === "URL" &&
+                            button.example &&
+                            button.example.length > 0 && (
+                              <span className="text-xs text-purple-600">
+                                (dynamic)
+                              </span>
+                            )}
                         </Badge>
                       ))}
                   </div>

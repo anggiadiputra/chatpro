@@ -2,15 +2,15 @@
 
 import { useMemo } from "react"
 import { format } from "date-fns"
-import { cn } from "@/lib/utils"
 import {
-  IconPhoto,
-  IconVideo,
-  IconFile,
-  IconExternalLink,
-  IconPhone,
-  IconChecks,
-} from "@tabler/icons-react"
+  Image,
+  Video,
+  File,
+  ExternalLink,
+  Phone,
+  CheckCheck,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { Template } from "../../templates/data/schema"
 
 interface TemplatePreviewLiveProps {
@@ -97,7 +97,8 @@ export function TemplatePreviewLive({
       ["IMAGE", "VIDEO", "DOCUMENT"].includes(template.headerType)
     ) {
       return {
-        type: template.headerType.toLowerCase() as "image" | "video" | "document",
+        type: template.headerType.toLowerCase() as
+          "image" | "video" | "document",
         content: "",
       }
     }
@@ -106,7 +107,9 @@ export function TemplatePreviewLive({
 
   // Extract buttons from template
   const buttons = useMemo(() => {
-    const buttonComponent = template.components?.find((c) => c.type === "BUTTONS")
+    const buttonComponent = template.components?.find(
+      (c) => c.type === "BUTTONS"
+    )
     if (buttonComponent?.buttons) {
       return buttonComponent.buttons.map((btn) => ({
         type: btn.type.toLowerCase() as "url" | "phone_number" | "quick_reply",
@@ -132,29 +135,32 @@ export function TemplatePreviewLive({
             <div className={cn(headerContent.type !== "text" && "mb-0")}>
               {headerContent.type === "text" && (
                 <div className="p-3 pb-0">
-                  <p className="whitespace-pre-wrap break-words text-sm font-semibold">
-                    {renderTextWithVariables(headerContent.content, variableValues)}
+                  <p className="text-sm font-semibold break-words whitespace-pre-wrap">
+                    {renderTextWithVariables(
+                      headerContent.content,
+                      variableValues
+                    )}
                   </p>
                 </div>
               )}
               {headerContent.type === "image" && (
                 <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-700">
                   <div className="flex flex-col items-center gap-2">
-                    <IconPhoto className="h-10 w-10 text-gray-400" />
+                    <Image className="h-10 w-10 text-gray-400" />
                     <span className="text-xs text-gray-500">Image</span>
                   </div>
                 </div>
               )}
               {headerContent.type === "video" && (
                 <div className="flex h-40 flex-col items-center justify-center gap-2 bg-gray-200 dark:bg-gray-700">
-                  <IconVideo className="h-10 w-10 text-gray-400" />
+                  <Video className="h-10 w-10 text-gray-400" />
                   <span className="text-xs text-gray-500">Video</span>
                 </div>
               )}
               {headerContent.type === "document" && (
                 <div className="flex items-center gap-3 border-b border-gray-200 bg-gray-100 p-3 dark:border-gray-600 dark:bg-gray-700">
                   <div className="rounded bg-red-100 p-2 dark:bg-red-900/30">
-                    <IconFile className="h-6 w-6 text-red-500" />
+                    <File className="h-6 w-6 text-red-500" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">Document</p>
@@ -167,7 +173,7 @@ export function TemplatePreviewLive({
 
           {/* Body */}
           <div className="p-3">
-            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
               {renderTextWithVariables(template.content || "", variableValues)}
             </p>
 
@@ -183,7 +189,7 @@ export function TemplatePreviewLive({
               <span className="text-[10px] text-gray-500 dark:text-gray-400">
                 {format(new Date(), "HH:mm")}
               </span>
-              <IconChecks className="h-3 w-3 text-blue-500" />
+              <CheckCheck className="h-3 w-3 text-blue-500" />
             </div>
           </div>
         </div>
@@ -197,8 +203,10 @@ export function TemplatePreviewLive({
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-3 py-2.5 text-sm text-blue-500 shadow-sm transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-blue-400 dark:hover:bg-gray-600"
                 onClick={(e) => e.preventDefault()}
               >
-                {button.type === "url" && <IconExternalLink className="h-4 w-4" />}
-                {button.type === "phone_number" && <IconPhone className="h-4 w-4" />}
+                {button.type === "url" && <ExternalLink className="h-4 w-4" />}
+                {button.type === "phone_number" && (
+                  <Phone className="h-4 w-4" />
+                )}
                 <span className="truncate">{button.text}</span>
               </button>
             ))}

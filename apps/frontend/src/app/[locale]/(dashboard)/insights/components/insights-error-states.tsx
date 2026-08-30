@@ -1,18 +1,12 @@
 "use client"
 
+import { AlertCircle, PlugZap, RefreshCw, Clock, Lock } from "lucide-react"
 import { useTranslations } from "next-intl"
+import Link from "next/link"
+import type { InsightsError } from "@/lib/api/insights-api"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { 
-  IconAlertCircle, 
-  IconPlugConnected, 
-  IconRefresh, 
-  IconClock,
-  IconLock
-} from "@tabler/icons-react"
-import Link from "next/link"
-import type { InsightsError } from "@/lib/api/insights-api"
 
 interface NoWabaConnectedProps {
   className?: string
@@ -28,7 +22,7 @@ export function NoWabaConnectedError({ className }: NoWabaConnectedProps) {
 
   return (
     <Alert variant="destructive" className={className}>
-      <IconPlugConnected className="h-4 w-4" />
+      <PlugZap className="h-4 w-4" />
       <AlertTitle>{t("noWabaConnected")}</AlertTitle>
       <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <span>{t("noWabaDescription")}</span>
@@ -51,25 +45,34 @@ interface ApiErrorStateProps {
  * Displays when Meta API returns an error with retry option
  * Requirements: 1.4, 4.4
  */
-export function ApiErrorState({ error, onRetry, className }: ApiErrorStateProps) {
+export function ApiErrorState({
+  error,
+  onRetry,
+  className,
+}: ApiErrorStateProps) {
   const t = useTranslations("insights.errors")
 
   return (
     <Card className={className}>
       <CardContent className="flex flex-col items-center justify-center py-10">
-        <IconAlertCircle className="h-12 w-12 text-destructive opacity-50" />
+        <AlertCircle className="text-destructive h-12 w-12 opacity-50" />
         <h3 className="mt-4 text-lg font-medium">{t("apiError")}</h3>
-        <p className="mt-2 text-sm text-muted-foreground text-center max-w-md">
+        <p className="text-muted-foreground mt-2 max-w-md text-center text-sm">
           {error?.message || t("apiErrorDescription")}
         </p>
         {error?.details?.metaErrorCode && (
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-xs">
             Error code: {error.details.metaErrorCode}
           </p>
         )}
         {onRetry && (
-          <Button variant="outline" size="sm" onClick={onRetry} className="mt-4 gap-2">
-            <IconRefresh className="h-4 w-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRetry}
+            className="mt-4 gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
             {t("retry")}
           </Button>
         )}
@@ -88,12 +91,15 @@ interface RateLimitedBannerProps {
  * Displays when Meta API rate limit is reached, showing cached data
  * Requirements: 7.4, 4.4
  */
-export function RateLimitedBanner({ retryAfter = 60, className }: RateLimitedBannerProps) {
+export function RateLimitedBanner({
+  retryAfter = 60,
+  className,
+}: RateLimitedBannerProps) {
   const t = useTranslations("insights.errors")
 
   return (
     <Alert variant="default" className={className}>
-      <IconClock className="h-4 w-4" />
+      <Clock className="h-4 w-4" />
       <AlertTitle>{t("rateLimited")}</AlertTitle>
       <AlertDescription>
         {t("rateLimitedDescription", { seconds: retryAfter })}
@@ -111,15 +117,15 @@ interface RegionRestrictedNoticeProps {
  * Displays when template metrics are unavailable due to EU/Japan restrictions
  * Requirements: 3.3, 4.4
  */
-export function RegionRestrictedNotice({ className }: RegionRestrictedNoticeProps) {
+export function RegionRestrictedNotice({
+  className,
+}: RegionRestrictedNoticeProps) {
   const t = useTranslations("insights.templatePerformance")
 
   return (
     <Alert className={className}>
-      <IconLock className="h-4 w-4" />
-      <AlertDescription>
-        {t("regionRestricted")}
-      </AlertDescription>
+      <Lock className="h-4 w-4" />
+      <AlertDescription>{t("regionRestricted")}</AlertDescription>
     </Alert>
   )
 }
@@ -138,7 +144,7 @@ export function UnauthorizedError({ className }: UnauthorizedErrorProps) {
 
   return (
     <Alert variant="destructive" className={className}>
-      <IconAlertCircle className="h-4 w-4" />
+      <AlertCircle className="h-4 w-4" />
       <AlertTitle>{t("unauthorized")}</AlertTitle>
       <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <span>{t("unauthorizedDescription")}</span>

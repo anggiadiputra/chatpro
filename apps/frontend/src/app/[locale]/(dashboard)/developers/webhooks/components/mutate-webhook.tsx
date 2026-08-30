@@ -4,10 +4,16 @@ import { Dispatch, SetStateAction, useState } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { IconCheck, IconCopy } from "@tabler/icons-react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Check, Copy } from "lucide-react"
+import {
+  webhooksApi,
+  type WebhookEndpoint,
+  type WebhookEventType,
+  type WebhookChannel,
+} from "@/lib/api/webhooks-api"
 import { cn } from "@/lib/utils"
 import { toast } from "@/hooks/use-toast"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -20,7 +26,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Sheet,
   SheetClose,
@@ -30,12 +35,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import {
-  webhooksApi,
-  type WebhookEndpoint,
-  type WebhookEventType,
-  type WebhookChannel,
-} from "@/lib/api/webhooks-api"
 import { webhookEventTypes, webhookChannels } from "../data/schema"
 
 interface Props {
@@ -46,7 +45,10 @@ interface Props {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name must be 100 characters or less"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be 100 characters or less"),
   url: z.string().min(1, "URL is required").url("Please enter a valid URL"),
   events: z
     .array(z.enum(webhookEventTypes))
@@ -71,7 +73,12 @@ const channelLabels: Record<WebhookChannel, string> = {
   all: "All Channels",
 }
 
-export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Props) {
+export function MutateWebhook({
+  open,
+  setOpen,
+  currentWebhook,
+  onSuccess,
+}: Props) {
   const isEdit = !!currentWebhook
   const [isLoading, setIsLoading] = useState(false)
   const [createdSecret, setCreatedSecret] = useState<string | null>(null)
@@ -118,7 +125,7 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
           events: data.events as WebhookEventType[],
           channels: data.channels as WebhookChannel[],
         })
-        
+
         if (created.secret) {
           setCreatedSecret(created.secret)
         }
@@ -131,7 +138,8 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || `Failed to ${isEdit ? "update" : "create"} webhook`,
+        description:
+          error.message || `Failed to ${isEdit ? "update" : "create"} webhook`,
         variant: "destructive",
       })
     } finally {
@@ -182,15 +190,15 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
             {createdSecret
               ? "Webhook Created"
               : isEdit
-              ? "Update Webhook"
-              : "New Webhook"}
+                ? "Update Webhook"
+                : "New Webhook"}
           </SheetTitle>
           <SheetDescription>
             {createdSecret
               ? "Your webhook has been created. Copy the secret now - you won't be able to see it again!"
               : isEdit
-              ? "Update your webhook endpoint configuration."
-              : "Setup your webhook endpoint to receive live events."}
+                ? "Update your webhook endpoint configuration."
+                : "Setup your webhook endpoint to receive live events."}
           </SheetDescription>
         </SheetHeader>
 
@@ -218,9 +226,9 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
                   className="shrink-0"
                 >
                   {isCopied ? (
-                    <IconCheck className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                   ) : (
-                    <IconCopy className="h-4 w-4" />
+                    <Copy className="h-4 w-4" />
                   )}
                 </Button>
               </div>
@@ -260,7 +268,10 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
                   <FormItem className="space-y-1">
                     <FormLabel>URL Endpoint</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="https://your-server.com/webhook" />
+                      <Input
+                        {...field}
+                        placeholder="https://your-server.com/webhook"
+                      />
                     </FormControl>
                     <FormDescription>
                       HTTPS is required for production environments.
@@ -292,7 +303,7 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
                                     "flex flex-row items-start space-y-0 space-x-2",
                                     "border-border cursor-pointer rounded-lg border p-3",
                                     "[&:has([aria-checked=true])]:border-blue-500",
-                                    "[&_button[aria-checked=true]]:bg-blue-500 [&_button[aria-checked=true]]:border-blue-500",
+                                    "[&_button[aria-checked=true]]:border-blue-500 [&_button[aria-checked=true]]:bg-blue-500",
                                     "[&:has(button[aria-invalid=true])]:border-destructive"
                                   )}
                                 >
@@ -301,9 +312,14 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
                                       checked={field.value?.includes(event)}
                                       onCheckedChange={(checked) => {
                                         return checked
-                                          ? field.onChange([...field.value, event])
+                                          ? field.onChange([
+                                              ...field.value,
+                                              event,
+                                            ])
                                           : field.onChange(
-                                              field.value?.filter((v) => v !== event)
+                                              field.value?.filter(
+                                                (v) => v !== event
+                                              )
                                             )
                                       }}
                                     />
@@ -345,7 +361,7 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
                                     "flex flex-row items-center justify-center space-y-0 space-x-2",
                                     "border-border cursor-pointer rounded-lg border p-3",
                                     "[&:has([aria-checked=true])]:border-blue-500",
-                                    "[&_button[aria-checked=true]]:bg-blue-500 [&_button[aria-checked=true]]:border-blue-500",
+                                    "[&_button[aria-checked=true]]:border-blue-500 [&_button[aria-checked=true]]:bg-blue-500",
                                     "[&:has(button[aria-invalid=true])]:border-destructive"
                                   )}
                                 >
@@ -354,9 +370,14 @@ export function MutateWebhook({ open, setOpen, currentWebhook, onSuccess }: Prop
                                       checked={field.value?.includes(channel)}
                                       onCheckedChange={(checked) => {
                                         return checked
-                                          ? field.onChange([...field.value, channel])
+                                          ? field.onChange([
+                                              ...field.value,
+                                              channel,
+                                            ])
                                           : field.onChange(
-                                              field.value?.filter((v) => v !== channel)
+                                              field.value?.filter(
+                                                (v) => v !== channel
+                                              )
                                             )
                                       }}
                                     />

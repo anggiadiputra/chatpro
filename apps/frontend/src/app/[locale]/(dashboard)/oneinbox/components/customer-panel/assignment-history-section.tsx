@@ -1,22 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { formatDistanceToNow } from "date-fns"
+import { History, UserPlus, UserX, Bot } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { assignmentApi } from "@/lib/api/assignment-api"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { IconHistory, IconUserPlus, IconUserOff, IconRobot } from "@tabler/icons-react"
-import { formatDistanceToNow } from "date-fns"
-import { assignmentApi } from "@/lib/api/assignment-api"
-import type { AssignmentHistoryItem, ChannelType } from "../../types/unified-inbox"
+import type {
+  AssignmentHistoryItem,
+  ChannelType,
+} from "../../types/unified-inbox"
 
 /**
  * AssignmentHistorySection Component
- * 
+ *
  * Displays the assignment history for a conversation in the customer panel.
  * Shows chronological list of assignments with assignee name, assigned by, and timestamps.
  * Supports both human and AI Agent assignments with distinct visual indicators.
- * 
+ *
  * Requirements: 7.1, 7.2, 7.3, 8.2, 8.3
  */
 
@@ -47,7 +50,10 @@ export function AssignmentHistorySection({
       setLoading(true)
       setError(null)
       try {
-        const data = await assignmentApi.getAssignmentHistory(rawConversationId, conversationType)
+        const data = await assignmentApi.getAssignmentHistory(
+          rawConversationId,
+          conversationType
+        )
         setHistory(data)
       } catch (err: any) {
         console.error("Failed to load assignment history:", err)
@@ -94,8 +100,8 @@ export function AssignmentHistorySection({
 
   if (loading) {
     return (
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="border-b p-4">
+        <div className="mb-3 flex items-center gap-2">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-4 w-32" />
         </div>
@@ -109,26 +115,26 @@ export function AssignmentHistorySection({
 
   if (error) {
     return (
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-2 mb-3">
-          <IconHistory className="h-4 w-4 text-muted-foreground" />
+      <div className="border-b p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <History className="text-muted-foreground h-4 w-4" />
           <h4 className="text-sm font-medium">{t("title")}</h4>
         </div>
-        <p className="text-xs text-destructive">{error}</p>
+        <p className="text-destructive text-xs">{error}</p>
       </div>
     )
   }
 
   return (
-    <div className="p-4 border-b">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-medium flex items-center gap-2">
-          <IconHistory className="h-4 w-4 text-muted-foreground" />
+    <div className="border-b p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h4 className="flex items-center gap-2 text-sm font-medium">
+          <History className="text-muted-foreground h-4 w-4" />
           {t("title")}
         </h4>
         {history.length > 0 && (
-          <span className="text-xs text-muted-foreground">
-            {history.length === 1 
+          <span className="text-muted-foreground text-xs">
+            {history.length === 1
               ? t("records", { count: history.length })
               : t("recordsPlural", { count: history.length })}
           </span>
@@ -138,60 +144,73 @@ export function AssignmentHistorySection({
       {/* History list */}
       <div className="space-y-2">
         {displayedHistory.length === 0 ? (
-          <p className="text-xs text-muted-foreground">{t("noHistory")}</p>
+          <p className="text-muted-foreground text-xs">{t("noHistory")}</p>
         ) : (
           displayedHistory.map((item) => {
             const isActive = !item.unassignedAt
             const isAI = isAIAgentAssignment(item)
             const displayName = getDisplayName(item)
-            
+
             return (
               <div
                 key={item.id}
-                className={`p-2 rounded-md text-sm ${
-                  isActive ? "bg-primary/10 border border-primary/20" : "bg-muted/50"
+                className={`rounded-md p-2 text-sm ${
+                  isActive
+                    ? "bg-primary/10 border-primary/20 border"
+                    : "bg-muted/50"
                 }`}
               >
                 <div className="flex items-start gap-2">
                   {/* Assignee avatar - show robot icon for AI Agent, avatar for human */}
                   {isAI ? (
-                    <div className="h-6 w-6 flex-shrink-0 rounded-full bg-primary/20 flex items-center justify-center">
-                      <IconRobot className="h-3.5 w-3.5 text-primary" />
+                    <div className="bg-primary/20 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full">
+                      <Bot className="text-primary h-3.5 w-3.5" />
                     </div>
                   ) : (
                     <Avatar className="h-6 w-6 flex-shrink-0">
-                      <AvatarFallback className="text-[10px] bg-primary/20 text-primary">
+                      <AvatarFallback className="bg-primary/20 text-primary text-[10px]">
                         {getInitials(item.assigneeName || "?")}
                       </AvatarFallback>
                     </Avatar>
                   )}
-                  
-                  <div className="flex-1 min-w-0">
+
+                  <div className="min-w-0 flex-1">
                     {/* Assignee name and status */}
                     <div className="flex items-center gap-1.5">
-                      <span className="font-medium truncate">{displayName}</span>
+                      <span className="truncate font-medium">
+                        {displayName}
+                      </span>
                       {isActive && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium">
+                        <span className="bg-primary/20 text-primary rounded px-1.5 py-0.5 text-[10px] font-medium">
                           {t("current")}
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Assignment details */}
-                    <div className="text-xs text-muted-foreground mt-0.5">
+                    <div className="text-muted-foreground mt-0.5 text-xs">
                       <div className="flex items-center gap-1">
-                        <IconUserPlus className="h-3 w-3" />
+                        <UserPlus className="h-3 w-3" />
                         <span>
-                          {t("assignedBy", { name: item.assignedByName || "Unknown" })} •{" "}
-                          {formatDistanceToNow(item.assignedAt, { addSuffix: true })}
+                          {t("assignedBy", {
+                            name: item.assignedByName || "Unknown",
+                          })}{" "}
+                          •{" "}
+                          {formatDistanceToNow(item.assignedAt, {
+                            addSuffix: true,
+                          })}
                         </span>
                       </div>
-                      
+
                       {item.unassignedAt && (
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <IconUserOff className="h-3 w-3" />
+                        <div className="mt-0.5 flex items-center gap-1">
+                          <UserX className="h-3 w-3" />
                           <span>
-                            {t("unassignedTime", { time: formatDistanceToNow(item.unassignedAt, { addSuffix: true }) })}
+                            {t("unassignedTime", {
+                              time: formatDistanceToNow(item.unassignedAt, {
+                                addSuffix: true,
+                              }),
+                            })}
                           </span>
                         </div>
                       )}
@@ -210,9 +229,9 @@ export function AssignmentHistorySection({
           variant="ghost"
           size="sm"
           onClick={() => setShowAll(true)}
-          className="w-full mt-2 text-xs"
+          className="mt-2 w-full text-xs"
         >
-          {remainingCount === 1 
+          {remainingCount === 1
             ? t("showMore", { count: remainingCount })
             : t("showMorePlural", { count: remainingCount })}
         </Button>
@@ -222,7 +241,7 @@ export function AssignmentHistorySection({
           variant="ghost"
           size="sm"
           onClick={() => setShowAll(false)}
-          className="w-full mt-2 text-xs"
+          className="mt-2 w-full text-xs"
         >
           {t("showLess")}
         </Button>

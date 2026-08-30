@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
-import { Card } from "@/components/ui/card"
+import { AlertCircle, Loader2, UserPlus } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { IconAlertCircle, IconLoader2, IconUserPlus } from "@tabler/icons-react"
+import { Card } from "@/components/ui/card"
 import { AcceptInvitationForm } from "./components/accept-invitation-form"
 import { ExistingUserPrompt } from "./components/existing-user-prompt"
 
@@ -83,7 +83,7 @@ export default function AcceptInvitationPage() {
       <div className="space-y-6" data-auth-content>
         <Card className="border-border/50 bg-card/50 p-8 shadow-xl backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <IconLoader2 className="h-12 w-12 animate-spin text-primary" />
+            <Loader2 className="text-primary h-12 w-12 animate-spin" />
             <p className="text-muted-foreground">{t("loading")}</p>
           </div>
         </Card>
@@ -97,12 +97,12 @@ export default function AcceptInvitationPage() {
       <div className="space-y-6" data-auth-content>
         <Card className="border-border/50 bg-card/50 p-8 shadow-xl backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-              <IconAlertCircle className="h-8 w-8 text-destructive" />
+            <div className="bg-destructive/10 flex h-16 w-16 items-center justify-center rounded-full">
+              <AlertCircle className="text-destructive h-8 w-8" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">{t("invalidTitle")}</h1>
-              <p className="mt-2 text-muted-foreground">
+              <p className="text-muted-foreground mt-2">
                 {t("invalidDescription")}
               </p>
             </div>
@@ -121,14 +121,14 @@ export default function AcceptInvitationPage() {
       <div className="space-y-6" data-auth-content>
         <Card className="border-border/50 bg-card/50 p-8 shadow-xl backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <IconUserPlus className="h-8 w-8 text-primary" />
+            <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-full">
+              <UserPlus className="text-primary h-8 w-8" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">
                 {existingUser ? t("linkedSuccess") : t("success")}
               </h1>
-              <p className="mt-2 text-muted-foreground">
+              <p className="text-muted-foreground mt-2">
                 {existingUser ? t("linkedSuccessDesc") : t("successDesc")}
               </p>
             </div>
@@ -143,12 +143,7 @@ export default function AcceptInvitationPage() {
 
   // Existing user - show login prompt
   if (state === "existing_user" && invitation) {
-    return (
-      <ExistingUserPrompt
-        invitation={invitation}
-        token={token!}
-      />
-    )
+    return <ExistingUserPrompt invitation={invitation} token={token!} />
   }
 
   // Valid invitation - show registration form

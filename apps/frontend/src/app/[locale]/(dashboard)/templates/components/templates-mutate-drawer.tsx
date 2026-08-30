@@ -1,11 +1,39 @@
 "use client"
 
+import { useState, useEffect, useRef, useCallback } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState, useEffect, useRef, useCallback } from "react"
+import {
+  Variable,
+  Loader2,
+  Link,
+  DollarSign,
+  Calendar,
+  Image,
+  Video,
+  File,
+  CaseSensitive,
+  Plus,
+  Eye,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useBusinessAccount } from "@/hooks/use-business-account"
+import {
+  useCreateTemplate,
+  type CreateTemplateInput,
+} from "@/hooks/use-templates"
+import { useToast } from "@/hooks/use-toast"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import {
   Form,
   FormControl,
@@ -16,7 +44,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -24,6 +56,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetClose,
@@ -33,40 +66,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { useBusinessAccount } from "@/hooks/use-business-account"
-import { useToast } from "@/hooks/use-toast"
-import { useCreateTemplate, type CreateTemplateInput } from "@/hooks/use-templates"
-import { Template } from "../data/schema"
+import { Textarea } from "@/components/ui/textarea"
 import { categories, languages } from "../data/data"
+import { Template } from "../data/schema"
 import type { TemplateVariable } from "./variable-library"
-import {
-  IconVariable,
-  IconLoader2,
-  IconLink,
-  IconCurrencyDollar,
-  IconCalendar,
-  IconPhoto,
-  IconVideo,
-  IconFile,
-  IconLetterCase,
-  IconPlus,
-  IconEye,
-} from "@tabler/icons-react"
 
 interface Props {
   open: boolean
@@ -99,13 +102,13 @@ const formSchema = z.object({
 type TemplateForm = z.infer<typeof formSchema>
 
 const typeIcons: Record<string, React.ElementType> = {
-  TEXT: IconLetterCase,
-  URL: IconLink,
-  CURRENCY: IconCurrencyDollar,
-  DATE: IconCalendar,
-  IMAGE: IconPhoto,
-  VIDEO: IconVideo,
-  DOCUMENT: IconFile,
+  TEXT: CaseSensitive,
+  URL: Link,
+  CURRENCY: DollarSign,
+  DATE: Calendar,
+  IMAGE: Image,
+  VIDEO: Video,
+  DOCUMENT: File,
 }
 
 const typeColors: Record<string, string> = {
@@ -143,7 +146,7 @@ export function TemplatesMutateDrawer({
   const { userId } = useBusinessAccount()
   const { toast } = useToast()
   const contentRef = useRef<HTMLTextAreaElement>(null)
-  
+
   // Use mutation hook with cache invalidation
   // Requirements: 3.2, 8.1
   const createMutation = useCreateTemplate()
@@ -385,7 +388,9 @@ export function TemplatesMutateDrawer({
             {isUpdate ? t("form.updateTitle") : t("form.createTitle")}
           </SheetTitle>
           <SheetDescription>
-            {isUpdate ? t("form.updateDescription") : t("form.createDescription")}
+            {isUpdate
+              ? t("form.updateDescription")
+              : t("form.createDescription")}
           </SheetDescription>
         </SheetHeader>
 
@@ -430,7 +435,9 @@ export function TemplatesMutateDrawer({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("form.selectCategory")} />
+                            <SelectValue
+                              placeholder={t("form.selectCategory")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -461,7 +468,9 @@ export function TemplatesMutateDrawer({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("form.selectLanguage")} />
+                            <SelectValue
+                              placeholder={t("form.selectLanguage")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -489,7 +498,7 @@ export function TemplatesMutateDrawer({
                       <div className="flex items-center gap-2">
                         {getVariableCount(content) > 0 && (
                           <Badge variant="secondary" className="gap-1">
-                            <IconVariable className="h-3 w-3" />
+                            <Variable className="h-3 w-3" />
                             {getVariableCount(content)} {t("form.variables")}
                           </Badge>
                         )}
@@ -504,7 +513,7 @@ export function TemplatesMutateDrawer({
                               size="sm"
                               className="h-7 gap-1"
                             >
-                              <IconPlus className="h-3 w-3" />
+                              <Plus className="h-3 w-3" />
                               {t("form.insertVariable")}
                             </Button>
                           </PopoverTrigger>
@@ -523,28 +532,32 @@ export function TemplatesMutateDrawer({
                                     ? t("form.loadingVariables")
                                     : t("form.noVariables")}
                                 </CommandEmpty>
-                                <CommandGroup heading={t("form.variableLibrary")}>
+                                <CommandGroup
+                                  heading={t("form.variableLibrary")}
+                                >
                                   {variables.map((variable) => {
                                     const TypeIcon =
-                                      typeIcons[variable.type] || IconVariable
+                                      typeIcons[variable.type] || Variable
                                     return (
                                       <CommandItem
                                         key={variable.id}
-                                        onSelect={() => insertVariable(variable)}
-                                        className="flex items-center gap-2 cursor-pointer"
+                                        onSelect={() =>
+                                          insertVariable(variable)
+                                        }
+                                        className="flex cursor-pointer items-center gap-2"
                                       >
                                         <Badge
                                           variant="secondary"
-                                          className={`gap-1 shrink-0 ${typeColors[variable.type]}`}
+                                          className={`shrink-0 gap-1 ${typeColors[variable.type]}`}
                                         >
                                           <TypeIcon className="h-3 w-3" />
                                         </Badge>
-                                        <div className="flex-1 min-w-0">
-                                          <div className="font-medium truncate">
+                                        <div className="min-w-0 flex-1">
+                                          <div className="truncate font-medium">
                                             {variable.name}
                                           </div>
                                           {variable.exampleValue && (
-                                            <div className="text-muted-foreground text-xs truncate">
+                                            <div className="text-muted-foreground truncate text-xs">
                                               {t("form.example")}:{" "}
                                               {variable.exampleValue}
                                             </div>
@@ -582,15 +595,14 @@ export function TemplatesMutateDrawer({
 
               {/* Variable Mappings Display */}
               {variableMappings.size > 0 && (
-                <div className="rounded-lg border p-3 space-y-2">
+                <div className="space-y-2 rounded-lg border p-3">
                   <div className="text-sm font-medium">
                     {t("form.variableMappings")}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {Array.from(variableMappings.entries()).map(
                       ([position, variable]) => {
-                        const TypeIcon =
-                          typeIcons[variable.type] || IconVariable
+                        const TypeIcon = typeIcons[variable.type] || Variable
                         return (
                           <Badge
                             key={position}
@@ -627,9 +639,15 @@ export function TemplatesMutateDrawer({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="TEXT">{t("form.headerText")}</SelectItem>
-                        <SelectItem value="IMAGE">{t("form.headerImage")}</SelectItem>
-                        <SelectItem value="VIDEO">{t("form.headerVideo")}</SelectItem>
+                        <SelectItem value="TEXT">
+                          {t("form.headerText")}
+                        </SelectItem>
+                        <SelectItem value="IMAGE">
+                          {t("form.headerImage")}
+                        </SelectItem>
+                        <SelectItem value="VIDEO">
+                          {t("form.headerVideo")}
+                        </SelectItem>
                         <SelectItem value="DOCUMENT">
                           {t("form.headerDocument")}
                         </SelectItem>
@@ -668,7 +686,9 @@ export function TemplatesMutateDrawer({
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>{t("form.footerTextHint")}</FormDescription>
+                    <FormDescription>
+                      {t("form.footerTextHint")}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -682,7 +702,7 @@ export function TemplatesMutateDrawer({
               <Separator />
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
-                  <IconEye className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                   {t("form.preview")}
                 </div>
                 <div className="bg-muted rounded-lg p-4">
@@ -693,17 +713,17 @@ export function TemplatesMutateDrawer({
                     {headerType && headerType !== "TEXT" && (
                       <div className="bg-muted mb-2 flex h-32 items-center justify-center rounded">
                         {headerType === "IMAGE" && (
-                          <IconPhoto className="text-muted-foreground h-8 w-8" />
+                          <Image className="text-muted-foreground h-8 w-8" />
                         )}
                         {headerType === "VIDEO" && (
-                          <IconVideo className="text-muted-foreground h-8 w-8" />
+                          <Video className="text-muted-foreground h-8 w-8" />
                         )}
                         {headerType === "DOCUMENT" && (
-                          <IconFile className="text-muted-foreground h-8 w-8" />
+                          <File className="text-muted-foreground h-8 w-8" />
                         )}
                       </div>
                     )}
-                    <div className="whitespace-pre-wrap text-sm">
+                    <div className="text-sm whitespace-pre-wrap">
                       {renderPreview()}
                     </div>
                     {footerText && (
@@ -725,12 +745,16 @@ export function TemplatesMutateDrawer({
             onClick={() => setShowPreview(!showPreview)}
             className="w-full sm:w-auto"
           >
-            <IconEye className="mr-2 h-4 w-4" />
+            <Eye className="mr-2 h-4 w-4" />
             {showPreview ? t("form.hidePreview") : t("form.showPreview")}
           </Button>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex w-full gap-2 sm:w-auto">
             <SheetClose asChild>
-              <Button type="button" variant="outline" className="flex-1 sm:flex-none">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 sm:flex-none"
+              >
                 {tCommon("cancel")}
               </Button>
             </SheetClose>
@@ -740,9 +764,7 @@ export function TemplatesMutateDrawer({
               disabled={submitting}
               className="flex-1 sm:flex-none"
             >
-              {submitting && (
-                <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isUpdate ? t("form.updateTemplate") : t("form.createTemplate")}
             </Button>
           </div>

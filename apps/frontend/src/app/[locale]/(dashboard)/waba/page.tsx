@@ -1,23 +1,27 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Settings, ShieldCheck } from "lucide-react"
+import { wabaApi, type PhoneNumberDetails } from "@/lib/api/waba"
+import { useBusinessAccount } from "@/hooks/use-business-account"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RoleGuard } from "@/components/auth/role-guard"
+import { DisconnectModal } from "@/components/disconnect-modal"
 import { Header } from "@/components/layout/header"
-import { WABAConnectionCard } from "./components/waba-connection-card"
+import { EmbeddedSignupCard } from "./components/embedded-signup-card"
 import { PhoneNumberCard } from "./components/phone-number-card"
 import { QualityMetricsCard } from "./components/quality-metrics-card"
-import { EmbeddedSignupCard } from "./components/embedded-signup-card"
-import { DisconnectModal } from "@/components/disconnect-modal"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useBusinessAccount } from "@/hooks/use-business-account"
-import { wabaApi, type PhoneNumberDetails } from "@/lib/api/waba"
-import { RoleGuard } from "@/components/auth/role-guard"
-import {
-  IconSettings,
-  IconShieldCheck,
-} from "@tabler/icons-react"
+import { WABAConnectionCard } from "./components/waba-connection-card"
 
 export default function WABAPage() {
-  const { wabaId, phoneNumberId, isLoading, hasWABA, isWABAConnected, wabaConnectionStatus } = useBusinessAccount()
+  const {
+    wabaId,
+    phoneNumberId,
+    isLoading,
+    hasWABA,
+    isWABAConnected,
+    wabaConnectionStatus,
+  } = useBusinessAccount()
   const [wabaDetails, setWabaDetails] = useState<any>(null)
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumberDetails[]>([])
   const [loading, setLoading] = useState(false)
@@ -25,7 +29,7 @@ export default function WABAPage() {
   const [disconnecting, setDisconnecting] = useState(false)
 
   // Use isWABAConnected instead of hasWABA to check actual connection status
-  const isConnected = isWABAConnected && wabaConnectionStatus === 'connected'
+  const isConnected = isWABAConnected && wabaConnectionStatus === "connected"
 
   useEffect(() => {
     if (isConnected && wabaId) {
@@ -101,29 +105,34 @@ export default function WABAPage() {
     try {
       setDisconnecting(true)
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3005"
-      const response = await fetch(`${apiUrl}/api/v1/waba/${wabaId}/disconnect`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ mode }),
-      })
+      const response = await fetch(
+        `${apiUrl}/api/v1/waba/${wabaId}/disconnect`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ mode }),
+        }
+      )
 
       const result = await response.json().catch(() => ({}))
 
       if (response.ok) {
         setDisconnectModalOpen(false)
-        
+
         // Force clear any cached session data
-        localStorage.removeItem('waba-session')
+        localStorage.removeItem("waba-session")
         sessionStorage.clear()
-        
+
         // Hard reload to fetch fresh session
         window.location.href = window.location.href
       } else {
         console.error("Failed to disconnect WABA:", result)
-        alert(`Failed to disconnect: ${result.error?.message || 'Unknown error'}`)
+        alert(
+          `Failed to disconnect: ${result.error?.message || "Unknown error"}`
+        )
       }
     } catch (error) {
       console.error("Error disconnecting WABA:", error)
@@ -152,28 +161,35 @@ export default function WABAPage() {
   }
 
   // Get phone number details from fetched data
-  const phoneInfo = phoneNumbers.find(
-    (phone) => phone.phoneNumberId === phoneNumberId
-  ) || phoneNumbers[0] || null
+  const phoneInfo =
+    phoneNumbers.find((phone) => phone.phoneNumberId === phoneNumberId) ||
+    phoneNumbers[0] ||
+    null
 
-  const wabaInfo = isConnected && wabaId ? {
-    id: wabaId,
-    name: phoneInfo?.verifiedName || wabaDetails?.name || "WhatsApp Business",
-    status: "CONNECTED" as const,
-    timezone: wabaDetails?.timezone || "UTC",
-    currency: wabaDetails?.currency || "USD",
-    lastSynced: wabaDetails?.lastSynced,
-  } : null
+  const wabaInfo =
+    isConnected && wabaId
+      ? {
+          id: wabaId,
+          name:
+            phoneInfo?.verifiedName || wabaDetails?.name || "WhatsApp Business",
+          status: "CONNECTED" as const,
+          timezone: wabaDetails?.timezone || "UTC",
+          currency: wabaDetails?.currency || "USD",
+          lastSynced: wabaDetails?.lastSynced,
+        }
+      : null
 
   // Mock quality data for now
-  const qualityData = isConnected ? {
-    overall: "HIGH" as const,
-    score: 95,
-    templateQuality: "HIGH" as const,
-    phoneQuality: "GREEN" as const,
-    trend: "UP" as const,
-    lastUpdated: new Date(),
-  } : null
+  const qualityData = isConnected
+    ? {
+        overall: "HIGH" as const,
+        score: 95,
+        templateQuality: "HIGH" as const,
+        phoneQuality: "GREEN" as const,
+        trend: "UP" as const,
+        lastUpdated: new Date(),
+      }
+    : null
 
   return (
     <RoleGuard>
@@ -192,8 +208,8 @@ export default function WABAPage() {
         {/* Embedded Signup Card (if not connected) */}
         {!isConnected && (
           <div className="max-w-2xl">
-            <EmbeddedSignupCard 
-              hasWABA={isConnected} 
+            <EmbeddedSignupCard
+              hasWABA={isConnected}
               onSuccess={() => {
                 // Reload page after successful connection
                 window.location.reload()
@@ -207,11 +223,11 @@ export default function WABAPage() {
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList className="w-full justify-start overflow-x-auto md:w-auto">
               <TabsTrigger value="overview" className="flex items-center gap-2">
-                <IconSettings size={14} />
+                <Settings size={14} />
                 Overview
               </TabsTrigger>
               <TabsTrigger value="quality" className="flex items-center gap-2">
-                <IconShieldCheck size={16} />
+                <ShieldCheck size={16} />
                 Quality
               </TabsTrigger>
             </TabsList>
