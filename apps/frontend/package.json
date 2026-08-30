@@ -6,9 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "build:worker": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare deploy",
     "test": "vitest",
     "test:run": "vitest --run",
     "format": "prettier --check .",
@@ -79,7 +76,6 @@
     "@eslint/eslintrc": "^3.2.0",
     "@faker-js/faker": "^9.2.0",
     "@next/eslint-plugin-next": "15.1.7",
-    "@opennextjs/cloudflare": "^1.14.4",
     "@tailwindcss/postcss": "^4.0.7",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -97,7 +93,6 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.7",
     "typescript": "^5.7.3",
-    "vitest": "^1.2.0",
-    "wrangler": "^4.53.0"
+    "vitest": "^1.2.0"
   }
 }
