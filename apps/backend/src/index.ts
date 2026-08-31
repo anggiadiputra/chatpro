@@ -129,6 +129,7 @@ app.use('*', cors({
     'Authorization',
     'X-Requested-With',
     'X-2FA-Token',
+    'X-Turnstile-Token',
     'Cookie',
     'User-Agent',
     'Accept',
