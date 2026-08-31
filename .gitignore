@@ -117,13 +117,18 @@ akses.md
 apps/frontend/.open-next/
 apps/frontend/wrangler.toml.local
 
-# Redis Dump & Local Notes
+# Redis Dump & Local Notes / Deployment docs
 *.rdb
 dump.rdb
 akses.md
+deploy*.md
 deployBE.md
 deployFE.md
+deploySalespage.md
 design.md
+identitas.md
+auditsec-*.md
+Documentation/
 
 # Vercel
 .vercel
