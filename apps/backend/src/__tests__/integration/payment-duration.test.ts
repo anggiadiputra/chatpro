@@ -16,8 +16,8 @@ vi.mock('../../utils/auditLog.js', () => ({
   auditLog: vi.fn(),
 }));
 
-vi.mock('../../utils/database.js', () => ({
-  prisma: {
+const { mockPrisma } = vi.hoisted(() => {
+  const mock: any = {
     user: {
       findUnique: vi.fn(),
       update: vi.fn(),
@@ -34,7 +34,18 @@ vi.mock('../../utils/database.js', () => ({
     systemSetting: {
       findMany: vi.fn(),
     },
-  },
+    $transaction: vi.fn(async (cb: any) => {
+      if (typeof cb === 'function') {
+        return cb(mock);
+      }
+      return Promise.all(cb);
+    }),
+  };
+  return { mockPrisma: mock };
+});
+
+vi.mock('../../utils/database.js', () => ({
+  prisma: mockPrisma,
 }));
 
 vi.mock('../../services/settings-cache.js', () => ({

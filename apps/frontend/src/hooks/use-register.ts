@@ -129,15 +129,22 @@ export function useRegister() {
   }, [state.expiresAt, getTimeRemaining])
 
   const initiateRegistration = useCallback(
-    async (data: { email: string; password: string; name: string }) => {
+    async (data: { email: string; password: string; name: string; turnstileToken: string }) => {
       setState((prev) => ({ ...prev, loading: true, error: null }))
 
       try {
         const response = await fetch(`${API_URL}/api/v1/auth/register/initiate`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-Turnstile-Token": data.turnstileToken,
+          },
           credentials: "include",
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            name: data.name,
+          }),
         })
 
         const result: InitiateResponse = await response.json()

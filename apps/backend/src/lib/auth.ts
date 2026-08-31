@@ -1,8 +1,9 @@
 import { betterAuth } from "better-auth"
-import { createAuthMiddleware } from "better-auth/api"
+import { APIError, createAuthMiddleware } from "better-auth/api"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import { turnstileService } from "../services/turnstile-service.js"
 
 const prisma = new PrismaClient()
 
@@ -86,23 +87,28 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "BUSINESS_OWNER",
+        input: false,
       },
       wabaId: {
         type: "string",
         required: false,
+        input: false,
       },
       phoneNumberId: {
         type: "string",
         required: false,
+        input: false,
       },
       wabaConnectionStatus: {
         type: "string",
         required: false,
+        input: false,
       },
       subscriptionTier: {
         type: "string",
         required: false,
         defaultValue: "FREE",
+        input: false,
       },
     },
   },
@@ -135,6 +141,21 @@ export const auth = betterAuth({
   
   // Hooks for audit logging
   hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/sign-in/email" && ctx.path !== "/sign-up/email") return
+      if (!await turnstileService.isEnabled()) return
+
+      const token = ctx.headers?.get('x-turnstile-token') || ''
+      const remoteIp = ctx.headers?.get('cf-connecting-ip')
+        || ctx.headers?.get('x-real-ip')
+        || undefined
+      if (!token || !await turnstileService.verify(token, remoteIp)) {
+        throw new APIError('FORBIDDEN', {
+          code: 'TURNSTILE_VERIFICATION_FAILED',
+          message: 'Security verification failed',
+        })
+      }
+    }),
     after: createAuthMiddleware(async (ctx) => {
       const ip = ctx.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() 
         || ctx.headers?.get('x-real-ip') 

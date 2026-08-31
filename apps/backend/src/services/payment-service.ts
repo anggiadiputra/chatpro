@@ -520,6 +520,16 @@ export class PaymentService {
         return { success: false, message: 'Transaction not found' };
       }
 
+      const callbackAmount = Number(payload.amount);
+      if (!Number.isSafeInteger(callbackAmount) || callbackAmount !== transaction.amount) {
+        logger.warn('Payment callback amount mismatch', {
+          orderId,
+          expectedAmount: transaction.amount,
+          callbackAmount: payload.amount,
+        });
+        return { success: false, message: 'Amount mismatch' };
+      }
+
       // Idempotency check - skip if already processed
       if (transaction.status !== 'PENDING') {
         logger.info('Callback already processed (idempotency)', {
@@ -533,15 +543,56 @@ export class PaymentService {
       const callbackStatus = this.mapDuitkuStatus(payload);
       const paidAt = callbackStatus === 'COMPLETED' ? new Date() : null;
 
-      // Update transaction
-      await prisma.paymentTransaction.update({
-        where: { orderId },
-        data: {
-          status: callbackStatus,
-          paidAt,
-          callbackPayload: payload as object,
-        },
+      const durationDays = transaction.durationDays || 30;
+      const startDate = new Date();
+      const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+      // Atomically claim the pending payment and persist the entitlement. A
+      // duplicate callback, status poll, cancel request, or expiry worker can
+      // no longer pass a stale read and apply a second side effect.
+      const claimed = await prisma.$transaction(async (tx) => {
+        const claim = await tx.paymentTransaction.updateMany({
+          where: { orderId, status: 'PENDING' },
+          data: {
+            status: callbackStatus,
+            paidAt,
+            callbackPayload: payload as object,
+          },
+        });
+
+        if (claim.count !== 1) {
+          return false;
+        }
+
+        if (callbackStatus === 'COMPLETED') {
+          await tx.subscription.upsert({
+            where: { userId: transaction.userId },
+            update: {
+              tier: transaction.targetTier,
+              status: 'ACTIVE',
+              startDate,
+              endDate,
+            },
+            create: {
+              userId: transaction.userId,
+              tier: transaction.targetTier,
+              status: 'ACTIVE',
+              startDate,
+              endDate,
+            },
+          });
+          await tx.user.update({
+            where: { id: transaction.userId },
+            data: { subscriptionTier: transaction.targetTier },
+          });
+        }
+
+        return true;
       });
+
+      if (!claimed) {
+        return { success: true, message: 'Already processed' };
+      }
 
       // Log callback for audit
       await auditLog(
@@ -558,7 +609,15 @@ export class PaymentService {
 
       // If successful, activate subscription
       if (callbackStatus === 'COMPLETED') {
-        await this.activateSubscription(transaction.userId, transaction.targetTier, orderId, transaction.amount);
+        // Persistence already happened in the transaction above. Run only
+        // notification/audit side effects after commit.
+        await this.activateSubscription(
+          transaction.userId,
+          transaction.targetTier,
+          orderId,
+          transaction.amount,
+          false
+        );
       }
 
       logger.info('Payment callback processed', {
@@ -632,7 +691,8 @@ export class PaymentService {
     userId: string,
     targetTier: SubscriptionTier,
     orderId: string,
-    amount?: number
+    amount?: number,
+    persistSubscription: boolean = true
   ): Promise<void> {
     try {
       // Get transaction to read durationDays
@@ -653,29 +713,31 @@ export class PaymentService {
         select: { email: true, name: true },
       });
 
-      // Upsert subscription
-      await prisma.subscription.upsert({
-        where: { userId },
-        update: {
-          tier: targetTier,
-          status: 'ACTIVE',
-          startDate,
-          endDate,
-        },
-        create: {
-          userId,
-          tier: targetTier,
-          status: 'ACTIVE',
-          startDate,
-          endDate,
-        },
-      });
+      if (persistSubscription) {
+        await prisma.$transaction(async (tx) => {
+          await tx.subscription.upsert({
+            where: { userId },
+            update: {
+              tier: targetTier,
+              status: 'ACTIVE',
+              startDate,
+              endDate,
+            },
+            create: {
+              userId,
+              tier: targetTier,
+              status: 'ACTIVE',
+              startDate,
+              endDate,
+            },
+          });
 
-      // Also update user's subscriptionTier field for quick access
-      await prisma.user.update({
-        where: { id: userId },
-        data: { subscriptionTier: targetTier },
-      });
+          await tx.user.update({
+            where: { id: userId },
+            data: { subscriptionTier: targetTier },
+          });
+        });
+      }
 
       // Calculate duration label for audit log and email
       const durationLabel = this.getDurationLabel(durationDays);

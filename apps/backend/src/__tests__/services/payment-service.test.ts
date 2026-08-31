@@ -16,6 +16,7 @@ vi.mock('../../utils/auditLog.js', () => ({
 
 vi.mock('../../utils/database.js', () => ({
   prisma: {
+    $transaction: vi.fn(),
     user: {
       findUnique: vi.fn(),
       update: vi.fn(),
@@ -23,6 +24,7 @@ vi.mock('../../utils/database.js', () => ({
     paymentTransaction: {
       create: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
       findUnique: vi.fn(),
       findFirst: vi.fn(),
       findMany: vi.fn(),
@@ -145,6 +147,8 @@ describe('PaymentService', () => {
     vi.mocked(adminSubscriptionPlansService.getPlanPricing).mockResolvedValue(mockPlanPricing);
     // Fallback source: duitku settings
     vi.mocked(adminSettingsService.getDecryptedSettings).mockResolvedValue(mockDuitkuSettings);
+    vi.mocked(prisma.$transaction).mockImplementation(async (callback: any) => callback(prisma));
+    vi.mocked(prisma.paymentTransaction.updateMany).mockResolvedValue({ count: 1 });
   });
 
   afterEach(() => {
@@ -380,7 +384,7 @@ describe('PaymentService', () => {
       reference: 'REF123',
       paymentCode: 'QRIS',
       resultCode: '00',
-      amount: { value: '99000', currency: 'IDR' },
+      amount: '99000',
       responseCode: '2004700',
       additionalInfo: { transactionStatus: '00' },
     } as any;
@@ -391,6 +395,7 @@ describe('PaymentService', () => {
         id: 'tx-123',
         orderId: 'KC-TEST-123',
         userId: 'user-123',
+        amount: 99000,
         status: 'PENDING',
         targetTier: 'LITE',
         user: mockUser,
@@ -404,6 +409,54 @@ describe('PaymentService', () => {
 
       expect(result.success).toBe(true);
       expect(prisma.subscription.upsert).toHaveBeenCalled();
+    });
+
+    it('rejects a callback whose amount does not match the transaction', async () => {
+      vi.mocked(duitkuService.validateCallbackSignature).mockReturnValue(true);
+      vi.mocked(prisma.paymentTransaction.findUnique).mockResolvedValue({
+        id: 'tx-123',
+        orderId: 'KC-TEST-123',
+        userId: 'user-123',
+        amount: 99000,
+        status: 'PENDING',
+        targetTier: 'LITE',
+        user: mockUser,
+      } as any);
+
+      const service = new PaymentService();
+      const result = await service.processCallback(
+        { ...mockPayload, amount: '1' },
+        'valid-sig',
+        '2024-01-15T10:00:00Z'
+      );
+
+      expect(result).toEqual({ success: false, message: 'Amount mismatch' });
+      expect(prisma.paymentTransaction.update).not.toHaveBeenCalled();
+      expect(prisma.subscription.upsert).not.toHaveBeenCalled();
+    });
+
+    it('claims a pending payment atomically before activating the subscription', async () => {
+      vi.mocked(duitkuService.validateCallbackSignature).mockReturnValue(true);
+      vi.mocked(prisma.paymentTransaction.findUnique).mockResolvedValue({
+        id: 'tx-123',
+        orderId: 'KC-TEST-123',
+        userId: 'user-123',
+        amount: 99000,
+        durationDays: 30,
+        status: 'PENDING',
+        targetTier: 'LITE',
+        user: mockUser,
+      } as any);
+      vi.mocked(prisma.paymentTransaction.updateMany).mockResolvedValue({ count: 0 });
+
+      const service = new PaymentService();
+      const result = await service.processCallback(mockPayload, 'valid-sig', '2024-01-15T10:00:00Z');
+
+      expect(prisma.paymentTransaction.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: { orderId: 'KC-TEST-123', status: 'PENDING' },
+      }));
+      expect(result).toEqual({ success: true, message: 'Already processed' });
+      expect(prisma.subscription.upsert).not.toHaveBeenCalled();
     });
 
     it('should reject invalid signature', async () => {
@@ -421,6 +474,7 @@ describe('PaymentService', () => {
       vi.mocked(prisma.paymentTransaction.findUnique).mockResolvedValue({
         id: 'tx-123',
         orderId: 'KC-TEST-123',
+        amount: 99000,
         status: 'COMPLETED', // Already processed
         user: mockUser,
       } as any);

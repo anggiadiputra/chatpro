@@ -77,6 +77,10 @@ export function UserAuthForm({
       const result = await authClient.signIn.email({
         email: data.email,
         password: data.password,
+      }, {
+        headers: {
+          "X-Turnstile-Token": turnstileToken,
+        },
       })
 
       if (result.error) {

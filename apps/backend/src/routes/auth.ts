@@ -2,10 +2,12 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { SignJWT } from 'jose'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { prisma } from '../utils/database.js'
 import { auditLog } from '../utils/auditLog.js'
 import { otpService } from '../services/otp-service.js'
 import { emailService } from '../services/email/EmailService.js'
+import { turnstileService } from '../services/turnstile-service.js'
 import { sanitizeEmail, sanitizeIP, sanitizeName } from '../utils/sanitize.js'
 import type { Context } from 'hono'
 
@@ -84,6 +86,20 @@ function getClientIP(c: Context): string {
   return sanitizeIP(forwarded || realIP || 'unknown')
 }
 
+async function enforceTurnstile(c: Context): Promise<Response | null> {
+  if (!await turnstileService.isEnabled()) return null
+
+  const token = c.req.header('x-turnstile-token') || ''
+  if (await turnstileService.verify(token, getClientIP(c))) return null
+
+  return c.json({
+    error: {
+      code: 'TurnstileVerificationFailed',
+      message: 'Security verification failed'
+    }
+  }, 403)
+}
+
 // Helper to get the JWT signing secret.
 // Fails fast instead of falling back to a hardcoded secret: signing tokens with
 // a known default would let anyone forge valid JWTs if the env var is missing.
@@ -95,6 +111,49 @@ function getJwtSecret(): Uint8Array {
     )
   }
   return new TextEncoder().encode(secret)
+}
+
+function decodeBase32Secret(secret: string): Buffer {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
+  const normalized = secret.toUpperCase().replace(/=+$/g, '').replace(/\s+/g, '')
+  let bits = ''
+
+  for (const char of normalized) {
+    const value = alphabet.indexOf(char)
+    if (value < 0) throw new Error('Invalid TOTP secret')
+    bits += value.toString(2).padStart(5, '0')
+  }
+
+  const bytes: number[] = []
+  for (let index = 0; index + 8 <= bits.length; index += 8) {
+    bytes.push(parseInt(bits.slice(index, index + 8), 2))
+  }
+  return Buffer.from(bytes)
+}
+
+function verifyTOTP(secret: string, token: string, now: number = Date.now()): boolean {
+  if (!/^\d{6}$/.test(token)) return false
+
+  let key: Buffer
+  try {
+    key = decodeBase32Secret(secret)
+  } catch {
+    return false
+  }
+
+  const currentCounter = Math.floor(now / 30_000)
+  for (let offset = -1; offset <= 1; offset++) {
+    const counter = Buffer.alloc(8)
+    counter.writeBigUInt64BE(BigInt(currentCounter + offset))
+    const digest = createHmac('sha1', key).update(counter).digest()
+    const position = digest[digest.length - 1] & 0x0f
+    const value = (digest.readUInt32BE(position) & 0x7fffffff) % 1_000_000
+    const expected = Buffer.from(value.toString().padStart(6, '0'))
+    const provided = Buffer.from(token)
+    if (timingSafeEqual(expected, provided)) return true
+  }
+
+  return false
 }
 
 // Helper function to generate JWT
@@ -115,6 +174,9 @@ async function generateJWT(userId: string, email: string, role: string) {
 // POST /api/v1/auth/login
 app.post('/login', async (c: Context) => {
   try {
+    const turnstileFailure = await enforceTurnstile(c)
+    if (turnstileFailure) return turnstileFailure
+
     const body = await c.req.json()
     const { email, password, twoFactorToken } = loginSchema.parse(body)
     
@@ -175,16 +237,14 @@ app.post('/login', async (c: Context) => {
         }, 401)
       }
       
-      // TODO: Implement TOTP verification
-      // const isValid2FA = await verifyTOTP(user.twoFactorSecret!, twoFactorToken)
-      // if (!isValid2FA) {
-      //   return c.json({
-      //     error: {
-      //       code: 'Invalid2FA',
-      //       message: 'Invalid 2FA token'
-      //     }
-      //   }, 401)
-      // }
+      if (!user.twoFactorSecret || !verifyTOTP(user.twoFactorSecret, twoFactorToken)) {
+        return c.json({
+          error: {
+            code: 'Invalid2FA',
+            message: 'Invalid 2FA token'
+          }
+        }, 401)
+      }
     }
     
     // Generate JWT
@@ -252,6 +312,9 @@ app.post('/login', async (c: Context) => {
 // POST /api/v1/auth/register
 app.post('/register', async (c: Context) => {
   try {
+    const turnstileFailure = await enforceTurnstile(c)
+    if (turnstileFailure) return turnstileFailure
+
     const body = await c.req.json()
     const { email, password, name, role } = registerSchema.parse(body)
 
@@ -339,6 +402,9 @@ app.post('/register', async (c: Context) => {
 // POST /api/v1/auth/register/initiate - Initiate OTP registration
 app.post('/register/initiate', async (c: Context) => {
   try {
+    const turnstileFailure = await enforceTurnstile(c)
+    if (turnstileFailure) return turnstileFailure
+
     const body = await c.req.json()
     const { email, password, name } = initiateRegistrationSchema.parse(body)
     const normalizedEmail = sanitizeEmail(email) || email.toLowerCase()

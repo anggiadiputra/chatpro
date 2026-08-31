@@ -155,6 +155,23 @@ export class WebhookService {
       if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
         throw new Error('Webhook URL must use HTTP or HTTPS protocol');
       }
+
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const isPrivate =
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '::1' ||
+        hostname === '0.0.0.0' ||
+        hostname.endsWith('.localhost') ||
+        hostname.endsWith('.local') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('192.168.') ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
+        hostname.startsWith('169.254.');
+
+      if (isPrivate && process.env.ALLOW_PRIVATE_WEBHOOKS !== 'true') {
+        throw new Error('Webhook URL cannot target loopback or private network addresses');
+      }
     } catch (error) {
       if (error instanceof TypeError) {
         throw new Error('Invalid URL format');

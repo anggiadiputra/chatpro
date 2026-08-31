@@ -412,6 +412,10 @@ export class DuitkuService {
 
       // Legacy callback format
       if (payload.merchantCode && payload.merchantOrderId && payload.amount) {
+        if (payload.merchantCode !== config.merchantCode || !payload.signature) {
+          return false;
+        }
+
         const expectedSignature = this.generateCallbackSignature(
           payload.merchantCode,
           payload.amount,
@@ -419,15 +423,21 @@ export class DuitkuService {
           config.apiKey
         );
 
-        if (payload.signature?.toLowerCase() === expectedSignature.toLowerCase()) {
+        const provided = Buffer.from(payload.signature.toLowerCase());
+        const expected = Buffer.from(expectedSignature.toLowerCase());
+        if (provided.length === expected.length && crypto.timingSafeEqual(provided, expected)) {
           return true;
         }
       }
 
-      // SNAP format compatibility
+      // SNAP callbacks require their own asymmetric signature verification.
+      // Until that verifier is configured, fail closed instead of trusting
+      // attacker-controlled structure such as partnerReferenceNo.
       if (payload.partnerReferenceNo) {
-        // For SNAP format, we trust the callback if it has valid structure
-        return true;
+        logger.warn('Unsigned SNAP callback rejected', {
+          orderId: payload.partnerReferenceNo,
+        });
+        return false;
       }
 
       logger.warn('Duitku callback signature validation failed', {

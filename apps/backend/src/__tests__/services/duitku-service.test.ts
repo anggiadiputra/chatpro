@@ -123,6 +123,22 @@ describe('DuitkuService', () => {
       expect(isValid).toBe(false);
     });
 
+    it('should reject an unsigned SNAP-shaped callback', async () => {
+      const service = new DuitkuService();
+      await service.getConfig();
+
+      const payload = {
+        merchantCode: mockConfig.merchantCode,
+        merchantOrderId: 'ORDER123',
+        partnerReferenceNo: 'ORDER123',
+        amount: '100000',
+        responseCode: '2004700',
+        signature: '',
+      };
+
+      expect(service.validateCallbackSignature(payload as never)).toBe(false);
+    });
+
     it('should return false when config is not loaded', () => {
       const service = new DuitkuService();
 

@@ -4,7 +4,7 @@ import { requireRole } from '../middleware/auth.js'
 import { writeFile, mkdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import path from 'path'
-import { validateFileType, MAX_FILE_SIZE } from '../utils/validation.js'
+import { getSafeExtension, hasValidMagicBytes, validateFileType, MAX_FILE_SIZE } from '../utils/validation.js'
 import { getWhatsAppClientAsync } from '../utils/whatsapp.js'
 
 const app = new Hono()
@@ -47,6 +47,18 @@ app.post('/upload', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (c:
       }, 400)
     }
 
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const safeExtension = getSafeExtension(mimeType)
+    if (!safeExtension || !hasValidMagicBytes(buffer, mimeType)) {
+      return c.json({
+        error: {
+          code: 'BadRequest',
+          message: 'File contents do not match the declared file type'
+        }
+      }, 400)
+    }
+
     // Create uploads directory if not exists
     const uploadsDir = path.join(process.cwd(), 'uploads')
     if (!existsSync(uploadsDir)) {
@@ -56,13 +68,10 @@ app.post('/upload', requireRole(['ADMIN', 'BUSINESS_OWNER', 'AGENT']), async (c:
     // Generate unique filename
     const timestamp = Date.now()
     const randomStr = Math.random().toString(36).substring(7)
-    const ext = path.extname(file.name)
-    const filename = `${timestamp}-${randomStr}${ext}`
+    const filename = `${timestamp}-${randomStr}${safeExtension}`
     const filePath = path.join(uploadsDir, filename)
 
-    // Convert File to Buffer and save locally
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    // Save the already-inspected bytes using a server-selected extension.
     await writeFile(filePath, buffer)
 
     // Generate public URL (using Cloudflare Tunnel URL)
