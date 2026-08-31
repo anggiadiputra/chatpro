@@ -12,9 +12,9 @@ Panduan komprehensif untuk mendeploy frontend **Whoops Next.js** di VPS berbasis
 | **Domain Backend API** | `https://api.whoops.web.id` |
 | **Domain Utama (Sales Page)** | `https://whoops.web.id` |
 | **Frontend App Port** | `3000` |
-| **User CloudPanel** | `whoops-dash` *(atau sesuaikan user site Anda)* |
-| **Path Domain Web** | `/home/whoops-dash/htdocs/dash.whoops.web.id` |
-| **Path Git Repository** | `/home/whoops-dash/htdocs/support` |
+| **User CloudPanel** | `whoops-app` |
+| **Path Domain Web** | `/home/whoops-app/htdocs/dash.whoops.web.id` |
+| **Path Git Repository** | `/home/whoops-app/htdocs/support` |
 | **Framework** | **Next.js 16 (App Router)** |
 | **Node.js Version** | **v22.x (LTS)** *(Wajib untuk pnpm v10+)* |
 | **Package Manager** | `pnpm` |
@@ -51,7 +51,7 @@ git config --global --add safe.directory '*'
    - **Domain**: `dash.whoops.web.id`
    - **Node.js Version**: `v22.x`
    - **App Port**: `3000`
-   - **Site User**: `whoops-dash`
+   - **Site User**: `whoops-app`
 3. Pasang **SSL (Let's Encrypt)**:
    - Masuk ke tab **SSL/TLS** pada site `dash.whoops.web.id` ➡️ klik **New Let's Encrypt Certificate**.
 4. Konfigurasi **Vhost Nginx** (Tab **Vhost**):
@@ -84,10 +84,10 @@ git config --global --add safe.directory '*'
 
 ## ⚙️ Langkah 3: Buat File `.env` Production
 
-Buat file environment di folder target domain `/home/whoops-dash/htdocs/dash.whoops.web.id/.env`:
+Buat file environment di folder target domain `/home/whoops-app/htdocs/dash.whoops.web.id/.env`:
 
 ```bash
-cat << 'EOF' > /home/whoops-dash/htdocs/dash.whoops.web.id/.env
+cat << 'EOF' > /home/whoops-app/htdocs/dash.whoops.web.id/.env
 # BACKEND API & APP URL
 NEXT_PUBLIC_API_URL="https://api.whoops.web.id"
 NEXT_PUBLIC_APP_URL="https://dash.whoops.web.id"
@@ -99,17 +99,17 @@ PORT=3000
 EOF
 
 # Kunci permission file .env agar aman
-chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env
+chmod 600 /home/whoops-app/htdocs/dash.whoops.web.id/.env
 ```
 
 ---
 
 ## 🚀 Langkah 4: Eksekusi Deploy (One-Liner Command)
 
-Jalankan satu baris perintah berikut untuk melakukan pull kode terbaru, sync file frontend, install dependencies, build Next.js production bundle, atur permissions, dan jalankan PM2:
+Jalankan perintah berikut untuk melakukan pull kode terbaru, sync frontend, copy konfigurasi `.npmrc`, install dependencies, build Next.js production bundle, atur permissions, dan restart PM2:
 
 ```bash
-cd /home/whoops-dash/htdocs/support && git pull support main || git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/whoops-dash/htdocs/dash.whoops.web.id/ && cd /home/whoops-dash/htdocs/dash.whoops.web.id && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R whoops-dash:whoops-dash /home/whoops-dash/htdocs/dash.whoops.web.id && find /home/whoops-dash/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-dash/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env && su - whoops-dash -c "cd /home/whoops-dash/htdocs/dash.whoops.web.id && pm2 restart whoops-frontend || pm2 start ecosystem.config.cjs"
+cd /home/whoops-app/htdocs/support && git pull && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/whoops-app/htdocs/dash.whoops.web.id/ && cp /home/whoops-app/htdocs/support/.npmrc /home/whoops-app/htdocs/dash.whoops.web.id/.npmrc && cd /home/whoops-app/htdocs/dash.whoops.web.id && pnpm install && pnpm build && chown -R whoops-app:whoops-app /home/whoops-app/htdocs/dash.whoops.web.id && find /home/whoops-app/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-app/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-app/htdocs/dash.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-app/htdocs/dash.whoops.web.id/.env && su - whoops-app -c "cd /home/whoops-app/htdocs/dash.whoops.web.id && pm2 restart whoops-frontend || pm2 start ecosystem.config.cjs"
 ```
 
 ---
@@ -119,54 +119,55 @@ cd /home/whoops-dash/htdocs/support && git pull support main || git pull origin 
 Jalankan perintah ini kapan saja untuk merapikan seluruh permission `dash.whoops.web.id`:
 
 ```bash
-chown -R whoops-dash:whoops-dash /home/whoops-dash/htdocs/dash.whoops.web.id && find /home/whoops-dash/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-dash/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env
+chown -R whoops-app:whoops-app /home/whoops-app/htdocs/dash.whoops.web.id && find /home/whoops-app/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-app/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-app/htdocs/dash.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-app/htdocs/dash.whoops.web.id/.env
 ```
 
 ---
 
 ## 📜 Langkah 6: Membuat Helper Script Deploy Otomatis
 
-Buat file script `deploy-frontend.sh` di folder `/home/whoops-dash/` agar update frontend di masa depan dapat dilakukan dengan 1 perintah singkat:
+Buat file script `deploy-frontend.sh` di folder `/home/whoops-app/` agar update frontend di masa depan dapat dilakukan dengan 1 perintah singkat:
 
 ```bash
-cat << 'EOF' > /home/whoops-dash/deploy-frontend.sh
+cat << 'EOF' > /home/whoops-app/deploy-frontend.sh
 #!/bin/bash
 set -e
 
 echo "🚀 [1/6] Pulling latest code from GitHub..."
-cd /home/whoops-dash/htdocs/support
-git pull support main || git pull origin main
+cd /home/whoops-app/htdocs/support
+git pull
 
 echo "📦 [2/6] Syncing frontend files to dash.whoops.web.id..."
-rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/whoops-dash/htdocs/dash.whoops.web.id/
+rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/whoops-app/htdocs/dash.whoops.web.id/
+cp /home/whoops-app/htdocs/support/.npmrc /home/whoops-app/htdocs/dash.whoops.web.id/.npmrc
 
 echo "🔨 [3/6] Installing dependencies..."
-cd /home/whoops-dash/htdocs/dash.whoops.web.id
-pnpm install --dangerously-allow-all-builds
+cd /home/whoops-app/htdocs/dash.whoops.web.id
+pnpm install
 chmod -R +x node_modules/.bin/
 
 echo "⚙️ [4/6] Building Next.js Production App..."
 pnpm build
 
 echo "🔒 [5/6] Fixing file & folder permissions..."
-chown -R whoops-dash:whoops-dash /home/whoops-dash/htdocs/dash.whoops.web.id
-find /home/whoops-dash/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} +
-find /home/whoops-dash/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} +
-chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/
-chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env 2>/dev/null || true
+chown -R whoops-app:whoops-app /home/whoops-app/htdocs/dash.whoops.web.id
+find /home/whoops-app/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} +
+find /home/whoops-app/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} +
+chmod -R +x /home/whoops-app/htdocs/dash.whoops.web.id/node_modules/.bin/
+chmod 600 /home/whoops-app/htdocs/dash.whoops.web.id/.env 2>/dev/null || true
 
 echo "🔄 [6/6] Restarting PM2 process..."
-su - whoops-dash -c "cd /home/whoops-dash/htdocs/dash.whoops.web.id && pm2 restart whoops-frontend || pm2 start ecosystem.config.cjs"
+su - whoops-app -c "cd /home/whoops-app/htdocs/dash.whoops.web.id && pm2 restart whoops-frontend || pm2 start ecosystem.config.cjs"
 
 echo "✅ Frontend Deployment Finished Successfully!"
 EOF
 
-chmod +x /home/whoops-dash/deploy-frontend.sh
+chmod +x /home/whoops-app/deploy-frontend.sh
 ```
 
 **Setiap kali Anda ingin deploy update frontend terbaru, cukup jalankan:**
 ```bash
-/home/whoops-dash/deploy-frontend.sh
+/home/whoops-app/deploy-frontend.sh
 ```
 
 ---
@@ -176,10 +177,10 @@ chmod +x /home/whoops-dash/deploy-frontend.sh
 ### 7.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses frontend
-su - whoops-dash -c "pm2 status"
+su - whoops-app -c "pm2 status"
 
 # Cek 30 baris log terakhir
-su - whoops-dash -c "pm2 logs whoops-frontend --lines 30 --nostream"
+su - whoops-app -c "pm2 logs whoops-frontend --lines 30 --nostream"
 ```
 
 ### 7.2 Tes Akses Domain
@@ -194,7 +195,7 @@ curl -I https://dash.whoops.web.id
 
 ### 7.3 Simpan PM2 Startup (Auto-start saat reboot server)
 ```bash
-su - whoops-dash -c "pm2 save"
+su - whoops-app -c "pm2 save"
 pm2 startup
 ```
 
@@ -208,5 +209,5 @@ pm2 startup
 | `NEXT_PUBLIC_* tidak terbaca / API mengarah ke localhost` | `.env` belum dibuat sebelum build, atau Next.js belum di-build ulang | Pastikan `.env` terisi benar, lalu jalankan `pnpm build` dan restart PM2 |
 | `EADDRINUSE: port 3000 already in use` | Ada proses lain yang menduduki port 3000 | Cek proses dengan `lsof -i :3000` atau `fuser -k 3000/tcp` lalu restart PM2 |
 | `JavaScript heap out of memory saat build` | RAM VPS terbatas (< 2GB) saat compile Next.js | Tambahkan swap RAM di VPS: `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile` |
-| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/` |
+| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/whoops-app/htdocs/dash.whoops.web.id/node_modules/.bin/` |
 | `Permission denied / EACCES` | Kepemilikan file belum disesuaikan | Jalankan langkah 5 (Standarisasi Permission File & Folder) |
