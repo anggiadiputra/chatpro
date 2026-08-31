@@ -178,25 +178,15 @@ chmod 600 /home/whoops-app/htdocs/api.whoops.web.id/.env
 
 ## 🚀 Langkah 5: Eksekusi Deploy (One-Liner Command)
 
-Jalankan perintah berikut untuk melakukan pull kode, sync backend, copy konfigurasi `.npmrc`, install dependencies, generate Prisma, build, dan restart PM2:
+Jalankan perintah berikut untuk deploy backend:
 
 ```bash
-cd /home/whoops-app/htdocs/support && git pull && rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' --exclude='uploads' ./apps/backend/ /home/whoops-app/htdocs/api.whoops.web.id/ && cp /home/whoops-app/htdocs/support/.npmrc /home/whoops-app/htdocs/api.whoops.web.id/.npmrc && cd /home/whoops-app/htdocs/api.whoops.web.id && pnpm install && npx prisma generate && pnpm build && chown -R whoops-app:whoops-app /home/whoops-app/htdocs/api.whoops.web.id && find /home/whoops-app/htdocs/api.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-app/htdocs/api.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-app/htdocs/api.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-app/htdocs/api.whoops.web.id/.env && su - whoops-app -c "cd /home/whoops-app/htdocs/api.whoops.web.id && pm2 restart whoops-backend || pm2 start ecosystem.config.cjs"
+cd /home/whoops-app/htdocs/support && git pull && rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' --exclude='uploads' ./apps/backend/ /home/whoops-app/htdocs/api.whoops.web.id/ && cd /home/whoops-app/htdocs/api.whoops.web.id && pnpm install && pnpm build && chown -R whoops-app:whoops-app /home/whoops-app/htdocs/ && su - whoops-app -c "cd /home/whoops-app/htdocs/api.whoops.web.id && pm2 restart whoops-backend"
 ```
 
 ---
 
-## 🔒 Langkah 6: Standarisasi Permission File & Folder
-
-Jalankan perintah ini kapan saja untuk merapikan seluruh permission `api.whoops.web.id`:
-
-```bash
-chown -R whoops-app:whoops-app /home/whoops-app/htdocs/api.whoops.web.id && find /home/whoops-app/htdocs/api.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-app/htdocs/api.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-app/htdocs/api.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-app/htdocs/api.whoops.web.id/.env
-```
-
----
-
-## 📜 Langkah 7: Membuat Helper Script Deploy Otomatis
+## 📜 Langkah 6: Membuat Helper Script Deploy Otomatis
 
 Agar tidak perlu mengetik perintah panjang di masa depan, buat file script `deploy-backend.sh` di `/home/whoops-app/`:
 
@@ -205,34 +195,23 @@ cat << 'EOF' > /home/whoops-app/deploy-backend.sh
 #!/bin/bash
 set -e
 
-echo "🚀 [1/7] Pulling latest code from GitHub..."
+echo "🚀 [1/5] Pulling latest code from GitHub..."
 cd /home/whoops-app/htdocs/support
 git pull
 
-echo "📦 [2/7] Syncing backend files to api.whoops.web.id..."
+echo "📦 [2/5] Syncing backend files to api.whoops.web.id..."
 rsync -av --delete --exclude='.env' --exclude='node_modules' --exclude='dist' --exclude='logs' --exclude='uploads' ./apps/backend/ /home/whoops-app/htdocs/api.whoops.web.id/
-cp /home/whoops-app/htdocs/support/.npmrc /home/whoops-app/htdocs/api.whoops.web.id/.npmrc
 
-echo "🔨 [3/7] Installing dependencies..."
+echo "🔨 [3/5] Installing dependencies..."
 cd /home/whoops-app/htdocs/api.whoops.web.id
 pnpm install
-chmod -R +x node_modules/.bin/
 
-echo "🧬 [4/7] Generating Prisma Client..."
-npx prisma generate
-
-echo "⚙️ [5/7] Building TypeScript project..."
+echo "⚙️ [4/5] Building TypeScript project..."
 pnpm build
 
-echo "🔒 [6/7] Fixing file & folder permissions..."
-chown -R whoops-app:whoops-app /home/whoops-app/htdocs/api.whoops.web.id
-find /home/whoops-app/htdocs/api.whoops.web.id -type d -exec chmod 755 {} +
-find /home/whoops-app/htdocs/api.whoops.web.id -type f -exec chmod 644 {} +
-chmod -R +x /home/whoops-app/htdocs/api.whoops.web.id/node_modules/.bin/
-chmod 600 /home/whoops-app/htdocs/api.whoops.web.id/.env 2>/dev/null || true
-
-echo "🔄 [7/7] Restarting PM2 process..."
-su - whoops-app -c "cd /home/whoops-app/htdocs/api.whoops.web.id && pm2 restart whoops-backend || pm2 start ecosystem.config.cjs"
+echo "🔒 [5/5] Fixing file permissions & restarting PM2..."
+chown -R whoops-app:whoops-app /home/whoops-app/htdocs/
+su - whoops-app -c "cd /home/whoops-app/htdocs/api.whoops.web.id && pm2 restart whoops-backend"
 
 echo "✅ Backend Deployment Finished Successfully!"
 EOF
@@ -247,9 +226,9 @@ chmod +x /home/whoops-app/deploy-backend.sh
 
 ---
 
-## 🧪 Langkah 8: Pengujian & Monitoring
+## 🧪 Langkah 7: Pengujian & Monitoring
 
-### 8.1 Cek Status dan Log PM2
+### 7.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses
 su - whoops-app -c "pm2 status"
@@ -258,7 +237,7 @@ su - whoops-app -c "pm2 status"
 su - whoops-app -c "pm2 logs whoops-backend --lines 30 --nostream"
 ```
 
-### 8.2 Tes Endpoint Healthcheck
+### 7.2 Tes Endpoint Healthcheck
 ```bash
 # Dari dalam server
 curl -I http://localhost:3005/health
@@ -268,7 +247,7 @@ curl -I https://api.whoops.web.id/health
 ```
 *Respons yang diharapkan:* `HTTP/1.1 200 OK` atau `HTTP/2 200`
 
-### 8.3 Simpan PM2 Startup
+### 7.3 Simpan PM2 Startup
 ```bash
 su - whoops-app -c "pm2 save"
 pm2 startup
@@ -285,4 +264,4 @@ pm2 startup
 | `Redis connection refused (ECONNREFUSED)` | Service Redis belum berjalan di VPS | Jalankan `systemctl restart redis-server` |
 | `EADDRINUSE: port 3005 already in use` | Ada proses lama menggantung di port 3005 | Cek dengan `lsof -i :3005` atau `fuser -k 3005/tcp` lalu restart PM2 |
 | `sh: 1: prisma: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/whoops-app/htdocs/api.whoops.web.id/node_modules/.bin/` |
-| `Permission denied / EACCES` | Kepemilikan file belum disesuaikan | Jalankan langkah 6 (Standarisasi Permission File & Folder) |
+| `Permission denied / EACCES` | Kepemilikan file belum disesuaikan | Jalankan `chown -R whoops-app:whoops-app /home/whoops-app/htdocs/` |

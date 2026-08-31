@@ -111,72 +111,37 @@ chmod 600 /home/whoops-app/htdocs/whoops.web.id/.env
 Jalankan perintah berikut di terminal server Anda (sebagai user `root`):
 
 ```bash
-cd /home/whoops-app/htdocs/support && git pull && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/whoops-app/htdocs/whoops.web.id/ && cp /home/whoops-app/htdocs/support/.npmrc /home/whoops-app/htdocs/whoops.web.id/.npmrc && cd /home/whoops-app/htdocs/whoops.web.id && pnpm install && pnpm build && chown -R whoops-app:whoops-app /home/whoops-app/htdocs/whoops.web.id && find /home/whoops-app/htdocs/whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-app/htdocs/whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-app/htdocs/whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-app/htdocs/whoops.web.id/.env && su - whoops-app -c "cd /home/whoops-app/htdocs/whoops.web.id && pm2 restart whoops-salespage || pm2 start ecosystem.config.cjs"
+cd /home/whoops-app/htdocs/support && git pull && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/whoops-app/htdocs/whoops.web.id/ && cd /home/whoops-app/htdocs/whoops.web.id && pnpm install && pnpm build && chown -R whoops-app:whoops-app /home/whoops-app/htdocs/ && su - whoops-app -c "cd /home/whoops-app/htdocs/whoops.web.id && pm2 restart whoops-salespage"
 ```
 
 ---
 
-## 🔒 Langkah 5: Standarisasi Permission File & Folder
+## 📜 Langkah 5: Membuat Helper Script Deploy Otomatis
 
-Untuk memastikan semua file dan folder memiliki permission yang tepat dan aman sesuai standar CloudPanel & Linux:
-
-```bash
-# 1. Atur kepemilikan user & group whoops-app secara menyeluruh
-chown -R whoops-app:whoops-app /home/whoops-app/htdocs/whoops.web.id
-
-# 2. Atur permission semua FOLDER menjadi 755 (drwxr-xr-x)
-find /home/whoops-app/htdocs/whoops.web.id -type d -exec chmod 755 {} +
-
-# 3. Atur permission semua FILE menjadi 644 (-rw-r--r--)
-find /home/whoops-app/htdocs/whoops.web.id -type f -exec chmod 644 {} +
-
-# 4. Beri izin execute untuk binary Next.js di node_modules
-chmod -R +x /home/whoops-app/htdocs/whoops.web.id/node_modules/.bin/
-
-# 5. Kunci file .env agar hanya bisa dibaca oleh user whoops-app (600)
-chmod 600 /home/whoops-app/htdocs/whoops.web.id/.env
-
-# 6. Atur folder logs agar bisa ditulis oleh PM2 (775)
-chmod -R 775 /home/whoops-app/htdocs/whoops.web.id/logs 2>/dev/null || true
-```
-
----
-
-## 📜 Langkah 6: Membuat Helper Script Deploy Otomatis
-
-Buat file script `deploy-salespage.sh` di folder `/home/whoops-app/` agar update sales page di masa depan dapat dilakukan dengan 1 perintah singkat (sudah otomatis merapikan permission):
+Buat file script `deploy-salespage.sh` di folder `/home/whoops-app/` agar update sales page di masa depan dapat dilakukan dengan 1 perintah singkat:
 
 ```bash
 cat << 'EOF' > /home/whoops-app/deploy-salespage.sh
 #!/bin/bash
 set -e
 
-echo "🚀 [1/6] Pulling latest code from GitHub..."
+echo "🚀 [1/5] Pulling latest code from GitHub..."
 cd /home/whoops-app/htdocs/support
 git pull
 
-echo "📦 [2/6] Syncing salespage files to whoops.web.id..."
+echo "📦 [2/5] Syncing salespage files to whoops.web.id..."
 rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/whoops-app/htdocs/whoops.web.id/
-cp /home/whoops-app/htdocs/support/.npmrc /home/whoops-app/htdocs/whoops.web.id/.npmrc
 
-echo "🔨 [3/6] Installing dependencies..."
+echo "🔨 [3/5] Installing dependencies..."
 cd /home/whoops-app/htdocs/whoops.web.id
 pnpm install
-chmod -R +x node_modules/.bin/
 
-echo "⚙️ [4/6] Building Next.js Production App..."
+echo "⚙️ [4/5] Building Next.js Production App..."
 pnpm build
 
-echo "🔒 [5/6] Fixing file & folder permissions..."
-chown -R whoops-app:whoops-app /home/whoops-app/htdocs/whoops.web.id
-find /home/whoops-app/htdocs/whoops.web.id -type d -exec chmod 755 {} +
-find /home/whoops-app/htdocs/whoops.web.id -type f -exec chmod 644 {} +
-chmod -R +x /home/whoops-app/htdocs/whoops.web.id/node_modules/.bin/
-chmod 600 /home/whoops-app/htdocs/whoops.web.id/.env 2>/dev/null || true
-chmod -R 775 /home/whoops-app/htdocs/whoops.web.id/logs 2>/dev/null || true
-
-echo "🔄 [6/6] Restarting PM2 process..."
-su - whoops-app -c "cd /home/whoops-app/htdocs/whoops.web.id && pm2 restart whoops-salespage || pm2 start ecosystem.config.cjs"
+echo "🔒 [5/5] Fixing file permissions & restarting PM2..."
+chown -R whoops-app:whoops-app /home/whoops-app/htdocs/
+su - whoops-app -c "cd /home/whoops-app/htdocs/whoops.web.id && pm2 restart whoops-salespage"
 
 echo "✅ Salespage Deployment Finished Successfully!"
 EOF
@@ -191,9 +156,9 @@ chmod +x /home/whoops-app/deploy-salespage.sh
 
 ---
 
-## 🧪 Langkah 7: Pengujian & Monitoring
+## 🧪 Langkah 6: Pengujian & Monitoring
 
-### 7.1 Cek Status dan Log PM2
+### 6.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses sales page
 su - whoops-app -c "pm2 status"
@@ -202,7 +167,7 @@ su - whoops-app -c "pm2 status"
 su - whoops-app -c "pm2 logs whoops-salespage --lines 30 --nostream"
 ```
 
-### 7.2 Tes Akses Domain
+### 6.2 Tes Akses Domain
 ```bash
 # Dari dalam server (port 3002)
 curl -I http://localhost:3002
@@ -215,7 +180,7 @@ curl -I https://whoops.web.id/aup
 ```
 *Respons yang diharapkan:* `HTTP/1.1 200 OK` atau `HTTP/2 200`
 
-### 7.3 Simpan PM2 Startup (Auto-start saat reboot server)
+### 6.3 Simpan PM2 Startup (Auto-start saat reboot server)
 ```bash
 su - whoops-app -c "pm2 save"
 pm2 startup
@@ -231,5 +196,5 @@ pm2 startup
 | `EADDRINUSE: port 3002 already in use` | Ada proses lain yang menduduki port 3002 | Cek proses dengan `lsof -i :3002` atau `fuser -k 3002/tcp` lalu restart PM2 |
 | `JavaScript heap out of memory saat build` | RAM VPS terbatas (< 2GB) saat compile Next.js | Tambahkan swap RAM di VPS: `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile` |
 | `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/whoops-app/htdocs/whoops.web.id/node_modules/.bin/` |
-| `Permission denied / EACCES` | Kepemilikan file bukan milik `whoops-app:whoops-app` | Jalankan langkah 5 (Standarisasi Permission File & Folder) |
+| `Permission denied / EACCES` | Kepemilikan file bukan milik `whoops-app:whoops-app` | Jalankan `chown -R whoops-app:whoops-app /home/whoops-app/htdocs/` |
 | `Tombol Login/Daftar mengarah ke URL lama` | Cache browser atau belum deploy kode terbaru | Bersihkan cache browser dan jalankan `/home/whoops-app/deploy-salespage.sh` |
