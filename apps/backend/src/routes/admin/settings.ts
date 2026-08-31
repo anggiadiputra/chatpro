@@ -23,18 +23,19 @@ app.use('/*', requireRole(['ADMIN']))
 app.get('/:category', async (c: Context) => {
   try {
     const category = c.req.param('category')
+    const normalizedCategory = category.trim().toLowerCase()
 
     // Validate category
-    if (!isValidCategory(category)) {
+    if (!isValidCategory(normalizedCategory)) {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
+          message: `Invalid settings category: ${normalizedCategory}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
 
-    const result = await adminSettingsService.getSettings(category as SettingCategory)
+    const result = await adminSettingsService.getSettings(normalizedCategory as SettingCategory)
 
     return c.json({
       success: true,
@@ -61,13 +62,14 @@ app.get('/:category', async (c: Context) => {
 app.put('/:category', async (c: Context) => {
   try {
     const category = c.req.param('category')
+    const normalizedCategory = category.trim().toLowerCase()
 
     // Validate category
-    if (!isValidCategory(category)) {
+    if (!isValidCategory(normalizedCategory)) {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
+          message: `Invalid settings category: ${normalizedCategory}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
@@ -100,7 +102,7 @@ app.put('/:category', async (c: Context) => {
       || 'unknown'
 
     const result = await adminSettingsService.updateSettings(
-      category as SettingCategory,
+      normalizedCategory as SettingCategory,
       body,
       adminId,
       ipAddress
@@ -130,13 +132,14 @@ app.put('/:category', async (c: Context) => {
 app.post('/:category/test', async (c: Context) => {
   try {
     const category = c.req.param('category')
+    const normalizedCategory = category.trim().toLowerCase()
 
     // Validate category
-    if (!isValidCategory(category)) {
+    if (!isValidCategory(normalizedCategory)) {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
+          message: `Invalid settings category: ${normalizedCategory}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
@@ -153,7 +156,7 @@ app.post('/:category/test', async (c: Context) => {
     }
 
     const result = await adminSettingsService.testConnection(
-      category as SettingCategory,
+      normalizedCategory as SettingCategory,
       testEmail
     )
 
@@ -181,13 +184,14 @@ app.post('/:category/test', async (c: Context) => {
 app.post('/:category/reset', async (c: Context) => {
   try {
     const category = c.req.param('category')
+    const normalizedCategory = category.trim().toLowerCase()
 
     // Validate category
-    if (!isValidCategory(category)) {
+    if (!isValidCategory(normalizedCategory)) {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
+          message: `Invalid settings category: ${normalizedCategory}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
@@ -208,7 +212,7 @@ app.post('/:category/reset', async (c: Context) => {
       || 'unknown'
 
     const result = await adminSettingsService.resetToDefault(
-      category as SettingCategory,
+      normalizedCategory as SettingCategory,
       adminId,
       ipAddress
     )

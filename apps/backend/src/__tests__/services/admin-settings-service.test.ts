@@ -59,7 +59,8 @@ describe('AdminSettingsService', () => {
     const { isValidCategory } = await import('../../types/admin-settings.js');
 
     expect(isValidCategory('turnstile')).toBe(true);
-    expect(isValidCategory('branding')).toBe(true);
+    expect(isValidCategory(' TURNSTILE ')).toBe(true);
+    expect(isValidCategory('Branding')).toBe(true);
     expect(isValidCategory('invalid')).toBe(false);
   });
 

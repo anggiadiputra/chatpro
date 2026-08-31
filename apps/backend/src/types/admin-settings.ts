@@ -253,8 +253,13 @@ export interface UpdateSettingsResult {
 /**
  * Check if a category is valid
  */
+export function normalizeSettingCategory(category: string): string {
+  return category.trim().toLowerCase();
+}
+
 export function isValidCategory(category: string): category is SettingCategory {
-  return VALID_SETTINGS_CATEGORIES.includes(category as SettingCategory);
+  const normalizedCategory = normalizeSettingCategory(category);
+  return VALID_SETTINGS_CATEGORIES.includes(normalizedCategory as SettingCategory);
 }
 
 /**

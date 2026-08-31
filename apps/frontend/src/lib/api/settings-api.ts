@@ -1,8 +1,10 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005').replace(/\/api\/v1?$/, '')
+
+const buildApiUrl = (path: string) => `${API_BASE_URL}/api/v1${path.startsWith('/') ? path : `/${path}`}`
 
 export const settingsApi = {
     async getProfile() {
-        const response = await fetch(`${API_URL}/api/v1/settings/profile`, {
+        const response = await fetch(buildApiUrl('/settings/profile'), {
             method: 'GET',
             credentials: 'include',
         })
@@ -17,7 +19,7 @@ export const settingsApi = {
     },
 
     async updateProfile(data: { name: string; email?: string }) {
-        const response = await fetch(`${API_URL}/api/v1/settings/profile`, {
+        const response = await fetch(buildApiUrl('/settings/profile'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,7 +45,7 @@ export const settingsApi = {
         newPassword: string
         confirmPassword: string
     }) {
-        const response = await fetch(`${API_URL}/api/v1/settings/password`, {
+        const response = await fetch(buildApiUrl('/settings/password'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

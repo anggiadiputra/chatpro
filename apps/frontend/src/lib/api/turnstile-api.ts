@@ -4,7 +4,9 @@
  * Public API client for fetching Turnstile settings and verifying tokens.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005').replace(/\/api\/v1?$/, '');
+
+const buildApiUrl = (path: string) => `${API_BASE_URL}/api/v1${path.startsWith('/') ? path : `/${path}`}`;
 
 export interface TurnstilePublicConfig {
   enabled: boolean;
@@ -22,7 +24,7 @@ export interface TurnstileResponse {
  */
 export async function getTurnstileConfig(): Promise<TurnstilePublicConfig> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/turnstile`, {
+    const response = await fetch(buildApiUrl('/turnstile'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
