@@ -55,6 +55,14 @@ import { prisma } from '../../utils/database.js';
 import { settingsCache } from '../../services/settings-cache.js';
 
 describe('AdminSettingsService', () => {
+  it('should accept turnstile and branding categories', async () => {
+    const { isValidCategory } = await import('../../types/admin-settings.js');
+
+    expect(isValidCategory('turnstile')).toBe(true);
+    expect(isValidCategory('branding')).toBe(true);
+    expect(isValidCategory('invalid')).toBe(false);
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     // Set up env variables for fallback

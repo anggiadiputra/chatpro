@@ -11,6 +11,16 @@
 
 export type SettingCategory = 'whatsapp' | 'instagram' | 'smtp' | 'openai' | 'duitku' | 'branding' | 'turnstile';
 
+export const VALID_SETTINGS_CATEGORIES: SettingCategory[] = [
+  'whatsapp',
+  'instagram',
+  'smtp',
+  'openai',
+  'duitku',
+  'branding',
+  'turnstile',
+];
+
 // =============================================================================
 // Category Settings Interfaces
 // =============================================================================
@@ -244,7 +254,7 @@ export interface UpdateSettingsResult {
  * Check if a category is valid
  */
 export function isValidCategory(category: string): category is SettingCategory {
-  return ['whatsapp', 'instagram', 'smtp', 'openai', 'duitku', 'branding', 'turnstile'].includes(category);
+  return VALID_SETTINGS_CATEGORIES.includes(category as SettingCategory);
 }
 
 /**

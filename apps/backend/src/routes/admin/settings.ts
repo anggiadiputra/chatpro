@@ -9,7 +9,7 @@ import { Hono } from 'hono'
 import type { Context } from 'hono'
 import { requireRole } from '../../middleware/auth.js'
 import { adminSettingsService } from '../../services/admin/settings-service.js'
-import { isValidCategory, type SettingCategory } from '../../types/admin-settings.js'
+import { VALID_SETTINGS_CATEGORIES, isValidCategory, type SettingCategory } from '../../types/admin-settings.js'
 
 const app = new Hono()
 
@@ -29,7 +29,7 @@ app.get('/:category', async (c: Context) => {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: whatsapp, instagram, smtp, openai`
+          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
@@ -67,7 +67,7 @@ app.put('/:category', async (c: Context) => {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: whatsapp, instagram, smtp, openai`
+          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
@@ -136,7 +136,7 @@ app.post('/:category/test', async (c: Context) => {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: whatsapp, instagram, smtp, openai`
+          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
@@ -187,7 +187,7 @@ app.post('/:category/reset', async (c: Context) => {
       return c.json({
         error: {
           code: 'ValidationError',
-          message: `Invalid settings category: ${category}. Valid categories: whatsapp, instagram, smtp, openai`
+          message: `Invalid settings category: ${category}. Valid categories: ${VALID_SETTINGS_CATEGORIES.join(', ')}`
         }
       }, 400)
     }
