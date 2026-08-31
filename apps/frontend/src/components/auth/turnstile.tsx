@@ -83,6 +83,17 @@ export function Turnstile({
   const id = useId()
   const containerId = `turnstile-${id.replace(/:/g, "")}`
 
+  // Keep latest callbacks in refs to avoid re-triggering render effect
+  const onVerifyRef = useRef(onVerify)
+  const onErrorRef = useRef(onError)
+  const onExpireRef = useRef(onExpire)
+
+  useEffect(() => {
+    onVerifyRef.current = onVerify
+    onErrorRef.current = onError
+    onExpireRef.current = onExpire
+  })
+
   // Load Cloudflare Turnstile script once
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -113,11 +124,11 @@ export function Turnstile({
     }
     script.onerror = (e) => {
       console.error("Failed to load Cloudflare Turnstile script:", e)
-      onError?.(e)
+      onErrorRef.current?.(e)
     }
 
     document.head.appendChild(script)
-  }, [onError])
+  }, [])
 
   // Render Turnstile widget when script and container are ready
   useEffect(() => {
@@ -138,20 +149,20 @@ export function Turnstile({
         theme,
         size,
         callback: (token: string) => {
-          onVerify(token)
+          onVerifyRef.current?.(token)
         },
         "error-callback": (err: any) => {
-          onError?.(err)
+          onErrorRef.current?.(err)
         },
         "expired-callback": () => {
-          onExpire?.()
+          onExpireRef.current?.()
         },
       })
       widgetIdRef.current = widgetId
       setIsWidgetRendered(true)
     } catch (err) {
       console.error("Error rendering Turnstile widget:", err)
-      onError?.(err)
+      onErrorRef.current?.(err)
     }
 
     return () => {
@@ -163,7 +174,7 @@ export function Turnstile({
         setIsWidgetRendered(false)
       }
     }
-  }, [isScriptLoaded, siteKey, theme, size, onVerify, onError, onExpire])
+  }, [isScriptLoaded, siteKey, theme, size])
 
   if (!siteKey) return null
 

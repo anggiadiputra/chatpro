@@ -8,12 +8,15 @@ interface TurnstileVerificationResponse {
 
 class TurnstileService {
   async isEnabled(): Promise<boolean> {
+    const configured = await adminSettingsService.getRawValue('turnstile', 'enabled')
+      .catch(() => null)
+    if (configured !== null && configured !== undefined && configured !== '') {
+      return configured === 'true'
+    }
     if (process.env.TURNSTILE_ENABLED !== undefined && process.env.TURNSTILE_ENABLED !== '') {
       return process.env.TURNSTILE_ENABLED === 'true'
     }
-    const configured = await adminSettingsService.getRawValue('turnstile', 'enabled')
-      .catch(() => undefined)
-    return configured === 'true'
+    return false
   }
 
   async verify(token: string, remoteIp?: string): Promise<boolean> {
