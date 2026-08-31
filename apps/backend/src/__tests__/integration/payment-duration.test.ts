@@ -83,7 +83,7 @@ const createTestApp = (user: { id: string; email: string } | null) => {
   // Mock auth middleware
   app.use('*', async (c, next) => {
     if (user) {
-      c.user = user;
+      (c as any).user = user;
     }
     await next();
   });
