@@ -1,6 +1,6 @@
-# 🚀 Panduan Deployment Sales Page ProChat (Next.js + CloudPanel)
+# 🚀 Panduan Deployment Sales Page Whoops (Next.js + CloudPanel)
 
-Panduan komprehensif untuk mendeploy landing page & sales page **ProChat Next.js** di VPS berbasis **CloudPanel** pada **Domain Utama (`prochat.work`)** menggunakan **PM2**.
+Panduan komprehensif untuk mendeploy landing page & sales page **Whoops Next.js** di VPS berbasis **CloudPanel** pada **Domain Utama (`whoops.web.id`)** menggunakan **PM2**.
 
 ---
 
@@ -8,17 +8,17 @@ Panduan komprehensif untuk mendeploy landing page & sales page **ProChat Next.js
 
 | Parameter | Nilai / Konfigurasi |
 | :--- | :--- |
-| **Domain Utama (Sales Page)** | `https://prochat.work` *(dan `https://www.prochat.work`)* |
-| **Domain Dashboard / App** | `https://dash.prochat.work` |
-| **Domain Backend API** | `https://api.prochat.work` |
+| **Domain Utama (Sales Page)** | `https://whoops.web.id` *(dan `https://www.whoops.web.id`)* |
+| **Domain Dashboard / App** | `https://dash.whoops.web.id` |
+| **Domain Backend API** | `https://api.whoops.web.id` |
 | **Sales Page App Port** | `3002` |
-| **User CloudPanel** | `prochat` *(atau sesuaikan user site Anda)* |
-| **Path Domain Web** | `/home/prochat/htdocs/prochat.work` |
-| **Path Git Repository** | `/home/prochat/htdocs/chatpro` |
+| **User CloudPanel** | `whoops` *(atau sesuaikan user site Anda)* |
+| **Path Domain Web** | `/home/whoops/htdocs/whoops.web.id` |
+| **Path Git Repository** | `/home/whoops/htdocs/support` |
 | **Framework** | **Next.js 16 (App Router)** |
 | **Node.js Version** | **v22.x (LTS)** *(Wajib untuk pnpm)* |
 | **Package Manager** | `pnpm` |
-| **Process Manager** | `PM2` (`prochat-salespage`) |
+| **Process Manager** | `PM2` (`whoops-salespage`) |
 
 ---
 
@@ -48,13 +48,13 @@ git config --global --add safe.directory '*'
 
 1. Buka dashboard CloudPanel (`https://IP-VPS:8443`).
 2. Masuk ke menu **Sites** ➡️ **Add Site** ➡️ **Create a Node.js Site**:
-   - **Domain**: `prochat.work`
-   - **Site User**: `prochat` *(atau user yang sudah ada)*
+   - **Domain**: `whoops.web.id`
+   - **Site User**: `whoops` *(atau user yang sudah ada)*
    - **Node.js Version**: `v22.x`
    - **App Port**: `3002`
-3. *(Opsional)* Tambahkan Domain Alias `www.prochat.work` jika diinginkan di tab **Settings** ➡️ **Domain Names**.
+3. *(Opsional)* Tambahkan Domain Alias `www.whoops.web.id` jika diinginkan di tab **Settings** ➡️ **Domain Names**.
 4. Pasang **SSL (Let's Encrypt)**:
-   - Masuk ke tab **SSL/TLS** pada site `prochat.work` ➡️ klik **New Let's Encrypt Certificate** ➡️ checklist domain dan klik **Create and Install**.
+   - Masuk ke tab **SSL/TLS** pada site `whoops.web.id` ➡️ klik **New Let's Encrypt Certificate** ➡️ checklist domain dan klik **Create and Install**.
 5. Konfigurasi **Vhost Nginx** (Tab **Vhost**):
    - Salin dan terapkan konfigurasi proxy dan caching static asset Next.js berikut:
      ```nginx
@@ -85,15 +85,15 @@ git config --global --add safe.directory '*'
 
 ## ⚙️ Langkah 3: Buat File `.env` Production
 
-Buat file environment di folder target domain `/home/prochat/htdocs/prochat.work/.env`:
+Buat file environment di folder target domain `/home/whoops/htdocs/whoops.web.id/.env`:
 
 ```bash
-cat << 'EOF' > /home/prochat/htdocs/prochat.work/.env
+cat << 'EOF' > /home/whoops/htdocs/whoops.web.id/.env
 # APP CONFIGURATION
-NEXT_PUBLIC_APP_URL="https://prochat.work"
-NEXT_PUBLIC_DASHBOARD_URL="https://dash.prochat.work"
-NEXT_PUBLIC_API_URL="https://api.prochat.work"
-NEXT_PUBLIC_APP_NAME="ProChat"
+NEXT_PUBLIC_APP_URL="https://whoops.web.id"
+NEXT_PUBLIC_DASHBOARD_URL="https://dash.whoops.web.id"
+NEXT_PUBLIC_API_URL="https://api.whoops.web.id"
+NEXT_PUBLIC_APP_NAME="Whoops"
 
 # SERVER RUNTIME
 NODE_ENV="production"
@@ -101,7 +101,7 @@ PORT=3002
 EOF
 
 # Kunci permission file .env agar aman
-chmod 600 /home/prochat/htdocs/prochat.work/.env
+chmod 600 /home/whoops/htdocs/whoops.web.id/.env
 ```
 
 ---
@@ -111,7 +111,7 @@ chmod 600 /home/prochat/htdocs/prochat.work/.env
 Jalankan satu baris perintah berikut di terminal server Anda (sebagai user `root`):
 
 ```bash
-cd /home/prochat/htdocs/chatpro && git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/prochat/htdocs/prochat.work/ && cd /home/prochat/htdocs/prochat.work && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R prochat:prochat /home/prochat/htdocs/prochat.work && find /home/prochat/htdocs/prochat.work -type d -exec chmod 755 {} + && find /home/prochat/htdocs/prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/ && chmod 600 /home/prochat/htdocs/prochat.work/.env && su - prochat -c "cd /home/prochat/htdocs/prochat.work && pm2 restart prochat-salespage || pm2 start ecosystem.config.cjs"
+cd /home/whoops/htdocs/support && git pull support main || git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/whoops/htdocs/whoops.web.id/ && cd /home/whoops/htdocs/whoops.web.id && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R whoops:whoops /home/whoops/htdocs/whoops.web.id && find /home/whoops/htdocs/whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops/htdocs/whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops/htdocs/whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops/htdocs/whoops.web.id/.env && su - whoops -c "cd /home/whoops/htdocs/whoops.web.id && pm2 restart whoops-salespage || pm2 start ecosystem.config.cjs"
 ```
 
 ---
@@ -121,45 +121,45 @@ cd /home/prochat/htdocs/chatpro && git pull origin main && rsync -av --delete --
 Untuk memastikan semua file dan folder memiliki permission yang tepat dan aman sesuai standar CloudPanel & Linux:
 
 ```bash
-# 1. Atur kepemilikan user & group prochat secara menyeluruh
-chown -R prochat:prochat /home/prochat/htdocs/prochat.work
+# 1. Atur kepemilikan user & group whoops secara menyeluruh
+chown -R whoops:whoops /home/whoops/htdocs/whoops.web.id
 
 # 2. Atur permission semua FOLDER menjadi 755 (drwxr-xr-x)
-find /home/prochat/htdocs/prochat.work -type d -exec chmod 755 {} +
+find /home/whoops/htdocs/whoops.web.id -type d -exec chmod 755 {} +
 
 # 3. Atur permission semua FILE menjadi 644 (-rw-r--r--)
-find /home/prochat/htdocs/prochat.work -type f -exec chmod 644 {} +
+find /home/whoops/htdocs/whoops.web.id -type f -exec chmod 644 {} +
 
 # 4. Beri izin execute untuk binary Next.js di node_modules
-chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/
+chmod -R +x /home/whoops/htdocs/whoops.web.id/node_modules/.bin/
 
-# 5. Kunci file .env agar hanya bisa dibaca oleh user prochat (600)
-chmod 600 /home/prochat/htdocs/prochat.work/.env
+# 5. Kunci file .env agar hanya bisa dibaca oleh user whoops (600)
+chmod 600 /home/whoops/htdocs/whoops.web.id/.env
 
 # 6. Atur folder logs agar bisa ditulis oleh PM2 (775)
-chmod -R 775 /home/prochat/htdocs/prochat.work/logs 2>/dev/null || true
+chmod -R 775 /home/whoops/htdocs/whoops.web.id/logs 2>/dev/null || true
 ```
 
 ---
 
 ## 📜 Langkah 6: Membuat Helper Script Deploy Otomatis
 
-Buat file script `deploy-salespage.sh` di folder `/home/prochat/` agar update sales page di masa depan dapat dilakukan dengan 1 perintah singkat (sudah otomatis merapikan permission):
+Buat file script `deploy-salespage.sh` di folder `/home/whoops/` agar update sales page di masa depan dapat dilakukan dengan 1 perintah singkat (sudah otomatis merapikan permission):
 
 ```bash
-cat << 'EOF' > /home/prochat/deploy-salespage.sh
+cat << 'EOF' > /home/whoops/deploy-salespage.sh
 #!/bin/bash
 set -e
 
 echo "🚀 [1/6] Pulling latest code from GitHub..."
-cd /home/prochat/htdocs/chatpro
-git pull origin main
+cd /home/whoops/htdocs/support
+git pull support main || git pull origin main
 
-echo "📦 [2/6] Syncing salespage files to prochat.work..."
-rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/prochat/htdocs/prochat.work/
+echo "📦 [2/6] Syncing salespage files to whoops.web.id..."
+rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/salespage/ /home/whoops/htdocs/whoops.web.id/
 
 echo "🔨 [3/6] Installing dependencies..."
-cd /home/prochat/htdocs/prochat.work
+cd /home/whoops/htdocs/whoops.web.id
 pnpm install --dangerously-allow-all-builds
 chmod -R +x node_modules/.bin/
 
@@ -167,25 +167,25 @@ echo "⚙️ [4/6] Building Next.js Production App..."
 pnpm build
 
 echo "🔒 [5/6] Fixing file & folder permissions..."
-chown -R prochat:prochat /home/prochat/htdocs/prochat.work
-find /home/prochat/htdocs/prochat.work -type d -exec chmod 755 {} +
-find /home/prochat/htdocs/prochat.work -type f -exec chmod 644 {} +
-chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/
-chmod 600 /home/prochat/htdocs/prochat.work/.env 2>/dev/null || true
-chmod -R 775 /home/prochat/htdocs/prochat.work/logs 2>/dev/null || true
+chown -R whoops:whoops /home/whoops/htdocs/whoops.web.id
+find /home/whoops/htdocs/whoops.web.id -type d -exec chmod 755 {} +
+find /home/whoops/htdocs/whoops.web.id -type f -exec chmod 644 {} +
+chmod -R +x /home/whoops/htdocs/whoops.web.id/node_modules/.bin/
+chmod 600 /home/whoops/htdocs/whoops.web.id/.env 2>/dev/null || true
+chmod -R 775 /home/whoops/htdocs/whoops.web.id/logs 2>/dev/null || true
 
 echo "🔄 [6/6] Restarting PM2 process..."
-su - prochat -c "cd /home/prochat/htdocs/prochat.work && pm2 restart prochat-salespage || pm2 start ecosystem.config.cjs"
+su - whoops -c "cd /home/whoops/htdocs/whoops.web.id && pm2 restart whoops-salespage || pm2 start ecosystem.config.cjs"
 
 echo "✅ Salespage Deployment Finished Successfully!"
 EOF
 
-chmod +x /home/prochat/deploy-salespage.sh
+chmod +x /home/whoops/deploy-salespage.sh
 ```
 
 **Setiap kali Anda ingin deploy update sales page terbaru, cukup jalankan:**
 ```bash
-/home/prochat/deploy-salespage.sh
+/home/whoops/deploy-salespage.sh
 ```
 
 ---
@@ -195,10 +195,10 @@ chmod +x /home/prochat/deploy-salespage.sh
 ### 7.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses sales page
-su - prochat -c "pm2 status"
+su - whoops -c "pm2 status"
 
 # Cek 30 baris log terakhir
-su - prochat -c "pm2 logs prochat-salespage --lines 30 --nostream"
+su - whoops -c "pm2 logs whoops-salespage --lines 30 --nostream"
 ```
 
 ### 7.2 Tes Akses Domain
@@ -207,16 +207,16 @@ su - prochat -c "pm2 logs prochat-salespage --lines 30 --nostream"
 curl -I http://localhost:3002
 
 # Dari publik melalui domain SSL
-curl -I https://prochat.work
-curl -I https://prochat.work/privacy-policy
-curl -I https://prochat.work/terms
-curl -I https://prochat.work/aup
+curl -I https://whoops.web.id
+curl -I https://whoops.web.id/privacy-policy
+curl -I https://whoops.web.id/terms
+curl -I https://whoops.web.id/aup
 ```
 *Respons yang diharapkan:* `HTTP/1.1 200 OK` atau `HTTP/2 200`
 
 ### 7.3 Simpan PM2 Startup (Auto-start saat reboot server)
 ```bash
-su - prochat -c "pm2 save"
+su - whoops -c "pm2 save"
 pm2 startup
 ```
 
@@ -226,9 +226,9 @@ pm2 startup
 
 | Error / Gejala | Penyebab | Solusi |
 | :--- | :--- | :--- |
-| `502 Bad Gateway` di browser | Next.js belum berjalan di port 3002 | Cek status dengan `pm2 status` dan log dengan `pm2 logs prochat-salespage` |
+| `502 Bad Gateway` di browser | Next.js belum berjalan di port 3002 | Cek status dengan `pm2 status` dan log dengan `pm2 logs whoops-salespage` |
 | `EADDRINUSE: port 3002 already in use` | Ada proses lain yang menduduki port 3002 | Cek proses dengan `lsof -i :3002` atau `fuser -k 3002/tcp` lalu restart PM2 |
 | `JavaScript heap out of memory saat build` | RAM VPS terbatas (< 2GB) saat compile Next.js | Tambahkan swap RAM di VPS: `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile` |
-| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/prochat/htdocs/prochat.work/node_modules/.bin/` |
-| `Permission denied / EACCES` | Kepemilikan file bukan milik `prochat:prochat` | Jalankan langkah 5 (Standarisasi Permission File & Folder) |
-| `Tombol Login/Daftar mengarah ke URL lama` | Cache browser atau belum deploy kode terbaru | Bersihkan cache browser dan jalankan `/home/prochat/deploy-salespage.sh` |
+| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/whoops/htdocs/whoops.web.id/node_modules/.bin/` |
+| `Permission denied / EACCES` | Kepemilikan file bukan milik `whoops:whoops` | Jalankan langkah 5 (Standarisasi Permission File & Folder) |
+| `Tombol Login/Daftar mengarah ke URL lama` | Cache browser atau belum deploy kode terbaru | Bersihkan cache browser dan jalankan `/home/whoops/deploy-salespage.sh` |

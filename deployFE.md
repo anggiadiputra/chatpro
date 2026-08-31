@@ -1,6 +1,6 @@
-# 🚀 Panduan Deployment Frontend ProChat (Next.js + CloudPanel)
+# 🚀 Panduan Deployment Frontend Whoops (Next.js + CloudPanel)
 
-Panduan komprehensif untuk mendeploy frontend **ProChat Next.js** di VPS berbasis **CloudPanel** menggunakan **PM2** dan terhubung ke backend **api.prochat.work**.
+Panduan komprehensif untuk mendeploy frontend **Whoops Next.js** di VPS berbasis **CloudPanel** menggunakan **PM2** dan terhubung ke backend **api.whoops.web.id**.
 
 ---
 
@@ -8,16 +8,17 @@ Panduan komprehensif untuk mendeploy frontend **ProChat Next.js** di VPS berbasi
 
 | Parameter | Nilai / Konfigurasi |
 | :--- | :--- |
-| **Domain Frontend** | `https://dash.prochat.work` |
-| **Domain Backend** | `https://api.prochat.work` |
+| **Domain Frontend / Dash** | `https://dash.whoops.web.id` |
+| **Domain Backend API** | `https://api.whoops.web.id` |
+| **Domain Utama (Sales Page)** | `https://whoops.web.id` |
 | **Frontend App Port** | `3000` |
-| **User CloudPanel** | `prochat-dash` |
-| **Path Domain Web** | `/home/prochat-dash/htdocs/dash.prochat.work` |
-| **Path Git Repository** | `/home/prochat-dash/htdocs/chatpro` |
-| **Framework** | **Next.js 15 (App Router)** |
+| **User CloudPanel** | `whoops-dash` *(atau sesuaikan user site Anda)* |
+| **Path Domain Web** | `/home/whoops-dash/htdocs/dash.whoops.web.id` |
+| **Path Git Repository** | `/home/whoops-dash/htdocs/support` |
+| **Framework** | **Next.js 16 (App Router)** |
 | **Node.js Version** | **v22.x (LTS)** *(Wajib untuk pnpm v10+)* |
 | **Package Manager** | `pnpm` |
-| **Process Manager** | `PM2` (`prochat-frontend`) |
+| **Process Manager** | `PM2` (`whoops-frontend`) |
 
 ---
 
@@ -47,12 +48,12 @@ git config --global --add safe.directory '*'
 
 1. Buka dashboard CloudPanel (`https://IP-VPS:8443`).
 2. Masuk ke menu **Sites** ➡️ **Add Site** ➡️ **Create a Node.js Site**:
-   - **Domain**: `dash.prochat.work`
+   - **Domain**: `dash.whoops.web.id`
    - **Node.js Version**: `v22.x`
    - **App Port**: `3000`
-   - **Site User**: `prochat-dash`
+   - **Site User**: `whoops-dash`
 3. Pasang **SSL (Let's Encrypt)**:
-   - Masuk ke tab **SSL/TLS** pada site `dash.prochat.work` ➡️ klik **New Let's Encrypt Certificate**.
+   - Masuk ke tab **SSL/TLS** pada site `dash.whoops.web.id` ➡️ klik **New Let's Encrypt Certificate**.
 4. Konfigurasi **Vhost Nginx** (Tab **Vhost**):
    - Pastikan konfigurasi proxy dan caching static asset Next.js sudah optimal:
      ```nginx
@@ -83,14 +84,14 @@ git config --global --add safe.directory '*'
 
 ## ⚙️ Langkah 3: Buat File `.env` Production
 
-Buat file environment di folder target domain `/home/prochat-dash/htdocs/dash.prochat.work/.env`:
+Buat file environment di folder target domain `/home/whoops-dash/htdocs/dash.whoops.web.id/.env`:
 
 ```bash
-cat << 'EOF' > /home/prochat-dash/htdocs/dash.prochat.work/.env
+cat << 'EOF' > /home/whoops-dash/htdocs/dash.whoops.web.id/.env
 # BACKEND API & APP URL
-NEXT_PUBLIC_API_URL="https://api.prochat.work"
-NEXT_PUBLIC_APP_URL="https://dash.prochat.work"
-NEXT_PUBLIC_APP_NAME="ProChat"
+NEXT_PUBLIC_API_URL="https://api.whoops.web.id"
+NEXT_PUBLIC_APP_URL="https://dash.whoops.web.id"
+NEXT_PUBLIC_APP_NAME="Whoops"
 
 # SERVER RUNTIME
 NODE_ENV="production"
@@ -98,7 +99,7 @@ PORT=3000
 EOF
 
 # Kunci permission file .env agar aman
-chmod 600 /home/prochat-dash/htdocs/dash.prochat.work/.env
+chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env
 ```
 
 ---
@@ -108,39 +109,39 @@ chmod 600 /home/prochat-dash/htdocs/dash.prochat.work/.env
 Jalankan satu baris perintah berikut untuk melakukan pull kode terbaru, sync file frontend, install dependencies, build Next.js production bundle, atur permissions, dan jalankan PM2:
 
 ```bash
-cd /home/prochat-dash/htdocs/chatpro && git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/prochat-dash/htdocs/dash.prochat.work/ && cd /home/prochat-dash/htdocs/dash.prochat.work && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R prochat-dash:prochat-dash /home/prochat-dash/htdocs/dash.prochat.work && find /home/prochat-dash/htdocs/dash.prochat.work -type d -exec chmod 755 {} + && find /home/prochat-dash/htdocs/dash.prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat-dash/htdocs/dash.prochat.work/node_modules/.bin/ && chmod 600 /home/prochat-dash/htdocs/dash.prochat.work/.env && su - prochat-dash -c "cd /home/prochat-dash/htdocs/dash.prochat.work && pm2 restart prochat-frontend || pm2 start ecosystem.config.cjs"
+cd /home/whoops-dash/htdocs/support && git pull support main || git pull origin main && rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/whoops-dash/htdocs/dash.whoops.web.id/ && cd /home/whoops-dash/htdocs/dash.whoops.web.id && pnpm install --dangerously-allow-all-builds && chmod -R +x node_modules/.bin/ && pnpm build && chown -R whoops-dash:whoops-dash /home/whoops-dash/htdocs/dash.whoops.web.id && find /home/whoops-dash/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-dash/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env && su - whoops-dash -c "cd /home/whoops-dash/htdocs/dash.whoops.web.id && pm2 restart whoops-frontend || pm2 start ecosystem.config.cjs"
 ```
 
 ---
 
 ## 🔒 Langkah 5: Standarisasi Permission File & Folder
 
-Jalankan perintah ini kapan saja untuk merapikan seluruh permission `dash.prochat.work`:
+Jalankan perintah ini kapan saja untuk merapikan seluruh permission `dash.whoops.web.id`:
 
 ```bash
-chown -R prochat-dash:prochat-dash /home/prochat-dash/htdocs/dash.prochat.work && find /home/prochat-dash/htdocs/dash.prochat.work -type d -exec chmod 755 {} + && find /home/prochat-dash/htdocs/dash.prochat.work -type f -exec chmod 644 {} + && chmod -R +x /home/prochat-dash/htdocs/dash.prochat.work/node_modules/.bin/ && chmod 600 /home/prochat-dash/htdocs/dash.prochat.work/.env
+chown -R whoops-dash:whoops-dash /home/whoops-dash/htdocs/dash.whoops.web.id && find /home/whoops-dash/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} + && find /home/whoops-dash/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} + && chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/ && chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env
 ```
 
 ---
 
 ## 📜 Langkah 6: Membuat Helper Script Deploy Otomatis
 
-Buat file script `deploy-frontend.sh` di folder `/home/prochat-dash/` agar update frontend di masa depan dapat dilakukan dengan 1 perintah singkat:
+Buat file script `deploy-frontend.sh` di folder `/home/whoops-dash/` agar update frontend di masa depan dapat dilakukan dengan 1 perintah singkat:
 
 ```bash
-cat << 'EOF' > /home/prochat-dash/deploy-frontend.sh
+cat << 'EOF' > /home/whoops-dash/deploy-frontend.sh
 #!/bin/bash
 set -e
 
 echo "🚀 [1/6] Pulling latest code from GitHub..."
-cd /home/prochat-dash/htdocs/chatpro
-git pull origin main
+cd /home/whoops-dash/htdocs/support
+git pull support main || git pull origin main
 
-echo "📦 [2/6] Syncing frontend files to dash.prochat.work..."
-rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/prochat-dash/htdocs/dash.prochat.work/
+echo "📦 [2/6] Syncing frontend files to dash.whoops.web.id..."
+rsync -av --delete --exclude='.env' --exclude='.env.local' --exclude='node_modules' --exclude='.next' --exclude='logs' ./apps/frontend/ /home/whoops-dash/htdocs/dash.whoops.web.id/
 
 echo "🔨 [3/6] Installing dependencies..."
-cd /home/prochat-dash/htdocs/dash.prochat.work
+cd /home/whoops-dash/htdocs/dash.whoops.web.id
 pnpm install --dangerously-allow-all-builds
 chmod -R +x node_modules/.bin/
 
@@ -148,24 +149,24 @@ echo "⚙️ [4/6] Building Next.js Production App..."
 pnpm build
 
 echo "🔒 [5/6] Fixing file & folder permissions..."
-chown -R prochat-dash:prochat-dash /home/prochat-dash/htdocs/dash.prochat.work
-find /home/prochat-dash/htdocs/dash.prochat.work -type d -exec chmod 755 {} +
-find /home/prochat-dash/htdocs/dash.prochat.work -type f -exec chmod 644 {} +
-chmod -R +x /home/prochat-dash/htdocs/dash.prochat.work/node_modules/.bin/
-chmod 600 /home/prochat-dash/htdocs/dash.prochat.work/.env 2>/dev/null || true
+chown -R whoops-dash:whoops-dash /home/whoops-dash/htdocs/dash.whoops.web.id
+find /home/whoops-dash/htdocs/dash.whoops.web.id -type d -exec chmod 755 {} +
+find /home/whoops-dash/htdocs/dash.whoops.web.id -type f -exec chmod 644 {} +
+chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/
+chmod 600 /home/whoops-dash/htdocs/dash.whoops.web.id/.env 2>/dev/null || true
 
 echo "🔄 [6/6] Restarting PM2 process..."
-su - prochat-dash -c "cd /home/prochat-dash/htdocs/dash.prochat.work && pm2 restart prochat-frontend || pm2 start ecosystem.config.cjs"
+su - whoops-dash -c "cd /home/whoops-dash/htdocs/dash.whoops.web.id && pm2 restart whoops-frontend || pm2 start ecosystem.config.cjs"
 
 echo "✅ Frontend Deployment Finished Successfully!"
 EOF
 
-chmod +x /home/prochat-dash/deploy-frontend.sh
+chmod +x /home/whoops-dash/deploy-frontend.sh
 ```
 
 **Setiap kali Anda ingin deploy update frontend terbaru, cukup jalankan:**
 ```bash
-/home/prochat-dash/deploy-frontend.sh
+/home/whoops-dash/deploy-frontend.sh
 ```
 
 ---
@@ -175,10 +176,10 @@ chmod +x /home/prochat-dash/deploy-frontend.sh
 ### 7.1 Cek Status dan Log PM2
 ```bash
 # Cek status proses frontend
-su - prochat-dash -c "pm2 status"
+su - whoops-dash -c "pm2 status"
 
 # Cek 30 baris log terakhir
-su - prochat-dash -c "pm2 logs prochat-frontend --lines 30 --nostream"
+su - whoops-dash -c "pm2 logs whoops-frontend --lines 30 --nostream"
 ```
 
 ### 7.2 Tes Akses Domain
@@ -187,13 +188,13 @@ su - prochat-dash -c "pm2 logs prochat-frontend --lines 30 --nostream"
 curl -I http://localhost:3000
 
 # Dari publik melalui domain SSL
-curl -I https://dash.prochat.work
+curl -I https://dash.whoops.web.id
 ```
 *Respons yang diharapkan:* `HTTP/1.1 200 OK` atau `HTTP/2 200`
 
 ### 7.3 Simpan PM2 Startup (Auto-start saat reboot server)
 ```bash
-su - prochat-dash -c "pm2 save"
+su - whoops-dash -c "pm2 save"
 pm2 startup
 ```
 
@@ -203,9 +204,9 @@ pm2 startup
 
 | Error / Gejala | Penyebab | Solusi |
 | :--- | :--- | :--- |
-| `502 Bad Gateway` di browser | Next.js belum berjalan di port 3000 | Cek status dengan `pm2 status` dan log dengan `pm2 logs prochat-frontend` |
+| `502 Bad Gateway` di browser | Next.js belum berjalan di port 3000 | Cek status dengan `pm2 status` dan log dengan `pm2 logs whoops-frontend` |
 | `NEXT_PUBLIC_* tidak terbaca / API mengarah ke localhost` | `.env` belum dibuat sebelum build, atau Next.js belum di-build ulang | Pastikan `.env` terisi benar, lalu jalankan `pnpm build` dan restart PM2 |
 | `EADDRINUSE: port 3000 already in use` | Ada proses lain yang menduduki port 3000 | Cek proses dengan `lsof -i :3000` atau `fuser -k 3000/tcp` lalu restart PM2 |
 | `JavaScript heap out of memory saat build` | RAM VPS terbatas (< 2GB) saat compile Next.js | Tambahkan swap RAM di VPS: `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile` |
-| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/prochat-dash/htdocs/dash.prochat.work/node_modules/.bin/` |
+| `sh: 1: next: Permission denied` | Binary di `node_modules/.bin` kehilangan flag execute | Jalankan `chmod -R +x /home/whoops-dash/htdocs/dash.whoops.web.id/node_modules/.bin/` |
 | `Permission denied / EACCES` | Kepemilikan file belum disesuaikan | Jalankan langkah 5 (Standarisasi Permission File & Folder) |
