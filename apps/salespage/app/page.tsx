@@ -138,7 +138,7 @@ export default function Home() {
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap gap-3 pt-2">
-                <a href="https://dash.prochat.work/en/register" className="btn-candy">
+                <a href="https://app.prochat.work/en/register" className="btn-candy">
                   Coba Sekarang
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -635,7 +635,7 @@ export default function Home() {
               </p>
             </div>
             <div>
-              <a href="https://dash.prochat.work/en/register" className="btn-candy text-lg">
+              <a href="https://app.prochat.work/en/register" className="btn-candy text-lg">
                 Coba Sekarang
                 <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1057,7 +1057,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <div className="mt-6">
-                  <a href="https://dash.prochat.work/en/register" className="block w-full py-3 px-6 text-center font-semibold rounded-full transition-all duration-300 bg-[#f1f5f9] text-[#1e293b] hover:bg-[#e2e8f0]">
+                  <a href="https://app.prochat.work/en/register" className="block w-full py-3 px-6 text-center font-semibold rounded-full transition-all duration-300 bg-[#f1f5f9] text-[#1e293b] hover:bg-[#e2e8f0]">
                     Pilih Basic
                   </a>
                 </div>
@@ -1095,7 +1095,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <div className="mt-6">
-                  <a href="https://dash.prochat.work/en/register" className="block w-full py-3 px-6 text-center font-semibold rounded-full transition-all duration-300 bg-[#f1f5f9] text-[#1e293b] hover:bg-[#e2e8f0]">
+                  <a href="https://app.prochat.work/en/register" className="block w-full py-3 px-6 text-center font-semibold rounded-full transition-all duration-300 bg-[#f1f5f9] text-[#1e293b] hover:bg-[#e2e8f0]">
                     Pilih Lite
                   </a>
                 </div>
@@ -1135,7 +1135,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <div className="mt-6">
-                  <a href="https://dash.prochat.work/en/register" className="block w-full py-3 px-6 text-center font-semibold rounded-full transition-all duration-300 bg-[#22c55e] text-white hover:bg-[#16a34a]">
+                  <a href="https://app.prochat.work/en/register" className="block w-full py-3 px-6 text-center font-semibold rounded-full transition-all duration-300 bg-[#22c55e] text-white hover:bg-[#16a34a]">
                     Pilih Pro
                   </a>
                 </div>
@@ -1287,7 +1287,7 @@ export default function Home() {
 
             {/* CTA Button */}
             <a
-              href="https://dash.prochat.work/en/register"
+              href="https://app.prochat.work/en/register"
               className="inline-flex items-center gap-3 px-8 py-4 bg-white text-[#4f46e5] font-bold text-lg rounded-full border-2 border-[#1e293b] shadow-pop hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-pop-hover active:translate-x-[2px] active:translate-y-[2px] active:shadow-pop-active transition-all duration-300"
             >
               Mulai Sekarang

@@ -100,13 +100,13 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 ml-2">
           <a
-            href="https://dash.prochat.work/en/login"
+            href="https://app.prochat.work/en/login"
             className="px-4 py-2 text-sm font-semibold text-[#1e293b] hover:text-[#22c55e] transition-colors"
           >
             Login
           </a>
           <a
-            href="https://dash.prochat.work/en/register"
+            href="https://app.prochat.work/en/register"
             className="btn-candy text-sm !py-2 !px-4"
           >
             Daftar

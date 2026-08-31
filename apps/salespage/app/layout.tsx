@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://dash.prochat.work"),
+  metadataBase: new URL("https://prochat.work"),
   title: "Pro.Chat - Omnichannel CRM WhatsApp & Instagram dalam Satu Platform",
   description:
     "Platform omnichannel CRM untuk mengelola WhatsApp Business API dan Instagram DM dalam satu dashboard. Setup cepat, support lokal Indonesia, AI chatbot 24/7.",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://dash.prochat.work/",
+    url: "https://prochat.work/",
     title: "Pro.Chat - Omnichannel CRM WhatsApp & Instagram dalam Satu Platform",
     description:
       "Platform omnichannel CRM untuk mengelola WhatsApp Business API dan Instagram DM dalam satu dashboard. Setup cepat, support lokal Indonesia, AI chatbot 24/7.",
