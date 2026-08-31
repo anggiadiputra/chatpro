@@ -183,7 +183,7 @@ export type WebSocketEvent =
 // Server configuration
 export interface WebSocketServerConfig {
   cors: {
-    origin: string[]
+    origin: string[] | string | boolean | RegExp | (string | RegExp)[] | ((origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void)
     credentials: boolean
   }
   pingTimeout: number

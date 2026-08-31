@@ -102,16 +102,45 @@ app.use('*', cors({
   origin: (origin) => {
     // Get allowed origins from environment variable or use defaults
     const corsOriginsEnv = process.env.CORS_ALLOWED_ORIGINS
-    const allowedOrigins = corsOriginsEnv
-      ? corsOriginsEnv.split(',').map(o => o.trim())
-      : [
-        'http://localhost:3000',
-        'http://localhost:3005'
-      ]
+    const frontendUrlEnv = process.env.FRONTEND_URL
+    const defaultOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3005',
+      'https://app.prochat.work',
+      'https://dash.prochat.work',
+      'https://prochat.work',
+      'https://www.prochat.work',
+      'https://api.prochat.work',
+      'https://kirim.chat',
+      'https://api.kirim.chat'
+    ]
+    const envOrigins = [
+      ...(corsOriginsEnv ? corsOriginsEnv.split(',').map(o => o.trim()) : []),
+      ...(frontendUrlEnv ? [frontendUrlEnv.trim()] : [])
+    ]
+    const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins])).filter(Boolean)
 
     // If origin is in allowed list, return it
     if (origin && allowedOrigins.includes(origin)) {
       return origin
+    }
+
+    // Check wildcard domain match (e.g. *.prochat.work or *.kirim.chat)
+    if (origin) {
+      try {
+        const url = new URL(origin)
+        if (
+          url.hostname === 'prochat.work' ||
+          url.hostname.endsWith('.prochat.work') ||
+          url.hostname === 'kirim.chat' ||
+          url.hostname.endsWith('.kirim.chat') ||
+          url.hostname === 'localhost' ||
+          url.hostname === '127.0.0.1'
+        ) {
+          return origin
+        }
+      } catch {}
     }
 
     // In development, allow any origin
@@ -119,8 +148,8 @@ app.use('*', cors({
       return origin ?? '*'
     }
 
-    // In production, reject if not in allowed list
-    return allowedOrigins[0] ?? '*'
+    // In production, return first allowed origin or origin
+    return origin && allowedOrigins.includes(origin) ? origin : (allowedOrigins[0] ?? '*')
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
