@@ -272,7 +272,7 @@ export default function TermsOfService() {
 
             <div className="grid sm:grid-cols-2 gap-4 mb-10">
               <Link
-                href="/privacy-policy"
+                href="/privacy"
                 className="group flex items-start gap-4 p-5 bg-white border-2 border-[#1e293b] rounded-2xl shadow-pop hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-pop-hover transition-all duration-200"
               >
                 <span className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-[#8b5cf6] text-white border-2 border-[#1e293b]">

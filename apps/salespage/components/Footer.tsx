@@ -105,7 +105,7 @@ export default function Footer() {
               <h3 className="text-sm font-bold uppercase tracking-wider text-white/50 mb-4">Legal</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/privacy-policy" className="text-white/80 hover:text-[#22c55e] transition-colors">
+                  <Link href="/privacy" className="text-white/80 hover:text-[#22c55e] transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
